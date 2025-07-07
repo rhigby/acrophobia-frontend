@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { io } from 'socket.io-client'
 
-const socket = io('https://acrophobia-backend-2.onrender.com', {
+const socket = io('https://your-backend-name.onrender.com', {
   transports: ['websocket'],
   secure: true
 })
@@ -21,14 +21,18 @@ export default function AcrophobiaGame() {
   const [timer, setTimer] = useState(0)
   const intervalRef = useRef(null)
   const countdownRef = useRef(null)
+  const letterIndexRef = useRef(0)
+  const latestAcronymRef = useRef('')
 
   useEffect(() => {
     socket.on('acronym', (newAcronym) => {
       clearInterval(intervalRef.current)
       setAcronym(newAcronym)
       setDisplayedLetters([])
+      letterIndexRef.current = 0
+      latestAcronymRef.current = newAcronym
       playSound()
-      revealLettersSequentially(newAcronym)
+      revealLettersSequentially()
     })
     socket.on('phase', (newPhase) => {
       setPhase(newPhase)
@@ -41,12 +45,14 @@ export default function AcrophobiaGame() {
     socket.on('round_number', setRoundNumber)
   }, [])
 
-  const revealLettersSequentially = (acro) => {
-    let index = 0
+  const revealLettersSequentially = () => {
     intervalRef.current = setInterval(() => {
       setDisplayedLetters((prev) => {
+        const index = letterIndexRef.current
+        const acro = latestAcronymRef.current
         if (index < acro.length) {
-          return [...prev, acro[index++]]
+          letterIndexRef.current++
+          return [...prev, acro[index]]
         } else {
           clearInterval(intervalRef.current)
           return prev
@@ -196,6 +202,7 @@ export default function AcrophobiaGame() {
     </div>
   )
 }
+
 
 
 
