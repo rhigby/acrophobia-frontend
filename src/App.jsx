@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
 
-const socket = io('https://acrophobia-backend-2.onrender.com', {
+const socket = io('https://your-backend-name.onrender.com', {
   transports: ['websocket'],
   secure: true
 })
@@ -16,14 +16,34 @@ export default function AcrophobiaGame() {
   const [phase, setPhase] = useState('waiting')
   const [votes, setVotes] = useState({})
   const [scores, setScores] = useState({})
+  const [displayedLetters, setDisplayedLetters] = useState([])
 
   useEffect(() => {
-    socket.on('acronym', setAcronym)
+    socket.on('acronym', (newAcronym) => {
+      setAcronym(newAcronym)
+      setDisplayedLetters([])
+      revealLetters(newAcronym)
+      playSound()
+    })
     socket.on('phase', setPhase)
     socket.on('entries', setEntries)
     socket.on('votes', setVotes)
     socket.on('scores', setScores)
   }, [])
+
+  const revealLetters = (acro) => {
+    let index = 0
+    const interval = setInterval(() => {
+      setDisplayedLetters((prev) => [...prev, acro[index]])
+      index++
+      if (index >= acro.length) clearInterval(interval)
+    }, 500)
+  }
+
+  const playSound = () => {
+    const audio = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg")
+    audio.play().catch(() => {})
+  }
 
   const joinRoom = () => {
     if (!room || !username) return
@@ -74,7 +94,13 @@ export default function AcrophobiaGame() {
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-700">Room: <span className="font-mono">{room}</span></h2>
-          <h3 className="text-2xl mt-2 text-blue-800 font-bold tracking-wide">Acronym: {acronym}</h3>
+          <div className="flex justify-center gap-2 mt-4">
+            {displayedLetters.map((letter, idx) => (
+              <div key={idx} className="w-12 h-12 bg-blue-600 text-white text-2xl font-bold rounded-md shadow flex items-center justify-center animate-flip">
+                {letter}
+              </div>
+            ))}
+          </div>
         </div>
 
         {phase === 'submit' && (
@@ -138,5 +164,6 @@ export default function AcrophobiaGame() {
     </div>
   )
 }
+
 
 
