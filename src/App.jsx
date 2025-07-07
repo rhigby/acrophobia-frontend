@@ -19,6 +19,7 @@ export default function AcrophobiaGame() {
   const [displayedLetters, setDisplayedLetters] = useState([])
   const [roundNumber, setRoundNumber] = useState(1)
   const [timer, setTimer] = useState(0)
+  const [showRoundOverlay, setShowRoundOverlay] = useState(false)
   const intervalRef = useRef(null)
   const countdownRef = useRef(null)
   const letterIndexRef = useRef(0)
@@ -42,7 +43,11 @@ export default function AcrophobiaGame() {
     socket.on('entries', setEntries)
     socket.on('votes', setVotes)
     socket.on('scores', setScores)
-    socket.on('round_number', setRoundNumber)
+    socket.on('round_number', (num) => {
+      setRoundNumber(num)
+      setShowRoundOverlay(true)
+      setTimeout(() => setShowRoundOverlay(false), 3000)
+    })
   }, [])
 
   const revealLettersSequentially = () => {
@@ -126,7 +131,12 @@ export default function AcrophobiaGame() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-6 relative">
+      {showRoundOverlay && (
+        <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <h1 className="text-white text-5xl font-bold animate-pulse">Round {roundNumber}</h1>
+        </div>
+      )}
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-700">Room: <span className="font-mono">{room}</span></h2>
@@ -202,6 +212,7 @@ export default function AcrophobiaGame() {
     </div>
   )
 }
+
 
 
 
