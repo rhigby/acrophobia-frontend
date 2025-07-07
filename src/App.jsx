@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { io } from 'socket.io-client'
 
 const socket = io('https://acrophobia-backend-2.onrender.com', {
@@ -17,13 +17,15 @@ export default function AcrophobiaGame() {
   const [votes, setVotes] = useState({})
   const [scores, setScores] = useState({})
   const [displayedLetters, setDisplayedLetters] = useState([])
+  const intervalRef = useRef(null)
 
   useEffect(() => {
     socket.on('acronym', (newAcronym) => {
+      clearInterval(intervalRef.current)
       setAcronym(newAcronym)
       setDisplayedLetters([])
-      revealLetters(newAcronym)
       playSound()
+      revealLettersSequentially(newAcronym)
     })
     socket.on('phase', setPhase)
     socket.on('entries', setEntries)
@@ -31,12 +33,17 @@ export default function AcrophobiaGame() {
     socket.on('scores', setScores)
   }, [])
 
-  const revealLetters = (acro) => {
+  const revealLettersSequentially = (acro) => {
     let index = 0
-    const interval = setInterval(() => {
-      setDisplayedLetters((prev) => [...prev, acro[index]])
-      index++
-      if (index >= acro.length) clearInterval(interval)
+    intervalRef.current = setInterval(() => {
+      setDisplayedLetters((prev) => {
+        if (index < acro.length) {
+          return [...prev, acro[index++]]
+        } else {
+          clearInterval(intervalRef.current)
+          return prev
+        }
+      })
     }, 500)
   }
 
@@ -164,6 +171,7 @@ export default function AcrophobiaGame() {
     </div>
   )
 }
+
 
 
 
