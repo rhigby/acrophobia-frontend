@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
 
-const socket = io('http://localhost:3001') // Update to your Render backend URL if needed
+const socket = io('https://your-backend-name.onrender.com', {
+  transports: ['websocket'],
+  secure: true
+})
 
 export default function AcrophobiaGame() {
   const [room, setRoom] = useState('')
