@@ -32,17 +32,26 @@ export default function AcrophobiaGame() {
       setDisplayedLetters([])
       letterIndexRef.current = 0
       latestAcronymRef.current = newAcronym
+
+      // Derive round number if backend doesn't send it
+      setRoundNumber(Math.max(1, newAcronym.length - 2))
+      setShowRoundOverlay(true)
+      setTimeout(() => setShowRoundOverlay(false), 3000)
+
       playSound()
-      revealLettersSequentially()
+      revealLettersSequentially(newAcronym)
     })
+
     socket.on('phase', (newPhase) => {
       setPhase(newPhase)
       if (newPhase === 'submit') startCountdown(60)
       else if (newPhase === 'vote') startCountdown(30)
     })
+
     socket.on('entries', setEntries)
     socket.on('votes', setVotes)
     socket.on('scores', setScores)
+
     socket.on('round_number', (num) => {
       setRoundNumber(num)
       setShowRoundOverlay(true)
@@ -50,19 +59,14 @@ export default function AcrophobiaGame() {
     })
   }, [])
 
-  const revealLettersSequentially = () => {
+  const revealLettersSequentially = (acro) => {
+    let currentIndex = 0
     intervalRef.current = setInterval(() => {
-      setDisplayedLetters((prev) => {
-        const index = letterIndexRef.current
-        const acro = latestAcronymRef.current
-        if (index < acro.length) {
-          letterIndexRef.current++
-          return [...prev, acro[index]]
-        } else {
-          clearInterval(intervalRef.current)
-          return prev
-        }
-      })
+      currentIndex++
+      setDisplayedLetters(acro.slice(0, currentIndex).split(''))
+      if (currentIndex >= acro.length) {
+        clearInterval(intervalRef.current)
+      }
     }, 500)
   }
 
@@ -212,6 +216,7 @@ export default function AcrophobiaGame() {
     </div>
   )
 }
+
 
 
 
