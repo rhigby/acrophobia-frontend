@@ -41,59 +41,104 @@ export default function AcrophobiaGame() {
     socket.emit('vote_entry', { room, username, entryId })
   }
 
+  if (!joined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-sky-100 to-blue-200 p-6">
+        <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md space-y-4">
+          <h1 className="text-3xl font-extrabold text-center text-blue-800">Join Acrophobia</h1>
+          <input
+            className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="Room Code"
+            value={room}
+            onChange={(e) => setRoom(e.target.value)}
+          />
+          <input
+            className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="Your Name"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 w-full rounded-md transition"
+            onClick={joinRoom}
+          >
+            Join Game
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      {!joined ? (
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold">Join Acrophobia</h1>
-          <input className="border p-2 w-full" placeholder="Room Code" value={room} onChange={(e) => setRoom(e.target.value)} />
-          <input className="border p-2 w-full" placeholder="Your Name" value={username} onChange={(e) => setUsername(e.target.value)} />
-          <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={joinRoom}>Join Game</button>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-700">Room: <span className="font-mono">{room}</span></h2>
+          <h3 className="text-2xl mt-2 text-blue-800 font-bold tracking-wide">Acronym: {acronym}</h3>
         </div>
-      ) : (
-        <div>
-          <h2 className="text-xl font-semibold">Room: {room}</h2>
-          <h3 className="text-lg mb-2">Acronym: <span className="font-mono text-blue-600">{acronym}</span></h3>
 
-          {phase === 'submit' && (
-            <div className="space-y-2">
-              <textarea className="border p-2 w-full" placeholder="Your acronym meaning..." value={submission} onChange={(e) => setSubmission(e.target.value)} />
-              <button className="bg-green-500 text-white px-4 py-2 rounded" onClick={submitEntry}>Submit</button>
-            </div>
-          )}
+        {phase === 'submit' && (
+          <div className="space-y-2">
+            <textarea
+              className="w-full h-24 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+              placeholder="Your funny/clever acronym explanation..."
+              value={submission}
+              onChange={(e) => setSubmission(e.target.value)}
+            />
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition"
+              onClick={submitEntry}
+            >
+              Submit
+            </button>
+          </div>
+        )}
 
-          {phase === 'vote' && (
-            <div className="space-y-2">
-              <h4 className="font-semibold mb-2">Vote:</h4>
+        {phase === 'vote' && (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-800">Vote for your favorite:</h4>
+            {entries.map((e, idx) => (
+              <button
+                key={idx}
+                className="block w-full text-left border border-gray-300 bg-white rounded-lg shadow-md p-3 hover:bg-gray-50 transition"
+                onClick={() => voteEntry(e.id)}
+              >
+                {e.text}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {phase === 'results' && (
+          <div className="space-y-4">
+            <h4 className="text-xl font-semibold text-gray-800">Round Results</h4>
+            <ul className="space-y-2">
               {entries.map((e, idx) => (
-                <button key={idx} className="block w-full border rounded p-2 hover:bg-gray-100" onClick={() => voteEntry(e.id)}>{e.text}</button>
+                <li key={idx} className="bg-white border p-4 rounded-md shadow-sm">
+                  <div className="text-gray-900 font-medium">{e.text}</div>
+                  <div className="text-sm text-gray-500">Votes: {votes[e.id] || 0}</div>
+                </li>
               ))}
-            </div>
-          )}
+            </ul>
+            <h4 className="text-lg font-bold mt-6">Scores</h4>
+            <ul className="grid grid-cols-2 gap-2">
+              {Object.entries(scores).map(([player, score]) => (
+                <li key={player} className="bg-blue-50 border p-2 rounded text-center text-blue-700 font-semibold">
+                  {player}: {score} pts
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-          {phase === 'results' && (
-            <div>
-              <h4 className="font-semibold mb-2">Results:</h4>
-              <ul className="space-y-1">
-                {entries.map((e, idx) => (
-                  <li key={idx} className="border rounded p-2">
-                    <span className="block">{e.text}</span>
-                    <span className="text-sm text-gray-600">Votes: {votes[e.id] || 0}</span>
-                  </li>
-                ))}
-              </ul>
-              <h4 className="mt-4 font-bold">Scores:</h4>
-              <ul>
-                {Object.entries(scores).map(([player, score]) => (
-                  <li key={player}>{player}: {score} pts</li>
-                ))}
-              </ul>
-            </div>
-          )}
+        {phase === 'waiting' && (
+          <p className="text-gray-600 text-center italic">Waiting for next round...</p>
+        )}
+      </div>
+    </div>
+  )
+}
 
-          {phase === 'waiting' && <p className="text-gray-600">Waiting for next round...</p>}
-        </div>
-      )}
     </div>
   )
 }
