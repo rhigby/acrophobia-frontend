@@ -17,7 +17,10 @@ export default function AcrophobiaGame() {
   const [votes, setVotes] = useState({})
   const [scores, setScores] = useState({})
   const [displayedLetters, setDisplayedLetters] = useState([])
+  const [roundNumber, setRoundNumber] = useState(1)
+  const [timer, setTimer] = useState(0)
   const intervalRef = useRef(null)
+  const countdownRef = useRef(null)
 
   useEffect(() => {
     socket.on('acronym', (newAcronym) => {
@@ -27,10 +30,15 @@ export default function AcrophobiaGame() {
       playSound()
       revealLettersSequentially(newAcronym)
     })
-    socket.on('phase', setPhase)
+    socket.on('phase', (newPhase) => {
+      setPhase(newPhase)
+      if (newPhase === 'submit') startCountdown(60)
+      else if (newPhase === 'vote') startCountdown(30)
+    })
     socket.on('entries', setEntries)
     socket.on('votes', setVotes)
     socket.on('scores', setScores)
+    socket.on('round_number', setRoundNumber)
   }, [])
 
   const revealLettersSequentially = (acro) => {
@@ -52,6 +60,20 @@ export default function AcrophobiaGame() {
     audio.play().catch(() => {})
   }
 
+  const startCountdown = (seconds) => {
+    setTimer(seconds)
+    clearInterval(countdownRef.current)
+    countdownRef.current = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownRef.current)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
   const joinRoom = () => {
     if (!room || !username) return
     socket.emit('join_room', { room, username })
@@ -59,12 +81,13 @@ export default function AcrophobiaGame() {
   }
 
   const submitEntry = () => {
-    if (!submission) return
+    if (!submission || phase !== 'submit') return
     socket.emit('submit_entry', { room, username, text: submission })
     setSubmission('')
   }
 
   const voteEntry = (entryId) => {
+    if (phase !== 'vote') return
     socket.emit('vote_entry', { room, username, entryId })
   }
 
@@ -101,6 +124,8 @@ export default function AcrophobiaGame() {
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-700">Room: <span className="font-mono">{room}</span></h2>
+          <h3 className="text-md text-gray-600">Round {roundNumber} of 5</h3>
+          <div className="text-red-500 text-lg font-bold">Time Left: {timer}s</div>
           <div className="flex justify-center gap-2 mt-4">
             {displayedLetters.map((letter, idx) => (
               <div key={idx} className="w-12 h-12 bg-blue-600 text-white text-2xl font-bold rounded-md shadow flex items-center justify-center animate-flip">
@@ -171,6 +196,7 @@ export default function AcrophobiaGame() {
     </div>
   )
 }
+
 
 
 
