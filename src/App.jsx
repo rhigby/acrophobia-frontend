@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
 
-const socket = io('https://your-backend-name.onrender.com', {
+const socket = io('https://acrophobia-backend-2.onrender.com', {
   transports: ['websocket'],
   secure: true
 })
@@ -138,4 +138,5 @@ export default function AcrophobiaGame() {
     </div>
   )
 }
+
 
