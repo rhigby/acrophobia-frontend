@@ -23,6 +23,8 @@ export default function App() {
   const [countdown, setCountdown] = useState(null);
   const [round, setRound] = useState(0);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [showSubmitFeedback, setShowSubmitFeedback] = useState(false);
 
   const inputRef = useRef();
 
@@ -30,6 +32,8 @@ export default function App() {
     socket.on("acronym", setAcronym);
     socket.on("phase", (newPhase) => {
       setPhase(newPhase);
+      setHasSubmitted(false);
+      setShowSubmitFeedback(false);
       if (newPhase === "submit") {
         setShowOverlay(true);
         setTimeout(() => setShowOverlay(false), 2000);
@@ -50,6 +54,8 @@ export default function App() {
       submitSound.play().catch(() => {});
       setSubmission("");
       inputRef.current?.blur();
+      setHasSubmitted(true);
+      setShowSubmitFeedback(true);
     });
     socket.on("room_full", () => setError("Room is full"));
 
@@ -65,7 +71,7 @@ export default function App() {
   };
 
   const submitEntry = () => {
-    if (!submission) return;
+    if (!submission || hasSubmitted) return;
     socket.emit("submit_entry", { room, username, text: submission });
   };
 
@@ -160,15 +166,18 @@ export default function App() {
               value={submission}
               onChange={(e) => setSubmission(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitEntry()}
-              disabled={entries.some((e) => e.username === username)}
+              disabled={hasSubmitted}
             />
             <button
               className="bg-green-600 text-white px-4 py-2 rounded"
               onClick={submitEntry}
-              disabled={entries.some((e) => e.username === username)}
+              disabled={hasSubmitted}
             >
               Submit
             </button>
+            {hasSubmitted && showSubmitFeedback && (
+              <p className="text-green-700 font-semibold">✅ Submission received!</p>
+            )}
           </div>
         )}
 
@@ -219,6 +228,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
