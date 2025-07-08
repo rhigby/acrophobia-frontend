@@ -64,11 +64,15 @@ export default function App() {
 
   const submitEntry = () => {
     if (!submission) return;
+    const submitSound = new Audio("/submit.mp3");
+    submitSound.play().catch(() => {});
     socket.emit("submit_entry", { room, username, text: submission });
     setSubmission("");
   };
 
   const voteEntry = (entryId) => {
+    const voteSound = new Audio("/vote.mp3");
+    voteSound.play().catch(() => {});
     socket.emit("vote_entry", { room, username, entryId });
   };
 
@@ -219,6 +223,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
