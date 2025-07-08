@@ -17,6 +17,7 @@ export default function App() {
   const [acronym, setAcronym] = useState("");
   const [entries, setEntries] = useState([]);
   const [submission, setSubmission] = useState("");
+  const [submittedText, setSubmittedText] = useState("");
   const [phase, setPhase] = useState("waiting");
   const [votes, setVotes] = useState({});
   const [scores, setScores] = useState({});
@@ -25,6 +26,7 @@ export default function App() {
   const [showOverlay, setShowOverlay] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [showSubmitFeedback, setShowSubmitFeedback] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
 
   const inputRef = useRef();
 
@@ -34,6 +36,8 @@ export default function App() {
       setPhase(newPhase);
       setHasSubmitted(false);
       setShowSubmitFeedback(false);
+      setSubmittedText("");
+      setHasVoted(false);
       if (newPhase === "submit") {
         setShowOverlay(true);
         setTimeout(() => setShowOverlay(false), 2000);
@@ -57,6 +61,11 @@ export default function App() {
       setHasSubmitted(true);
       setShowSubmitFeedback(true);
     });
+    socket.on("vote_confirmed", () => {
+      const voteSound = new Audio("/vote.mp3");
+      voteSound.play().catch(() => {});
+      setHasVoted(true);
+    });
     socket.on("room_full", () => setError("Room is full"));
 
     return () => socket.disconnect();
@@ -73,9 +82,11 @@ export default function App() {
   const submitEntry = () => {
     if (!submission || hasSubmitted) return;
     socket.emit("submit_entry", { room, username, text: submission });
+    setSubmittedText(submission);
   };
 
   const voteEntry = (entryId) => {
+    if (hasVoted) return;
     socket.emit("vote_entry", { room, username, entryId });
   };
 
@@ -176,7 +187,7 @@ export default function App() {
               Submit
             </button>
             {hasSubmitted && showSubmitFeedback && (
-              <p className="text-green-700 font-semibold">✅ Submission received!</p>
+              <p className="text-green-700 font-semibold">✅ Your entry: "{submittedText}"</p>
             )}
           </div>
         )}
@@ -189,6 +200,7 @@ export default function App() {
                 key={idx}
                 className="block w-full border rounded p-2 hover:bg-gray-100"
                 onClick={() => voteEntry(e.id)}
+                disabled={hasVoted}
               >
                 <span>{e.text}</span>
               </button>
@@ -228,6 +240,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
