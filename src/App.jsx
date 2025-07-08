@@ -1,6 +1,7 @@
 // src/App.jsx
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
+import { motion, AnimatePresence } from "framer-motion";
 
 const socket = io("https://acrophobia-backend-2.onrender.com");
 
@@ -21,10 +22,17 @@ export default function App() {
   const [scores, setScores] = useState({});
   const [countdown, setCountdown] = useState(null);
   const [round, setRound] = useState(0);
+  const [showOverlay, setShowOverlay] = useState(false);
 
   useEffect(() => {
     socket.on("acronym", setAcronym);
-    socket.on("phase", setPhase);
+    socket.on("phase", (newPhase) => {
+      setPhase(newPhase);
+      if (newPhase === "submit") {
+        setShowOverlay(true);
+        setTimeout(() => setShowOverlay(false), 2000);
+      }
+    });
     socket.on("entries", setEntries);
     socket.on("votes", setVotes);
     socket.on("scores", setScores);
@@ -99,23 +107,39 @@ export default function App() {
         </ul>
       </div>
 
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 relative">
         {countdown !== null && (
           <div className="fixed top-4 right-4 bg-black text-white px-4 py-2 rounded-full text-lg shadow-lg z-50">
             ⏳ {countdown}s
           </div>
         )}
 
+        <AnimatePresence>
+          {showOverlay && (
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 text-white text-5xl font-bold z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              Round {round}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <h2 className="text-2xl font-bold mb-2">Room: {room} — Round {round}</h2>
 
         <div className="flex justify-center mb-6">
           {acronym.split("").map((letter, i) => (
-            <div
+            <motion.div
               key={i}
-              className="w-20 h-20 mx-1 bg-blue-600 text-white text-4xl font-bold flex items-center justify-center rounded shadow-lg"
+              className="w-24 h-24 mx-1 bg-blue-600 text-white text-5xl font-bold flex items-center justify-center rounded shadow-lg"
+              initial={{ rotateY: 90, opacity: 0 }}
+              animate={{ rotateY: 0, opacity: 1 }}
+              transition={{ delay: i * 0.2 }}
             >
               {letter}
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -142,11 +166,21 @@ export default function App() {
                 className="block w-full border rounded p-2 hover:bg-gray-100"
                 onClick={() => voteEntry(e.id)}
               >
-                <div className="flex justify-between">
-                  <span className="font-bold">{e.username}</span>
-                  <span>{e.text}</span>
-                </div>
+                <span>{e.text}</span>
               </button>
+            ))}
+          </div>
+        )}
+
+        {phase === "results" && (
+          <div className="space-y-2">
+            <h4 className="font-semibold">Results:</h4>
+            {entries.map((e, idx) => (
+              <div key={idx} className="border rounded p-2 flex justify-between">
+                <span className="font-bold">{e.username}</span>
+                <span>{e.text}</span>
+                <span className="text-sm text-gray-600">Votes: {votes[e.id] || 0}</span>
+              </div>
             ))}
           </div>
         )}
@@ -170,6 +204,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
