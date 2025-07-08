@@ -23,6 +23,8 @@ export default function App() {
   const [round, setRound] = useState(0);
 
   useEffect(() => {
+    socket.on("connect", () => console.log("✅ Connected to socket server"));
+    socket.on("disconnect", () => console.log("❌ Disconnected from socket server"));
     socket.on("acronym", setAcronym);
     socket.on("phase", setPhase);
     socket.on("entries", setEntries);
