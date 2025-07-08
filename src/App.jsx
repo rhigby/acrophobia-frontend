@@ -1,16 +1,7 @@
 import { useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
 
-const socket = io('https://acrophobia-backend-2.onrender.com') // Update for deployed backend
-
-socket.on('connect', () => {
-  console.log('✅ Connected to socket server')
-})
-
-socket.on('disconnect', () => {
-  console.log('❌ Disconnected from socket server')
-})
-
+const socket = io('https://acrophobia-backend-2.onrender.com')
 
 const predefinedRooms = Array.from({ length: 10 }, (_, i) => `room${i + 1}`)
 
@@ -19,6 +10,7 @@ export default function AcrophobiaLobby() {
   const [room, setRoom] = useState(null)
   const [joined, setJoined] = useState(false)
   const [error, setError] = useState(null)
+  const [players, setPlayers] = useState([])
 
   const [acronym, setAcronym] = useState('')
   const [entries, setEntries] = useState([])
@@ -28,8 +20,13 @@ export default function AcrophobiaLobby() {
   const [scores, setScores] = useState({})
   const [countdown, setCountdown] = useState(null)
   const [round, setRound] = useState(0)
+  const [gameOver, setGameOver] = useState(false)
+  const [winner, setWinner] = useState(null)
 
   useEffect(() => {
+    socket.on('connect', () => console.log('✅ Connected to socket server'))
+    socket.on('disconnect', () => console.log('❌ Disconnected from socket server'))
+
     socket.on('acronym', setAcronym)
     socket.on('phase', setPhase)
     socket.on('entries', setEntries)
@@ -37,14 +34,22 @@ export default function AcrophobiaLobby() {
     socket.on('scores', setScores)
     socket.on('round_number', setRound)
     socket.on('countdown', setCountdown)
+    socket.on('player_joined', setPlayers)
+    socket.on('room_full', () => setError('Room is full'))
+    socket.on('invalid_room', () => setError('Invalid room'))
+    socket.on('game_over', ({ scores, winner }) => {
+      setScores(scores)
+      setWinner(winner)
+      setGameOver(true)
+    })
     socket.on('beep', () => {
       const beep = new Audio('/beep.mp3')
       beep.play().catch(err => console.error('Beep error:', err))
     })
-    socket.on('room_full', () => setError('Room is full'))
-    socket.on('invalid_room', () => setError('Invalid room'))
 
-    return () => socket.disconnect()
+    return () => {
+      socket.off()
+    }
   }, [])
 
   const joinRoom = (roomId) => {
@@ -106,6 +111,12 @@ export default function AcrophobiaLobby() {
       <h2 className="text-2xl font-semibold mb-1">Room: {room} — Round {round}</h2>
       <h3 className="text-xl mb-4">Acronym: <span className="font-mono text-blue-800">{acronym}</span></h3>
 
+      {players.length > 0 && (
+        <div className="mb-4 text-sm text-gray-700">
+          Players: {players.join(', ')}
+        </div>
+      )}
+
       {phase === 'submit' && (
         <div className="space-y-2">
           <textarea className="border p-2 w-full" placeholder="Your acronym meaning..." value={submission} onChange={(e) => setSubmission(e.target.value)} />
@@ -145,9 +156,16 @@ export default function AcrophobiaLobby() {
       )}
 
       {phase === 'waiting' && <p className="text-gray-600 italic">Waiting for next round...</p>}
+
+      {gameOver && (
+        <div className="fixed bottom-4 left-4 bg-green-700 text-white px-4 py-2 rounded shadow-lg">
+          🎉 Game Over! Winner: <strong>{winner}</strong>
+        </div>
+      )}
     </div>
   )
 }
+
 
 
 
