@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { io } from 'socket.io-client'
 
-const socket = io('http://localhost:3001') // Update as needed
+const socket = io('http://localhost:3001')
 
 export default function AcrophobiaGame() {
   const [room, setRoom] = useState('')
@@ -40,7 +40,6 @@ export default function AcrophobiaGame() {
     socket.on('votes', setVotes)
     socket.on('scores', setScores)
     socket.on('round_number', setRound)
-
     socket.on('game_over', ({ scores, winner }) => {
       setFinalScores(scores)
       setWinner(winner)
@@ -147,6 +146,7 @@ export default function AcrophobiaGame() {
     </div>
   )
 }
+
 
 
 
