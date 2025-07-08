@@ -65,6 +65,10 @@ export default function App() {
     setError(null);
   };
 
+  const startGame = () => {
+    socket.emit("start_game", { room });
+  };
+
   const submitEntry = () => {
     if (!submission) return;
     socket.emit("submit_entry", { room, username, text: submission });
@@ -117,6 +121,14 @@ export default function App() {
             </li>
           ))}
         </ul>
+        {phase === "waiting" && (
+          <button
+            className="mt-4 w-full bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded"
+            onClick={startGame}
+          >
+            Start Game
+          </button>
+        )}
       </div>
 
       <div className="flex-1 p-6 relative">
@@ -245,6 +257,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
