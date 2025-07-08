@@ -1,5 +1,4 @@
 // src/App.jsx
-
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
@@ -13,6 +12,7 @@ export default function App() {
   const [joined, setJoined] = useState(false);
   const [error, setError] = useState(null);
 
+  const [players, setPlayers] = useState([]);
   const [acronym, setAcronym] = useState("");
   const [entries, setEntries] = useState([]);
   const [submission, setSubmission] = useState("");
@@ -23,8 +23,6 @@ export default function App() {
   const [round, setRound] = useState(0);
 
   useEffect(() => {
-    socket.on("connect", () => console.log("✅ Connected to socket server"));
-    socket.on("disconnect", () => console.log("❌ Disconnected from socket server"));
     socket.on("acronym", setAcronym);
     socket.on("phase", setPhase);
     socket.on("entries", setEntries);
@@ -32,6 +30,7 @@ export default function App() {
     socket.on("scores", setScores);
     socket.on("round_number", setRound);
     socket.on("countdown", setCountdown);
+    socket.on("players", setPlayers);
     socket.on("beep", () => {
       const beep = new Audio("/beep.mp3");
       beep.play().catch(() => {});
@@ -87,89 +86,111 @@ export default function App() {
   }
 
   return (
-    <div className="p-6 max-w-2xl mx-auto min-h-screen bg-blue-50">
-      {countdown !== null && (
-        <div className="fixed top-4 right-4 bg-black text-white px-4 py-2 rounded-full text-lg z-50">
-          ⏳ {countdown}s
-        </div>
-      )}
+    <div className="flex min-h-screen bg-blue-50">
+      <div className="w-1/4 bg-white border-r p-4">
+        <h2 className="text-xl font-bold mb-2">Players</h2>
+        <ul>
+          {players.map((p) => (
+            <li key={p.username} className="mb-1">
+              {p.username}: <span className="font-semibold">{scores[p.username] || 0}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-      <h2 className="text-2xl font-bold mb-2">Room: {room} — Round {round}</h2>
-      <h3 className="text-xl mb-4">
-        Acronym: <span className="font-mono text-blue-800 text-2xl">{acronym}</span>
-      </h3>
+      <div className="flex-1 p-6">
+        {countdown !== null && (
+          <div className="fixed top-4 right-4 bg-black text-white px-4 py-2 rounded-full text-lg shadow-lg z-50">
+            ⏳ {countdown}s
+          </div>
+        )}
 
-      {phase === "submit" && (
-        <div className="space-y-2">
-          <textarea
-            className="border p-2 w-full"
-            placeholder="Enter your acronym meaning..."
-            value={submission}
-            onChange={(e) => setSubmission(e.target.value)}
-          />
-          <button className="bg-green-600 text-white px-4 py-2 rounded" onClick={submitEntry}>
-            Submit
-          </button>
-        </div>
-      )}
+        <h2 className="text-2xl font-bold mb-2">Room: {room} — Round {round}</h2>
 
-      {phase === "vote" && (
-        <div className="space-y-2">
-          <h4 className="font-semibold">Vote for your favorite:</h4>
-          {entries.map((e, idx) => (
-            <button
-              key={idx}
-              className="block w-full border rounded p-2 hover:bg-gray-100"
-              onClick={() => voteEntry(e.id)}
+        <div className="flex justify-center mb-6">
+          {acronym.split("").map((letter, i) => (
+            <div
+              key={i}
+              className="w-16 h-16 mx-1 bg-blue-600 text-white text-3xl font-bold flex items-center justify-center rounded shadow-lg"
             >
-              <div className="flex justify-between">
-                <span className="font-bold">{e.username}</span>
-                <span>{e.text}</span>
-              </div>
-            </button>
+              {letter}
+            </div>
           ))}
         </div>
-      )}
 
-      {phase === "results" && (
-        <div>
-          <h4 className="font-semibold mb-2">Results:</h4>
-          <ul className="space-y-1">
+        {phase === "submit" && (
+          <div className="space-y-2">
+            <textarea
+              className="border p-2 w-full"
+              placeholder="Enter your acronym meaning..."
+              value={submission}
+              onChange={(e) => setSubmission(e.target.value)}
+            />
+            <button className="bg-green-600 text-white px-4 py-2 rounded" onClick={submitEntry}>
+              Submit
+            </button>
+          </div>
+        )}
+
+        {phase === "vote" && (
+          <div className="space-y-2">
+            <h4 className="font-semibold">Vote for your favorite:</h4>
             {entries.map((e, idx) => (
-              <li key={idx} className="border rounded p-2 flex justify-between">
-                <span>{e.username}</span>
-                <span>{e.text}</span>
-                <span className="text-sm text-gray-600">Votes: {votes[e.id] || 0}</span>
-              </li>
+              <button
+                key={idx}
+                className="block w-full border rounded p-2 hover:bg-gray-100"
+                onClick={() => voteEntry(e.id)}
+              >
+                <div className="flex justify-between">
+                  <span className="font-bold">{e.username}</span>
+                  <span>{e.text}</span>
+                </div>
+              </button>
             ))}
-          </ul>
-          <h4 className="mt-4 font-bold">Scores:</h4>
-          <ul>
-            {Object.entries(scores).map(([player, score]) => (
-              <li key={player}>{player}: {score} pts</li>
-            ))}
-          </ul>
-        </div>
-      )}
+          </div>
+        )}
 
-      {phase === "game_over" && (
-        <div className="mt-6">
-          <h2 className="text-2xl font-bold text-green-700 mb-2">🏆 Game Over</h2>
-          <h4 className="font-bold">Final Scores:</h4>
-          <ul>
-            {Object.entries(scores)
-              .sort((a, b) => b[1] - a[1])
-              .map(([player, score]) => (
+        {phase === "results" && (
+          <div>
+            <h4 className="font-semibold mb-2">Results:</h4>
+            <ul className="space-y-1">
+              {entries.map((e, idx) => (
+                <li key={idx} className="border rounded p-2 flex justify-between">
+                  <span>{e.username}</span>
+                  <span>{e.text}</span>
+                  <span className="text-sm text-gray-600">Votes: {votes[e.id] || 0}</span>
+                </li>
+              ))}
+            </ul>
+            <h4 className="mt-4 font-bold">Scores:</h4>
+            <ul>
+              {Object.entries(scores).map(([player, score]) => (
                 <li key={player}>{player}: {score} pts</li>
               ))}
-          </ul>
-        </div>
-      )}
+            </ul>
+          </div>
+        )}
 
-      {phase === "waiting" && <p className="text-gray-600 italic">Waiting for next round...</p>}
+        {phase === "game_over" && (
+          <div className="mt-6">
+            <h2 className="text-2xl font-bold text-green-700 mb-2">🏆 Game Over</h2>
+            <h4 className="font-bold">Final Scores:</h4>
+            <ul>
+              {Object.entries(scores)
+                .sort((a, b) => b[1] - a[1])
+                .map(([player, score]) => (
+                  <li key={player}>{player}: {score} pts</li>
+                ))}
+            </ul>
+          </div>
+        )}
+
+        {phase === "waiting" && <p className="text-gray-600 italic">Waiting for next round...</p>}
+      </div>
     </div>
   );
 }
+
 
 
 
