@@ -17,6 +17,7 @@ export default function App() {
   const [acronym, setAcronym] = useState("");
   const [entries, setEntries] = useState([]);
   const [submission, setSubmission] = useState("");
+  const [submittedText, setSubmittedText] = useState("");
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [phase, setPhase] = useState("waiting");
   const [votes, setVotes] = useState({});
@@ -25,6 +26,7 @@ export default function App() {
   const [round, setRound] = useState(0);
   const [showOverlay, setShowOverlay] = useState(false);
   const [voteConfirmed, setVoteConfirmed] = useState(false);
+  const [votedEntryId, setVotedEntryId] = useState(null);
 
   useEffect(() => {
     socket.on("acronym", setAcronym);
@@ -32,9 +34,11 @@ export default function App() {
       setPhase(newPhase);
       if (newPhase === "submit") {
         setHasSubmitted(false);
+        setSubmittedText("");
         setVoteConfirmed(false);
+        setVotedEntryId(null);
         setShowOverlay(true);
-        setTimeout(() => setShowOverlay(false), 2000);
+        setTimeout(() => setShowOverlay(false), 1000);
       }
     });
     socket.on("entries", setEntries);
@@ -67,14 +71,18 @@ export default function App() {
     const submitSound = new Audio("/submit.mp3");
     submitSound.play().catch(() => {});
     socket.emit("submit_entry", { room, username, text: submission });
+    setSubmittedText(submission);
     setSubmission("");
   };
 
   const voteEntry = (entryId) => {
-    const voteSound = new Audio("/vote.mp3");
+    const voteSound = new Audio("/submit.mp3");
     voteSound.play().catch(() => {});
     socket.emit("vote_entry", { room, username, entryId });
+    setVotedEntryId(entryId);
   };
+
+  const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
 
   if (!joined) {
     return (
@@ -108,7 +116,7 @@ export default function App() {
       <div className="w-1/4 bg-white border-r p-4">
         <h2 className="text-xl font-bold mb-2">Players</h2>
         <ul>
-          {players.map((p) => (
+          {sortedPlayers.map((p) => (
             <li key={p.username} className="mb-1 flex justify-between">
               <span>{p.username}</span>
               <span className="font-semibold">{scores[p.username] || 0}</span>
@@ -170,7 +178,9 @@ export default function App() {
             >
               Submit
             </button>
-            {hasSubmitted && <p className="text-green-600">Submitted: {submission}</p>}
+            {hasSubmitted && submittedText && (
+              <p className="text-green-600">Submitted: {submittedText}</p>
+            )}
           </div>
         )}
 
@@ -180,7 +190,7 @@ export default function App() {
             {entries.map((e, idx) => (
               <button
                 key={idx}
-                className="block w-full border rounded p-2 hover:bg-gray-100"
+                className={`block w-full border rounded p-2 hover:bg-gray-100 ${votedEntryId === e.id ? "bg-blue-100 border-blue-500" : ""}`}
                 onClick={() => voteEntry(e.id)}
                 disabled={voteConfirmed}
               >
@@ -223,6 +233,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
