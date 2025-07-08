@@ -62,7 +62,7 @@ export default function App() {
       setShowSubmitFeedback(true);
     });
     socket.on("vote_confirmed", () => {
-      const voteSound = new Audio("/vote.mp3");
+      const voteSound = new Audio("/submit.mp3");
       voteSound.play().catch(() => {});
       setHasVoted(true);
     });
