@@ -34,6 +34,9 @@ export default function AcrophobiaLobby() {
     socket.on('entries', setEntries)
     socket.on('votes', (votesData) => {
       console.log('🔍 Backend votes received:', votesData)
+      Object.entries(votesData).forEach(([key, value]) => {
+        console.log(`🔑 Vote Entry ID: ${key} -> Count: ${value}`)
+      })
       setVotes(votesData)
     })
     socket.on('scores', setScores)
@@ -174,16 +177,13 @@ export default function AcrophobiaLobby() {
         {phase === 'results' && (
           <div>
             <ul className="space-y-1">
-              {entries.map((e, idx) => {
-                console.log('Entry ID:', e.id, 'Votes object:', votes)
-                return (
-                  <li key={idx} className="border rounded p-2 flex justify-between items-center">
-                    <div className="font-medium text-gray-800">{e.username}</div>
-                    <div className="text-gray-900 font-semibold">{e.text}</div>
-                    <div className="text-sm text-gray-600">Votes: {votes[e.id] || 0}</div>
-                  </li>
-                )
-              })}
+              {entries.map((e, idx) => (
+                <li key={idx} className="border rounded p-2 flex justify-between items-center">
+                  <div className="font-medium text-gray-800">{e.username}</div>
+                  <div className="text-gray-900 font-semibold">{e.text}</div>
+                  <div className="text-sm text-gray-600">Votes: {votes[e.id] || 0}</div>
+                </li>
+              ))}
             </ul>
           </div>
         )}
@@ -199,6 +199,7 @@ export default function AcrophobiaLobby() {
     </div>
   )
 }
+
 
 
 
