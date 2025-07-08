@@ -54,7 +54,21 @@ export default function App() {
     });
     socket.on("highlight_results", setHighlighted);
 
-    return () => socket.disconnect();
+    return () => {
+      socket.off("acronym");
+      socket.off("phase");
+      socket.off("entries");
+      socket.off("votes");
+      socket.off("scores");
+      socket.off("round_number");
+      socket.off("countdown");
+      socket.off("players");
+      socket.off("beep");
+      socket.off("room_full");
+      socket.off("entry_submitted");
+      socket.off("vote_confirmed");
+      socket.off("highlight_results");
+    };
   }, [username]);
 
   const joinRoom = (roomId) => {
@@ -245,6 +259,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
