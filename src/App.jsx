@@ -76,8 +76,34 @@ export default function App() {
   };
 
   const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
-
   const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
+
+  if (!joined) {
+    return (
+      <div className="p-6 max-w-xl mx-auto min-h-screen bg-blue-950 text-white">
+        <h1 className="text-3xl font-bold mb-4">🎮 Acrophobia Lobby</h1>
+        <input
+          className="border p-2 w-full mb-4 text-black"
+          placeholder="Your name"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <h2 className="text-xl font-semibold mb-2">Select a Room</h2>
+        <div className="grid grid-cols-2 gap-2">
+          {ROOMS.map((r) => (
+            <button
+              key={r}
+              onClick={() => joinRoom(r)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+        {error && <p className="text-red-400 mt-4">{error}</p>}
+      </div>
+    );
+  }
 
   return (
     <div className={`flex min-h-screen ${bgColor} font-mono`}>
@@ -219,6 +245,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
