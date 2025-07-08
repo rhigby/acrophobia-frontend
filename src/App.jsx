@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -17,28 +17,22 @@ export default function App() {
   const [acronym, setAcronym] = useState("");
   const [entries, setEntries] = useState([]);
   const [submission, setSubmission] = useState("");
-  const [submittedText, setSubmittedText] = useState("");
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const [phase, setPhase] = useState("waiting");
   const [votes, setVotes] = useState({});
   const [scores, setScores] = useState({});
   const [countdown, setCountdown] = useState(null);
   const [round, setRound] = useState(0);
   const [showOverlay, setShowOverlay] = useState(false);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [showSubmitFeedback, setShowSubmitFeedback] = useState(false);
-  const [hasVoted, setHasVoted] = useState(false);
-
-  const inputRef = useRef();
+  const [voteConfirmed, setVoteConfirmed] = useState(false);
 
   useEffect(() => {
     socket.on("acronym", setAcronym);
     socket.on("phase", (newPhase) => {
       setPhase(newPhase);
-      setHasSubmitted(false);
-      setShowSubmitFeedback(false);
-      setSubmittedText("");
-      setHasVoted(false);
       if (newPhase === "submit") {
+        setHasSubmitted(false);
+        setVoteConfirmed(false);
         setShowOverlay(true);
         setTimeout(() => setShowOverlay(false), 2000);
       }
@@ -53,20 +47,9 @@ export default function App() {
       const beep = new Audio("/beep.mp3");
       beep.play().catch(() => {});
     });
-    socket.on("entry_submitted", () => {
-      const submitSound = new Audio("/submit.mp3");
-      submitSound.play().catch(() => {});
-      setSubmission("");
-      inputRef.current?.blur();
-      setHasSubmitted(true);
-      setShowSubmitFeedback(true);
-    });
-    socket.on("vote_confirmed", () => {
-      const voteSound = new Audio("/submit.mp3");
-      voteSound.play().catch(() => {});
-      setHasVoted(true);
-    });
     socket.on("room_full", () => setError("Room is full"));
+    socket.on("entry_submitted", () => setHasSubmitted(true));
+    socket.on("vote_confirmed", () => setVoteConfirmed(true));
 
     return () => socket.disconnect();
   }, []);
@@ -80,13 +63,12 @@ export default function App() {
   };
 
   const submitEntry = () => {
-    if (!submission || hasSubmitted) return;
+    if (!submission) return;
     socket.emit("submit_entry", { room, username, text: submission });
-    setSubmittedText(submission);
+    setSubmission("");
   };
 
   const voteEntry = (entryId) => {
-    if (hasVoted) return;
     socket.emit("vote_entry", { room, username, entryId });
   };
 
@@ -170,9 +152,7 @@ export default function App() {
         {phase === "submit" && (
           <div className="space-y-2">
             <input
-              ref={inputRef}
-              type="text"
-              className="border p-2 w-full text-lg"
+              className="border p-2 w-full text-xl"
               placeholder="Enter your acronym meaning..."
               value={submission}
               onChange={(e) => setSubmission(e.target.value)}
@@ -186,9 +166,7 @@ export default function App() {
             >
               Submit
             </button>
-            {hasSubmitted && showSubmitFeedback && (
-              <p className="text-green-700 font-semibold">✅ Your entry: "{submittedText}"</p>
-            )}
+            {hasSubmitted && <p className="text-green-600">Submitted: {submission}</p>}
           </div>
         )}
 
@@ -200,11 +178,12 @@ export default function App() {
                 key={idx}
                 className="block w-full border rounded p-2 hover:bg-gray-100"
                 onClick={() => voteEntry(e.id)}
-                disabled={hasVoted}
+                disabled={voteConfirmed}
               >
                 <span>{e.text}</span>
               </button>
             ))}
+            {voteConfirmed && <p className="text-blue-600">✅ Vote submitted!</p>}
           </div>
         )}
 
@@ -240,6 +219,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
