@@ -133,19 +133,22 @@ export default function AcrophobiaLobby() {
         )}
 
         <h2 className="text-2xl font-semibold mb-1">Room: {room} — Round {round}</h2>
-        <h3 className="text-xl mb-4 flex space-x-2">
-          {acronym.split('').map((char, idx) => (
-            <motion.span
-              key={idx}
-              className="w-10 h-10 bg-blue-800 text-white flex items-center justify-center font-mono text-lg rounded shadow-md"
-              initial={{ rotateY: 90, opacity: 0 }}
-              animate={{ rotateY: 0, opacity: 1 }}
-              transition={{ delay: idx * 0.2, duration: 0.5 }}
-            >
-              {char}
-            </motion.span>
-          ))}
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-sm font-semibold">Results:</div>
+          <div className="flex space-x-2">
+            {acronym.split('').map((char, idx) => (
+              <motion.span
+                key={idx}
+                className="w-10 h-10 bg-blue-800 text-white flex items-center justify-center font-mono text-lg rounded shadow-md"
+                initial={{ rotateY: 90, opacity: 0 }}
+                animate={{ rotateY: 0, opacity: 1 }}
+                transition={{ delay: idx * 0.2, duration: 0.5 }}
+              >
+                {char}
+              </motion.span>
+            ))}
+          </div>
+        </div>
 
         {phase === 'submit' && (
           <div className="space-y-2">
@@ -167,11 +170,11 @@ export default function AcrophobiaLobby() {
 
         {phase === 'results' && (
           <div>
-            <h4 className="font-semibold">Results:</h4>
             <ul className="space-y-1">
               {entries.map((e, idx) => (
-                <li key={idx} className="border rounded p-2">
-                  <div>{e.text}</div>
+                <li key={idx} className="border rounded p-2 flex justify-between items-center">
+                  <div className="font-medium text-gray-800">{e.username}</div>
+                  <div className="text-gray-900 font-semibold">{e.text}</div>
                   <div className="text-sm text-gray-600">Votes: {votes[e.id] || 0}</div>
                 </li>
               ))}
@@ -196,6 +199,7 @@ export default function AcrophobiaLobby() {
     </div>
   )
 }
+
 
 
 
