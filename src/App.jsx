@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -23,7 +23,8 @@ export default function App() {
   const [countdown, setCountdown] = useState(null);
   const [round, setRound] = useState(0);
   const [showOverlay, setShowOverlay] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+
+  const inputRef = useRef();
 
   useEffect(() => {
     socket.on("acronym", setAcronym);
@@ -32,7 +33,6 @@ export default function App() {
       if (newPhase === "submit") {
         setShowOverlay(true);
         setTimeout(() => setShowOverlay(false), 2000);
-        setSubmitted(false);
       }
     });
     socket.on("entries", setEntries);
@@ -44,6 +44,12 @@ export default function App() {
     socket.on("beep", () => {
       const beep = new Audio("/beep.mp3");
       beep.play().catch(() => {});
+    });
+    socket.on("entry_submitted", () => {
+      const submitSound = new Audio("/submit.mp3");
+      submitSound.play().catch(() => {});
+      setSubmission("");
+      inputRef.current?.blur();
     });
     socket.on("room_full", () => setError("Room is full"));
 
@@ -61,7 +67,6 @@ export default function App() {
   const submitEntry = () => {
     if (!submission) return;
     socket.emit("submit_entry", { room, username, text: submission });
-    setSubmitted(true);
   };
 
   const voteEntry = (entryId) => {
@@ -148,17 +153,19 @@ export default function App() {
         {phase === "submit" && (
           <div className="space-y-2">
             <input
-              className="border p-2 w-full text-[20px]"
+              ref={inputRef}
+              type="text"
+              className="border p-2 w-full text-lg"
               placeholder="Enter your acronym meaning..."
               value={submission}
               onChange={(e) => setSubmission(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitEntry()}
-              disabled={submitted}
+              disabled={entries.some((e) => e.username === username)}
             />
             <button
               className="bg-green-600 text-white px-4 py-2 rounded"
               onClick={submitEntry}
-              disabled={submitted}
+              disabled={entries.some((e) => e.username === username)}
             >
               Submit
             </button>
@@ -212,6 +219,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
