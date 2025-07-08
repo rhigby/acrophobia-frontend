@@ -91,8 +91,9 @@ export default function App() {
         <h2 className="text-xl font-bold mb-2">Players</h2>
         <ul>
           {players.map((p) => (
-            <li key={p.username} className="mb-1">
-              {p.username}: <span className="font-semibold">{scores[p.username] || 0}</span>
+            <li key={p.username} className="mb-1 flex justify-between">
+              <span>{p.username}</span>
+              <span className="font-semibold">{scores[p.username] || 0}</span>
             </li>
           ))}
         </ul>
@@ -111,7 +112,7 @@ export default function App() {
           {acronym.split("").map((letter, i) => (
             <div
               key={i}
-              className="w-16 h-16 mx-1 bg-blue-600 text-white text-3xl font-bold flex items-center justify-center rounded shadow-lg"
+              className="w-20 h-20 mx-1 bg-blue-600 text-white text-4xl font-bold flex items-center justify-center rounded shadow-lg"
             >
               {letter}
             </div>
@@ -150,27 +151,6 @@ export default function App() {
           </div>
         )}
 
-        {phase === "results" && (
-          <div>
-            <h4 className="font-semibold mb-2">Results:</h4>
-            <ul className="space-y-1">
-              {entries.map((e, idx) => (
-                <li key={idx} className="border rounded p-2 flex justify-between">
-                  <span>{e.username}</span>
-                  <span>{e.text}</span>
-                  <span className="text-sm text-gray-600">Votes: {votes[e.id] || 0}</span>
-                </li>
-              ))}
-            </ul>
-            <h4 className="mt-4 font-bold">Scores:</h4>
-            <ul>
-              {Object.entries(scores).map(([player, score]) => (
-                <li key={player}>{player}: {score} pts</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         {phase === "game_over" && (
           <div className="mt-6">
             <h2 className="text-2xl font-bold text-green-700 mb-2">🏆 Game Over</h2>
@@ -190,6 +170,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
