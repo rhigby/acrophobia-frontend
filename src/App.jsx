@@ -23,6 +23,7 @@ export default function App() {
   const [countdown, setCountdown] = useState(null);
   const [round, setRound] = useState(0);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     socket.on("acronym", setAcronym);
@@ -31,6 +32,7 @@ export default function App() {
       if (newPhase === "submit") {
         setShowOverlay(true);
         setTimeout(() => setShowOverlay(false), 2000);
+        setSubmitted(false);
       }
     });
     socket.on("entries", setEntries);
@@ -59,7 +61,7 @@ export default function App() {
   const submitEntry = () => {
     if (!submission) return;
     socket.emit("submit_entry", { room, username, text: submission });
-    setSubmission("");
+    setSubmitted(true);
   };
 
   const voteEntry = (entryId) => {
@@ -145,13 +147,19 @@ export default function App() {
 
         {phase === "submit" && (
           <div className="space-y-2">
-            <textarea
-              className="border p-2 w-full"
+            <input
+              className="border p-2 w-full text-[20px]"
               placeholder="Enter your acronym meaning..."
               value={submission}
               onChange={(e) => setSubmission(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitEntry()}
+              disabled={submitted}
             />
-            <button className="bg-green-600 text-white px-4 py-2 rounded" onClick={submitEntry}>
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded"
+              onClick={submitEntry}
+              disabled={submitted}
+            >
               Submit
             </button>
           </div>
@@ -204,6 +212,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
