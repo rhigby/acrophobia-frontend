@@ -8,6 +8,7 @@ export default function AcrophobiaGame() {
   const [username, setUsername] = useState('')
   const [joined, setJoined] = useState(false)
   const [acronym, setAcronym] = useState('')
+  const [displayedAcronym, setDisplayedAcronym] = useState('')
   const [entries, setEntries] = useState([])
   const [submission, setSubmission] = useState('')
   const [phase, setPhase] = useState('waiting')
@@ -17,9 +18,23 @@ export default function AcrophobiaGame() {
   const [showGameOver, setShowGameOver] = useState(false)
   const [winner, setWinner] = useState('')
   const [finalScores, setFinalScores] = useState({})
+  const acronymInterval = useRef(null)
 
   useEffect(() => {
-    socket.on('acronym', setAcronym)
+    socket.on('acronym', (newAcronym) => {
+      setAcronym(newAcronym)
+      setDisplayedAcronym('')
+      let index = 0
+      clearInterval(acronymInterval.current)
+      acronymInterval.current = setInterval(() => {
+        index++
+        setDisplayedAcronym((prev) => newAcronym.slice(0, index))
+        if (index >= newAcronym.length) {
+          clearInterval(acronymInterval.current)
+        }
+      }, 400)
+    })
+
     socket.on('phase', setPhase)
     socket.on('entries', setEntries)
     socket.on('votes', setVotes)
@@ -82,7 +97,13 @@ export default function AcrophobiaGame() {
         <div>
           <h2 className="text-xl font-semibold">Room: {room}</h2>
           <h3 className="text-lg mb-2">Round {round}</h3>
-          <h3 className="text-lg mb-2">Acronym: <span className="font-mono text-blue-600">{acronym}</span></h3>
+          <div className="flex justify-center gap-2 mb-4">
+            {[...displayedAcronym].map((char, idx) => (
+              <div key={idx} className="w-12 h-12 bg-blue-100 text-blue-600 font-mono font-bold flex items-center justify-center rounded shadow text-xl animate-fade-in">
+                {char}
+              </div>
+            ))}
+          </div>
 
           {phase === 'submit' && (
             <div className="space-y-2">
@@ -126,6 +147,7 @@ export default function AcrophobiaGame() {
     </div>
   )
 }
+
 
 
 
