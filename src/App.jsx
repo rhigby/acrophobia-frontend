@@ -19,7 +19,7 @@ export default function AcrophobiaLobby() {
   const [scores, setScores] = useState({});
   const [countdown, setCountdown] = useState(null);
   const [round, setRound] = useState(0);
-  const [showOverlay, setShowOverlay] = useState(true);
+  const [showOverlay, setShowOverlay] = useState(false);
 
   useEffect(() => {
     socket.on("acronym", setAcronym);
@@ -27,7 +27,7 @@ export default function AcrophobiaLobby() {
       setPhase(newPhase);
       if (newPhase === "submit") {
         setShowOverlay(true);
-        setTimeout(() => setShowOverlay(false), 3000);
+        setTimeout(() => setShowOverlay(false), 1500);
       }
     });
     socket.on("entries", setEntries);
@@ -182,6 +182,7 @@ export default function AcrophobiaLobby() {
     </div>
   );
 }
+
 
 
 
