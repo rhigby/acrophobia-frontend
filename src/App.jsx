@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
-const socket = io("https://acrophobia-backend-2.onrender.com");
+const socket = io("http://localhost:3001");
 
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 
