@@ -27,7 +27,7 @@ export default function AcrophobiaLobby() {
       setPhase(newPhase);
       if (newPhase === "submit") {
         setShowOverlay(true);
-        setTimeout(() => setShowOverlay(false), 1500);
+        setTimeout(() => setShowOverlay(false), 3000);
       }
     });
     socket.on("entries", setEntries);
@@ -116,19 +116,9 @@ export default function AcrophobiaLobby() {
 
       <h2 className="text-2xl font-semibold mb-1">Room: {room} — Round {round}</h2>
 
-      <div className="flex justify-center items-center gap-4 my-6">
-        {acronym.split("").map((char, i) => (
-          <motion.div
-            key={i}
-            initial={{ rotateY: 90, opacity: 0 }}
-            animate={{ rotateY: 0, opacity: 1 }}
-            transition={{ delay: i * 0.2 }}
-            className="bg-white shadow-lg border rounded-xl px-5 py-3 text-3xl font-bold text-blue-700"
-          >
-            {char}
-          </motion.div>
-        ))}
-      </div>
+      <h3 className="text-xl mb-4">
+        Acronym: <span className="font-mono text-blue-800">{acronym}</span>
+      </h3>
 
       {phase === "submit" && (
         <div className="space-y-2">
@@ -153,11 +143,10 @@ export default function AcrophobiaLobby() {
           {entries.map((e, idx) => (
             <button
               key={idx}
-              className="block w-full border rounded p-2 hover:bg-gray-100 flex justify-between"
+              className="block w-full border rounded p-2 hover:bg-gray-100"
               onClick={() => voteEntry(e.id)}
             >
-              <span>{e.username}: {e.text}</span>
-              <span className="text-sm text-gray-500">{votes[e.id] || 0} votes</span>
+              {e.text}
             </button>
           ))}
         </div>
@@ -165,19 +154,35 @@ export default function AcrophobiaLobby() {
 
       {phase === "results" && (
         <div>
+          <h4 className="font-semibold">Results:</h4>
+          <ul className="space-y-1">
+            {entries.map((e, idx) => (
+              <li key={idx} className="border rounded p-2">
+                <div>{e.text}</div>
+                <div className="text-sm text-gray-600">
+                  Votes: {votes[e.id] || 0}
+                </div>
+              </li>
+            ))}
+          </ul>
           <h4 className="mt-4 font-bold">Scores:</h4>
           <ul>
             {Object.entries(scores).map(([player, score]) => (
-              <li key={player}>{player}: {score} pts</li>
+              <li key={player}>
+                {player}: {score} pts
+              </li>
             ))}
           </ul>
         </div>
       )}
 
-      {phase === "waiting" && <p className="text-gray-600 italic">Waiting for next round...</p>}
+      {phase === "waiting" && (
+        <p className="text-gray-600 italic">Waiting for next round...</p>
+      )}
     </div>
   );
 }
+
 
 
 
