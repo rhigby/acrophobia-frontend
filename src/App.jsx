@@ -27,6 +27,7 @@ export default function App() {
   const [showOverlay, setShowOverlay] = useState(false);
   const [voteConfirmed, setVoteConfirmed] = useState(false);
   const [votedEntryId, setVotedEntryId] = useState(null);
+  const [highlightInfo, setHighlightInfo] = useState({});
 
   useEffect(() => {
     socket.on("acronym", setAcronym);
@@ -38,7 +39,8 @@ export default function App() {
         setVoteConfirmed(false);
         setVotedEntryId(null);
         setShowOverlay(true);
-        setTimeout(() => setShowOverlay(false), 1000);
+        setHighlightInfo({});
+        setTimeout(() => setShowOverlay(false), 2000);
       }
     });
     socket.on("entries", setEntries);
@@ -54,6 +56,7 @@ export default function App() {
     socket.on("room_full", () => setError("Room is full"));
     socket.on("entry_submitted", () => setHasSubmitted(true));
     socket.on("vote_confirmed", () => setVoteConfirmed(true));
+    socket.on("highlight_results", setHighlightInfo);
 
     return () => socket.disconnect();
   }, []);
@@ -76,7 +79,7 @@ export default function App() {
   };
 
   const voteEntry = (entryId) => {
-    const voteSound = new Audio("/submit.mp3");
+    const voteSound = new Audio("/vote.mp3");
     voteSound.play().catch(() => {});
     socket.emit("vote_entry", { room, username, entryId });
     setVotedEntryId(entryId);
@@ -117,10 +120,14 @@ export default function App() {
         <h2 className="text-xl font-bold mb-2">Players</h2>
         <ul>
           {sortedPlayers.map((p) => (
-            <li key={p.username} className="mb-1 flex justify-between">
+            <motion.li
+              key={p.username}
+              layout
+              className="mb-1 flex justify-between"
+            >
               <span>{p.username}</span>
               <span className="font-semibold">{scores[p.username] || 0}</span>
-            </li>
+            </motion.li>
           ))}
         </ul>
       </div>
@@ -154,7 +161,7 @@ export default function App() {
               className="w-24 h-24 mx-1 bg-blue-600 text-white text-5xl font-bold flex items-center justify-center rounded shadow-lg"
               initial={{ rotateY: 90, opacity: 0 }}
               animate={{ rotateY: 0, opacity: 1 }}
-              transition={{ delay: i * 0.2 }}
+              transition={{ delay: i * 0.2, type: "spring", stiffness: 120 }}
             >
               {letter}
             </motion.div>
@@ -179,7 +186,13 @@ export default function App() {
               Submit
             </button>
             {hasSubmitted && submittedText && (
-              <p className="text-green-600">Submitted: {submittedText}</p>
+              <motion.p
+                className="text-green-600"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                Submitted: {submittedText}
+              </motion.p>
             )}
           </div>
         )}
@@ -188,14 +201,15 @@ export default function App() {
           <div className="space-y-2">
             <h4 className="font-semibold">Vote for your favorite:</h4>
             {entries.map((e, idx) => (
-              <button
+              <motion.button
                 key={idx}
                 className={`block w-full border rounded p-2 hover:bg-gray-100 ${votedEntryId === e.id ? "bg-blue-100 border-blue-500" : ""}`}
                 onClick={() => voteEntry(e.id)}
                 disabled={voteConfirmed}
+                whileTap={{ scale: 0.97 }}
               >
                 <span>{e.text}</span>
-              </button>
+              </motion.button>
             ))}
             {voteConfirmed && <p className="text-blue-600">✅ Vote submitted!</p>}
           </div>
@@ -204,13 +218,24 @@ export default function App() {
         {phase === "results" && (
           <div className="space-y-2">
             <h4 className="font-semibold">Results:</h4>
-            {entries.map((e, idx) => (
-              <div key={idx} className="border rounded p-2 flex justify-between">
-                <span className="font-bold">{e.username}</span>
-                <span>{e.text}</span>
-                <span className="text-sm text-gray-600">Votes: {votes[e.id] || 0}</span>
-              </div>
-            ))}
+            {entries.map((e, idx) => {
+              const classes = ["border", "rounded", "p-2", "flex", "justify-between"];
+              if (highlightInfo.fastest === e.id) classes.push("bg-yellow-100");
+              if (highlightInfo.winner === e.id) classes.push("bg-green-100");
+              if (highlightInfo.voters?.includes(username) && highlightInfo.winner === e.id) classes.push("border-blue-500");
+              return (
+                <motion.div
+                  key={idx}
+                  className={classes.join(" ")}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <span className="font-bold">{e.username}</span>
+                  <span>{e.text}</span>
+                  <span className="text-sm text-gray-600">Votes: {votes[e.id] || 0}</span>
+                </motion.div>
+              );
+            })}
           </div>
         )}
 
@@ -233,6 +258,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
