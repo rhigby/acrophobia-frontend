@@ -32,7 +32,10 @@ export default function AcrophobiaLobby() {
     socket.on('acronym', setAcronym)
     socket.on('phase', setPhase)
     socket.on('entries', setEntries)
-    socket.on('votes', setVotes)
+    socket.on('votes', (votesData) => {
+      console.log('🔍 Backend votes received:', votesData)
+      setVotes(votesData)
+    })
     socket.on('scores', setScores)
     socket.on('round_number', (r) => {
       setRound(r)
@@ -196,6 +199,7 @@ export default function AcrophobiaLobby() {
     </div>
   )
 }
+
 
 
 
