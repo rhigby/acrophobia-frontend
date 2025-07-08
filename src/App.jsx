@@ -179,12 +179,6 @@ export default function AcrophobiaLobby() {
                 </li>
               ))}
             </ul>
-            <h4 className="mt-4 font-bold">Scores:</h4>
-            <ul>
-              {Object.entries(scores).map(([player, score]) => (
-                <li key={player}>{player}: {score} pts</li>
-              ))}
-            </ul>
           </div>
         )}
 
@@ -199,6 +193,7 @@ export default function AcrophobiaLobby() {
     </div>
   )
 }
+
 
 
 
