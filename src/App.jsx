@@ -3,6 +3,15 @@ import { io } from 'socket.io-client'
 
 const socket = io('https://acrophobia-backend-2.onrender.com') // Update for deployed backend
 
+socket.on('connect', () => {
+  console.log('✅ Connected to socket server')
+})
+
+socket.on('disconnect', () => {
+  console.log('❌ Disconnected from socket server')
+})
+
+
 const predefinedRooms = Array.from({ length: 10 }, (_, i) => `room${i + 1}`)
 
 export default function AcrophobiaLobby() {
