@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const socket = io('https://acrophobia-backend-2.onrender.com')
 
@@ -22,6 +23,7 @@ export default function AcrophobiaLobby() {
   const [round, setRound] = useState(0)
   const [gameOver, setGameOver] = useState(false)
   const [winner, setWinner] = useState(null)
+  const [showOverlay, setShowOverlay] = useState(true)
 
   useEffect(() => {
     socket.on('connect', () => console.log('✅ Connected to socket server'))
@@ -32,7 +34,11 @@ export default function AcrophobiaLobby() {
     socket.on('entries', setEntries)
     socket.on('votes', setVotes)
     socket.on('scores', setScores)
-    socket.on('round_number', setRound)
+    socket.on('round_number', (r) => {
+      setRound(r)
+      setShowOverlay(true)
+      setTimeout(() => setShowOverlay(false), 3000)
+    })
     socket.on('countdown', setCountdown)
     socket.on('player_joined', setPlayers)
     socket.on('room_full', () => setError('Room is full'))
@@ -101,67 +107,92 @@ export default function AcrophobiaLobby() {
   }
 
   return (
-    <div className="p-6 max-w-2xl mx-auto bg-blue-50 min-h-screen relative">
-      {countdown !== null && (
-        <div className="fixed top-4 right-4 bg-black text-white px-4 py-2 rounded-full text-lg shadow-lg z-50">
-          ⏳ {countdown}s
+    <div className="flex max-w-4xl mx-auto bg-blue-50 min-h-screen relative">
+      {showOverlay && (
+        <div className="absolute inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center text-white text-4xl font-bold animate-fadeIn">
+          Round {round}
         </div>
       )}
 
-      <h2 className="text-2xl font-semibold mb-1">Room: {room} — Round {round}</h2>
-      <h3 className="text-xl mb-4">Acronym: <span className="font-mono text-blue-800">{acronym}</span></h3>
-
-      {players.length > 0 && (
-        <div className="mb-4 text-sm text-gray-700">
-          Players: {players.join(', ')}
-        </div>
-      )}
-
-      {phase === 'submit' && (
-        <div className="space-y-2">
-          <textarea className="border p-2 w-full" placeholder="Your acronym meaning..." value={submission} onChange={(e) => setSubmission(e.target.value)} />
-          <button className="bg-green-600 text-white px-4 py-2 rounded" onClick={submitEntry}>Submit</button>
-        </div>
-      )}
-
-      {phase === 'vote' && (
-        <div className="space-y-2">
-          <h4 className="font-semibold">Vote for your favorite:</h4>
-          {entries.map((e, idx) => (
-            <button key={idx} className="block w-full border rounded p-2 hover:bg-gray-100" onClick={() => voteEntry(e.id)}>
-              {e.text}
-            </button>
+      <div className="w-1/4 p-4 border-r bg-white">
+        <h3 className="font-bold mb-2">Players</h3>
+        <ul className="space-y-1">
+          {players.map(p => (
+            <li key={p} className="text-sm flex justify-between">
+              <span>{p}</span>
+              <span>{scores[p] || 0} pts</span>
+            </li>
           ))}
-        </div>
-      )}
+        </ul>
+      </div>
+      <div className="w-3/4 p-6 relative">
+        {countdown !== null && (
+          <div className="fixed top-4 right-4 bg-black text-white px-4 py-2 rounded-full text-lg shadow-lg z-50">
+            ⏳ {countdown}s
+          </div>
+        )}
 
-      {phase === 'results' && (
-        <div>
-          <h4 className="font-semibold">Results:</h4>
-          <ul className="space-y-1">
+        <h2 className="text-2xl font-semibold mb-1">Room: {room} — Round {round}</h2>
+        <h3 className="text-xl mb-4 flex space-x-2">
+          {acronym.split('').map((char, idx) => (
+            <motion.span
+              key={idx}
+              className="w-10 h-10 bg-blue-800 text-white flex items-center justify-center font-mono text-lg rounded shadow-md"
+              initial={{ rotateY: 90, opacity: 0 }}
+              animate={{ rotateY: 0, opacity: 1 }}
+              transition={{ delay: idx * 0.2, duration: 0.5 }}
+            >
+              {char}
+            </motion.span>
+          ))}
+        </h3>
+
+        {phase === 'submit' && (
+          <div className="space-y-2">
+            <textarea className="border p-2 w-full" placeholder="Your acronym meaning..." value={submission} onChange={(e) => setSubmission(e.target.value)} />
+            <button className="bg-green-600 text-white px-4 py-2 rounded" onClick={submitEntry}>Submit</button>
+          </div>
+        )}
+
+        {phase === 'vote' && (
+          <div className="space-y-2">
+            <h4 className="font-semibold">Vote for your favorite:</h4>
             {entries.map((e, idx) => (
-              <li key={idx} className="border rounded p-2">
-                <div>{e.text}</div>
-                <div className="text-sm text-gray-600">Votes: {votes[e.id] || 0}</div>
-              </li>
+              <button key={idx} className="block w-full border rounded p-2 hover:bg-gray-100" onClick={() => voteEntry(e.id)}>
+                {e.text}
+              </button>
             ))}
-          </ul>
-          <h4 className="mt-4 font-bold">Scores:</h4>
-          <ul>
-            {Object.entries(scores).map(([player, score]) => (
-              <li key={player}>{player}: {score} pts</li>
-            ))}
-          </ul>
-        </div>
-      )}
+          </div>
+        )}
 
-      {phase === 'waiting' && <p className="text-gray-600 italic">Waiting for next round...</p>}
+        {phase === 'results' && (
+          <div>
+            <h4 className="font-semibold">Results:</h4>
+            <ul className="space-y-1">
+              {entries.map((e, idx) => (
+                <li key={idx} className="border rounded p-2">
+                  <div>{e.text}</div>
+                  <div className="text-sm text-gray-600">Votes: {votes[e.id] || 0}</div>
+                </li>
+              ))}
+            </ul>
+            <h4 className="mt-4 font-bold">Scores:</h4>
+            <ul>
+              {Object.entries(scores).map(([player, score]) => (
+                <li key={player}>{player}: {score} pts</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-      {gameOver && (
-        <div className="fixed bottom-4 left-4 bg-green-700 text-white px-4 py-2 rounded shadow-lg">
-          🎉 Game Over! Winner: <strong>{winner}</strong>
-        </div>
-      )}
+        {phase === 'waiting' && <p className="text-gray-600 italic">Waiting for next round...</p>}
+
+        {gameOver && (
+          <div className="fixed bottom-4 left-4 bg-green-700 text-white px-4 py-2 rounded shadow-lg">
+            🎉 Game Over! Winner: <strong>{winner}</strong>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
