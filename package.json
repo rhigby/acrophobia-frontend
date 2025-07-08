@@ -2,9 +2,10 @@
   "name": "acrophobia-ui",
   "version": "1.0.0",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+     "dev": "vite",
+      "build": "vite build",
+      "preview": "vite preview",
+      "postinstall": "chmod +x node_modules/.bin/vite"
   },
   "dependencies": {
     "framer-motion": "^12.23.0",
