@@ -26,6 +26,7 @@ export default function App() {
   const [highlighted, setHighlighted] = useState({});
   const [resultsMeta, setResultsMeta] = useState([]);
   const [showResults, setShowResults] = useState(false);
+  const [voteConfirmed, setVoteConfirmed] = useState(false);
 
   useEffect(() => {
     socket.on("acronym", setAcronym);
@@ -35,6 +36,7 @@ export default function App() {
         setShowOverlay(true);
         setSubmission("");
         setSubmittedEntry(null);
+        setVoteConfirmed(false);
         setShowResults(false);
         setTimeout(() => setShowOverlay(false), 2000);
       } else if (newPhase === "results") {
@@ -57,6 +59,7 @@ export default function App() {
     });
     socket.on("vote_confirmed", (entryId) => {
       setVotes((v) => ({ ...v, [username]: entryId }));
+      setVoteConfirmed(true);
       new Audio("/vote.mp3").play().catch(() => {});
     });
     socket.on("highlight_results", setHighlighted);
@@ -95,6 +98,7 @@ export default function App() {
   };
 
   const voteEntry = (entryId) => {
+    if (voteConfirmed) return;
     socket.emit("vote_entry", { room, username, entryId });
   };
 
