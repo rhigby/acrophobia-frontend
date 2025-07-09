@@ -8,6 +8,8 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 
 export default function App() {
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [room, setRoom] = useState(null);
   const [joined, setJoined] = useState(false);
   const [error, setError] = useState(null);
@@ -27,6 +29,7 @@ export default function App() {
   const [showResults, setShowResults] = useState(false);
   const [voteConfirmed, setVoteConfirmed] = useState(false);
   const [showAwards, setShowAwards] = useState(false);
+  const [userStats, setUserStats] = useState(null);
 
   useEffect(() => {
     socket.on("acronym", setAcronym);
@@ -54,6 +57,7 @@ export default function App() {
     socket.on("round_number", setRound);
     socket.on("countdown", setCountdown);
     socket.on("players", setPlayers);
+    socket.on("user_stats", setUserStats);
     socket.on("beep", () => new Audio("/beep.mp3").play().catch(() => {}));
     socket.on("room_full", () => setError("Room is full"));
     socket.on("entry_submitted", ({ id, text }) => {
@@ -83,6 +87,7 @@ export default function App() {
       socket.off("round_number");
       socket.off("countdown");
       socket.off("players");
+      socket.off("user_stats");
       socket.off("beep");
       socket.off("room_full");
       socket.off("entry_submitted");
@@ -91,6 +96,18 @@ export default function App() {
       socket.off("results_metadata");
     };
   }, [username]);
+
+  const login = () => {
+    if (!username || !password) return setError("Enter both username and password");
+    socket.emit("login", { username, password }, (response) => {
+      if (response.success) {
+        setIsAuthenticated(true);
+        setError(null);
+      } else {
+        setError(response.message || "Login failed");
+      }
+    });
+  };
 
   const joinRoom = (roomId) => {
     if (!username) return setError("Enter your name");
@@ -114,16 +131,35 @@ export default function App() {
   const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
   const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
+  if (!isAuthenticated) {
+    return (
+      <div className="p-6 max-w-sm mx-auto min-h-screen flex flex-col justify-center bg-blue-950 text-white">
+        <h1 className="text-3xl font-bold mb-6 text-center">🔐 Login to Acrophobia</h1>
+        <input
+          className="border p-2 w-full mb-4 text-black"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <input
+          className="border p-2 w-full mb-4 text-black"
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button onClick={login} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+          Login
+        </button>
+        {error && <p className="text-red-400 mt-4">{error}</p>}
+      </div>
+    );
+  }
+
   if (!joined) {
     return (
       <div className="p-6 max-w-xl mx-auto min-h-screen bg-blue-950 text-white">
         <h1 className="text-3xl font-bold mb-4">🎮 Acrophobia Lobby</h1>
-        <input
-          className="border p-2 w-full mb-4 text-black"
-          placeholder="Your name"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
         <h2 className="text-xl font-semibold mb-2">Select a Room</h2>
         <div className="grid grid-cols-2 gap-2">
           {ROOMS.map((r) => (
@@ -153,147 +189,104 @@ export default function App() {
             </li>
           ))}
         </ul>
-      </div>
-
-      <div className="flex-1 p-6 relative">
-        {countdown !== null && (
-          <div className="fixed top-0 left-0 right-0 h-16 bg-red-800 text-white flex items-center justify-center text-5xl font-bold z-50 animate-pulse">
-            ⏱ {countdown}s
+        {userStats && (
+          <div className="mt-6 bg-blue-800 p-4 rounded text-sm text-white">
+            <h3 className="font-bold mb-2">Your Stats</h3>
+            <ul className="space-y-1">
+              <li>Games Played: {userStats.gamesPlayed}</li>
+              <li>Total Points: {userStats.totalPoints}</li>
+              <li>Wins: {userStats.totalWins}</li>
+              <li>Fastest Time: {userStats.fastestSubmissionMs || "–"} ms</li>
+              <li>Votes for Winners: {userStats.votedForWinnerCount}</li>
+            </ul>
           </div>
         )}
+      </div>
 
-        <AnimatePresence>
-          {showOverlay && (
-            <motion.div
-              className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 text-white text-5xl font-bold z-50"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              Round {round}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <h2 className="text-2xl font-bold mb-4">Room: {room} — Round {round}</h2>
-
-        <div className="flex justify-center mb-6">
-          {acronym.split("").map((letter, i) => (
-            <motion.div
-              key={i}
-              className="w-24 h-24 mx-1 bg-red-600 text-white text-5xl font-bold flex items-center justify-center rounded shadow-2xl border-2 border-blue-400"
-              initial={{ rotateY: 90, opacity: 0 }}
-              animate={{ rotateY: 0, opacity: 1 }}
-              transition={{ delay: i * 0.2, type: "spring", stiffness: 120 }}
-            >
-              {letter}
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Game UI components go here */}
-        {/* Submit, vote, results, intermission, game over, etc. */}
-        {/* Animate award icons after results are shown */}
-
+      {/* Game UI components go here */}
+      {/* Submit, vote, results, intermission, game over, etc. */}
+      {/* Animate award icons after results are shown */}
+      <div className="flex-1 p-6">
         {phase === "submit" && (
-          <div className="space-y-2">
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">Acronym: {acronym}</h2>
             <input
               className="border border-blue-700 p-2 w-full text-xl bg-black text-blue-200"
-              placeholder="Type your answer and press Enter..."
+              placeholder="Type your phrase..."
               value={submission}
               disabled={!!submittedEntry}
               onChange={(e) => setSubmission(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitEntry()}
             />
             <button
-              className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+              className="bg-green-600 px-4 py-2 rounded text-white"
               onClick={submitEntry}
               disabled={!!submittedEntry}
             >
               Submit
             </button>
-            {submittedEntry && (
-              <div className="text-green-400 mt-2">Submitted: “{submittedEntry}”</div>
-            )}
           </div>
         )}
 
         {phase === "vote" && (
-          <div className="space-y-2">
-            <h4 className="font-semibold">Vote for your favorite:</h4>
-            {entries.map((e) => (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold">Vote for the best entry</h2>
+            {entries.map((entry) => (
               <button
-                key={e.id}
-                onClick={() => voteEntry(e.id)}
-                className={`block w-full border rounded p-2 hover:bg-blue-900 text-left ${votes[username] === e.id ? "bg-blue-800 border-blue-500" : "border-blue-700"}`}
+                key={entry.id}
+                className={`w-full text-left p-3 border rounded-lg ${votes[username] === entry.id ? "bg-blue-800" : "bg-blue-950 hover:bg-blue-800"}`}
+                onClick={() => voteEntry(entry.id)}
               >
-                {e.text}
+                {entry.text}
               </button>
             ))}
           </div>
         )}
 
         {showResults && (
-          <div className="space-y-2">
-            <h4 className="font-semibold mb-2">Results:</h4>
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold">Results</h2>
             {entries.map((e) => {
-              const timeMeta = resultsMeta.find((m) => m.id === e.id);
-              const seconds = timeMeta ? `${timeMeta.time}s` : "";
+              const meta = resultsMeta.find((m) => m.id === e.id);
               return (
                 <motion.div
                   key={e.id}
-                  className={`p-2 rounded border flex flex-col mb-2 ${
-                    e.id === highlighted.winner
-                      ? "border-yellow-400 bg-yellow-900 animate-pulse"
-                      : e.id === highlighted.fastest
-                      ? "border-green-400 bg-green-900 animate-pulse"
-                      : "border-blue-700 bg-blue-950"
-                  }`}
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
+                  className={`p-4 rounded border ${highlighted.winner === e.id ? "border-yellow-400 bg-yellow-900" : highlighted.fastest === e.id ? "border-green-400 bg-green-900" : "border-blue-700 bg-blue-950"}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                 >
                   <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold">{e.username}</span>
-                      {e.id === highlighted.winner && <span className="text-yellow-300 animate-bounce">🏁</span>}
-                      {e.id === highlighted.fastest && <span className="text-green-300 animate-ping">⏱</span>}
-                      {highlighted.voters?.includes(e.username) && <span className="text-blue-300 animate-bounce">👍</span>}
+                    <div className="font-bold">{e.username}</div>
+                    <div className="text-sm text-gray-200">
+                      Votes: {votes[e.id] || 0} • ⏱ {meta?.time || "-"}s
                     </div>
-                    <span className="text-sm text-gray-300">
-                      Votes: {votes[e.id] || 0} {seconds ? `• ${seconds}` : ""}
-                    </span>
                   </div>
-                  <div className="text-lg mt-1">{e.text}</div>
+                  <div className="mt-1">{e.text}</div>
                 </motion.div>
               );
             })}
           </div>
         )}
 
-        {phase === "game_over" && (
-          <div className="mt-6">
-            <h2 className="text-2xl font-bold text-green-300 mb-2">🏆 Game Over</h2>
-            <h4 className="font-bold">Final Scores:</h4>
-            <ul>
-              {Object.entries(scores)
-                .sort((a, b) => b[1] - a[1])
-                .map(([player, score]) => (
-                  <li key={player}>{player}: {score} pts</li>
-                ))}
-            </ul>
-          </div>
+        {phase === "intermission" && (
+          <div className="text-xl text-blue-300">⏳ Intermission... Next round in {countdown}s</div>
         )}
 
-        {phase === "waiting" && <p className="text-gray-400 italic">Waiting for next round...</p>}
-        {phase === "intermission" && (
-          <div className="text-center text-xl text-blue-400 mt-8">
-            ⏳ Intermission... Next round begins in {countdown}s
+        {phase === "game_over" && (
+          <div className="text-green-300">
+            <h2 className="text-2xl font-bold mb-2">🏆 Game Over</h2>
+            {Object.entries(scores)
+              .sort((a, b) => b[1] - a[1])
+              .map(([player, score]) => (
+                <div key={player}>{player}: {score} pts</div>
+              ))}
           </div>
         )}
       </div>
     </div>
   );
 }
+
 
 
 
