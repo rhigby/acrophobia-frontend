@@ -24,6 +24,7 @@ export default function App() {
   const [showOverlay, setShowOverlay] = useState(false);
   const [submittedEntry, setSubmittedEntry] = useState(null);
   const [highlighted, setHighlighted] = useState({});
+  const [resultsMeta, setResultsMeta] = useState([]);
 
   useEffect(() => {
     socket.on("acronym", setAcronym);
@@ -53,6 +54,7 @@ export default function App() {
       new Audio("/vote.mp3").play().catch(() => {});
     });
     socket.on("highlight_results", setHighlighted);
+    socket.on("results_metadata", ({ timestamps }) => setResultsMeta(timestamps));
 
     return () => {
       socket.off("acronym");
@@ -68,6 +70,7 @@ export default function App() {
       socket.off("entry_submitted");
       socket.off("vote_confirmed");
       socket.off("highlight_results");
+      socket.off("results_metadata");
     };
   }, [username]);
 
@@ -212,26 +215,31 @@ export default function App() {
         {phase === "results" && (
           <div className="space-y-2">
             <h4 className="font-semibold mb-2">Results:</h4>
-            {entries.map((e) => (
-              <motion.div
-                key={e.id}
-                className={`p-2 rounded border flex flex-col mb-2 ${
-                  e.id === highlighted.winner
-                    ? "border-yellow-400 bg-yellow-900"
-                    : e.id === highlighted.fastest
-                    ? "border-green-400 bg-green-900"
-                    : "border-blue-700 bg-blue-950"
-                }`}
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-              >
-                <div className="flex justify-between">
-                  <span className="font-bold">{e.username}</span>
-                  <span className="text-sm text-gray-300">Votes: {votes[e.id] || 0}</span>
-                </div>
-                <div className="text-lg mt-1">{e.text}</div>
-              </motion.div>
-            ))}
+            {entries.map((e) => {
+              const timeStr = resultsMeta.find((m) => m.id === e.id)?.time;
+              return (
+                <motion.div
+                  key={e.id}
+                  className={`p-2 rounded border flex flex-col mb-2 ${
+                    e.id === highlighted.winner
+                      ? "border-yellow-400 bg-yellow-900"
+                      : e.id === highlighted.fastest
+                      ? "border-green-400 bg-green-900"
+                      : "border-blue-700 bg-blue-950"
+                  }`}
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                >
+                  <div className="flex justify-between">
+                    <span className="font-bold">{e.username}</span>
+                    <span className="text-sm text-gray-300">
+                      Votes: {votes[e.id] || 0} {timeStr ? `• ⏱ ${new Date(timeStr).toLocaleTimeString()}` : ""}
+                    </span>
+                  </div>
+                  <div className="text-lg mt-1">{e.text}</div>
+                </motion.div>
+              );
+            })}
           </div>
         )}
 
@@ -259,6 +267,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
