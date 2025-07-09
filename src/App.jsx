@@ -226,7 +226,7 @@ export default function App() {
             <h4 className="font-semibold mb-2">Results:</h4>
             {entries.map((e) => {
               const timeMeta = resultsMeta.find((m) => m.id === e.id);
-              const seconds = timeMeta ? `${timeMeta.time}s` : "";
+              const seconds = timeMeta ? `${Math.round(timeMeta.elapsedSeconds)}s` : "";
               return (
                 <motion.div
                   key={e.id}
@@ -282,6 +282,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
