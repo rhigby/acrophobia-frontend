@@ -137,6 +137,10 @@ export default function App() {
 
   return (
     <div className={`flex min-h-screen ${bgColor} font-mono`}>
+      {countdown !== null && (
+        <div className="fixed top-0 left-0 h-2 bg-red-600 z-50" style={{ width: `${(countdown / 30) * 100}%`, transition: 'width 1s linear' }} />
+      )}
+
       <div className="w-1/4 p-4 border-r border-blue-800">
         <h2 className="text-xl font-bold mb-2">Players</h2>
         <ul>
@@ -151,14 +155,8 @@ export default function App() {
 
       <div className="flex-1 p-6 relative">
         {countdown !== null && (
-          <div className="fixed top-0 left-0 w-full h-2 bg-red-700">
-            <motion.div
-              key={countdown}
-              className="h-full bg-red-400"
-              initial={{ width: "100%" }}
-              animate={{ width: "0%" }}
-              transition={{ duration: countdown }}
-            />
+          <div className="fixed top-4 right-4 bg-blue-900 text-white px-4 py-2 rounded-full text-lg shadow-lg z-50">
+            ⏳ {countdown}s
           </div>
         )}
 
@@ -191,12 +189,109 @@ export default function App() {
           ))}
         </div>
 
-        {/* Game UI continues... */}
+        {/* Submit, vote, results, intermission, game over UI sections here */}
+        {phase === "submit" && (
+          <div className="space-y-2">
+            <input
+              className="border border-blue-700 p-2 w-full text-xl bg-black text-blue-200"
+              placeholder="Type your answer and press Enter..."
+              value={submission}
+              disabled={!!submittedEntry}
+              onChange={(e) => setSubmission(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitEntry()}
+            />
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+              onClick={submitEntry}
+              disabled={!!submittedEntry}
+            >
+              Submit
+            </button>
+            {submittedEntry && (
+              <div className="text-green-400 mt-2">Submitted: “{submittedEntry}”</div>
+            )}
+          </div>
+        )}
 
+        {phase === "vote" && (
+          <div className="space-y-2">
+            <h4 className="font-semibold">Vote for your favorite:</h4>
+            {entries.map((e) => (
+              <button
+                key={e.id}
+                onClick={() => voteEntry(e.id)}
+                className={`block w-full border rounded p-2 hover:bg-blue-900 text-left ${
+                  votes[username] === e.id ? "bg-blue-800 border-blue-500" : "border-blue-700"
+                }`}
+              >
+                {e.text}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {showResults && (
+          <div className="space-y-2">
+            <h4 className="font-semibold mb-2">Results:</h4>
+            {entries.map((e) => {
+              const timeMeta = resultsMeta.find((m) => m.id === e.id);
+              const seconds = timeMeta ? `${timeMeta.time}s` : "";
+              return (
+                <motion.div
+                  key={e.id}
+                  className={`p-2 rounded border flex flex-col mb-2 ${
+                    e.id === highlighted.winner
+                      ? "border-yellow-400 bg-yellow-900 animate-pulse"
+                      : e.id === highlighted.fastest
+                      ? "border-green-400 bg-green-900 animate-pulse"
+                      : "border-blue-700 bg-blue-950"
+                  }`}
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold">{e.username}</span>
+                      {e.id === highlighted.winner && <span className="text-yellow-300">🏁</span>}
+                      {e.id === highlighted.fastest && <span className="text-green-300">⏱</span>}
+                      {highlighted.voters?.includes(e.username) && <span className="text-blue-300">👍</span>}
+                    </div>
+                    <span className="text-sm text-gray-300">
+                      Votes: {votes[e.id] || 0} {seconds ? `• ${seconds}` : ""}
+                    </span>
+                  </div>
+                  <div className="text-lg mt-1">{e.text}</div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+
+        {phase === "game_over" && (
+          <div className="mt-6">
+            <h2 className="text-2xl font-bold text-green-300 mb-2">🏆 Game Over</h2>
+            <h4 className="font-bold">Final Scores:</h4>
+            <ul>
+              {Object.entries(scores)
+                .sort((a, b) => b[1] - a[1])
+                .map(([player, score]) => (
+                  <li key={player}>{player}: {score} pts</li>
+                ))}
+            </ul>
+          </div>
+        )}
+
+        {phase === "waiting" && <p className="text-gray-400 italic">Waiting for next round...</p>}
+        {phase === "intermission" && (
+          <div className="text-center text-xl text-blue-400 mt-8">
+            ⏳ Intermission... Next round begins in {countdown}s
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
 
 
 
