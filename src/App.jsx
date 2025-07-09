@@ -60,7 +60,7 @@ export default function App() {
     socket.on("vote_confirmed", (entryId) => {
       setVotes((v) => ({ ...v, [username]: entryId }));
       setVoteConfirmed(true);
-      new Audio("/vote.mp3").play().catch(() => {});
+      new Audio("/submit.mp3").play().catch(() => {});
     });
     socket.on("highlight_results", setHighlighted);
     socket.on("results_metadata", ({ timestamps }) => setResultsMeta(timestamps));
