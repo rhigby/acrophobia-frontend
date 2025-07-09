@@ -25,6 +25,7 @@ export default function App() {
   const [submittedEntry, setSubmittedEntry] = useState(null);
   const [highlighted, setHighlighted] = useState({});
   const [resultsMeta, setResultsMeta] = useState([]);
+  const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
     socket.on("acronym", setAcronym);
@@ -34,7 +35,12 @@ export default function App() {
         setShowOverlay(true);
         setSubmission("");
         setSubmittedEntry(null);
+        setShowResults(false);
         setTimeout(() => setShowOverlay(false), 2000);
+      } else if (newPhase === "results") {
+        setShowResults(true);
+      } else if (newPhase === "intermission") {
+        setShowResults(false);
       }
     });
     socket.on("entries", setEntries);
@@ -212,7 +218,7 @@ export default function App() {
           </div>
         )}
 
-        {phase === "results" && (
+        {showResults && (
           <div className="space-y-2">
             <h4 className="font-semibold mb-2">Results:</h4>
             {entries.map((e) => {
@@ -267,6 +273,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
