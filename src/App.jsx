@@ -11,7 +11,6 @@ export default function App() {
   const [room, setRoom] = useState(null);
   const [joined, setJoined] = useState(false);
   const [error, setError] = useState(null);
-
   const [players, setPlayers] = useState([]);
   const [acronym, setAcronym] = useState("");
   const [entries, setEntries] = useState([]);
@@ -105,33 +104,6 @@ export default function App() {
   const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
   const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
-  if (!joined) {
-    return (
-      <div className="p-6 max-w-xl mx-auto min-h-screen bg-blue-950 text-white">
-        <h1 className="text-3xl font-bold mb-4">🎮 Acrophobia Lobby</h1>
-        <input
-          className="border p-2 w-full mb-4 text-black"
-          placeholder="Your name"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <h2 className="text-xl font-semibold mb-2">Select a Room</h2>
-        <div className="grid grid-cols-2 gap-2">
-          {ROOMS.map((r) => (
-            <button
-              key={r}
-              onClick={() => joinRoom(r)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-            >
-              {r}
-            </button>
-          ))}
-        </div>
-        {error && <p className="text-red-400 mt-4">{error}</p>}
-      </div>
-    );
-  }
-
   return (
     <div className={`flex min-h-screen ${bgColor} font-mono`}>
       <div className="w-1/4 p-4 border-r border-blue-800">
@@ -212,9 +184,7 @@ export default function App() {
               <button
                 key={e.id}
                 onClick={() => voteEntry(e.id)}
-                className={`block w-full border rounded p-2 hover:bg-blue-900 text-left ${
-                  votes[username] === e.id ? "bg-blue-800 border-blue-500" : "border-blue-700"
-                }`}
+                className={`block w-full border rounded p-2 hover:bg-blue-900 text-left ${votes[username] === e.id ? "bg-blue-800 border-blue-500" : "border-blue-700"}`}
               >
                 {e.text}
               </button>
@@ -226,24 +196,30 @@ export default function App() {
           <div className="space-y-2">
             <h4 className="font-semibold mb-2">Results:</h4>
             {entries.map((e) => {
-              const timeStr = resultsMeta.find((m) => m.id === e.id)?.time;
+              const timeMeta = resultsMeta.find((m) => m.id === e.id);
+              const seconds = timeMeta ? `${timeMeta.time}s` : "";
               return (
                 <motion.div
                   key={e.id}
                   className={`p-2 rounded border flex flex-col mb-2 ${
                     e.id === highlighted.winner
-                      ? "border-yellow-400 bg-yellow-900"
+                      ? "border-yellow-400 bg-yellow-900 animate-pulse"
                       : e.id === highlighted.fastest
-                      ? "border-green-400 bg-green-900"
+                      ? "border-green-400 bg-green-900 animate-pulse"
                       : "border-blue-700 bg-blue-950"
                   }`}
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                 >
-                  <div className="flex justify-between">
-                    <span className="font-bold">{e.username}</span>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold">{e.username}</span>
+                      {e.id === highlighted.winner && <span className="text-yellow-300">🏁</span>}
+                      {e.id === highlighted.fastest && <span className="text-green-300">⏱</span>}
+                      {highlighted.voters?.includes(e.username) && <span className="text-blue-300">👍</span>}
+                    </div>
                     <span className="text-sm text-gray-300">
-                      Votes: {votes[e.id] || 0} {timeStr ? `• ⏱ ${new Date(timeStr).toLocaleTimeString()}` : ""}
+                      Votes: {votes[e.id] || 0} {seconds ? `• ${seconds}` : ""}
                     </span>
                   </div>
                   <div className="text-lg mt-1">{e.text}</div>
@@ -277,6 +253,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
