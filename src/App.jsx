@@ -6,7 +6,14 @@ import { motion } from "framer-motion";
 const socket = io("https://acrophobia-backend-2.onrender.com");
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
-
+useEffect(() => {
+  const savedUser = localStorage.getItem("acrophobia_user");
+  if (savedUser) {
+    const { username } = JSON.parse(savedUser);
+    setUsername(username);
+    setIsAuthenticated(true);
+  }
+}, []);
 export default function App() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -58,23 +65,20 @@ export default function App() {
     socket.on("phase", (newPhase) => {
       setPhase(newPhase);
       if (newPhase === "submit") {
-        setShowOverlay(true);
-        setSubmission("");
-        setSubmittedEntry(null);
-        setVoteConfirmed(false);
-        setShowResults(false);
-        setShowAwards(false);
-        setTimeout(() => setShowOverlay(false), 2000);
-      } else if (newPhase === "results") {
-        setShowResults(true);
-        setTimeout(() => setShowAwards(true), 1500);
-      } else if (newPhase === "intermission") {
-        setShowResults(false);
-        setShowAwards(false);
-      } else if (newPhase === "next_round_overlay") {
-        setShowOverlay(true);
-        setTimeout(() => setShowOverlay(false), 10000);
-      }
+  setOverlayText("Get Ready!");
+  setShowOverlay(true);
+  setTimeout(() => setShowOverlay(false), 2000);
+  setSubmission("");
+  setSubmittedEntry(null);
+  setVoteConfirmed(false);
+  setShowResults(false);
+  setShowAwards(false);
+} else if (newPhase === "next_round_overlay") {
+  setOverlayText(`Round ${round + 1} starting soon...`);
+  setShowOverlay(true);
+  setTimeout(() => setShowOverlay(false), 10000);
+}
+
     });
     socket.on("entries", setEntries);
     socket.on("votes", setVotes);
@@ -182,6 +186,11 @@ export default function App() {
   }
 
   return (
+    {showOverlay && (
+  <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center text-4xl font-bold z-50">
+    {overlayText}
+  </div>
+)}
     <div className={`flex min-h-screen ${bgColor} font-mono`}>
       <div className="w-1/4 p-4 border-r border-blue-800">
         <h2 className="text-xl font-bold mb-2">Players</h2>
