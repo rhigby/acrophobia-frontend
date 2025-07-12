@@ -191,10 +191,12 @@ useEffect(() => {
   return (
     <>
       {showOverlay && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center text-4xl font-bold z-50">
-          {overlayText}
-        </div>
-      )}
+  <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div className="text-5xl font-extrabold text-red-500 drop-shadow-[0_0_10px_orange]">
+      {overlayText}
+    </div>
+  </div>
+)}
     <div className={`flex min-h-screen ${bgColor} font-mono`}>
       <div className="w-1/4 p-4 border-r border-blue-800">
         <h2 className="text-xl font-bold mb-2">Players</h2>
