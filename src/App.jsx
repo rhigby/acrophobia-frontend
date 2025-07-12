@@ -33,6 +33,7 @@ export default function App() {
   const [voteConfirmed, setVoteConfirmed] = useState(false);
   const [showAwards, setShowAwards] = useState(false);
   const [userStats, setUserStats] = useState(null);
+  const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
   const joinRoom = (roomId) => {
   if (!username) return setError("Enter your name");
   socket.emit("join_room", { room: roomId, username });
