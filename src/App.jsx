@@ -8,7 +8,9 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 
 export default function App() {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [mode, setMode] = useState("login"); // 'login' or 'register'
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [room, setRoom] = useState(null);
   const [joined, setJoined] = useState(false);
@@ -35,7 +37,6 @@ export default function App() {
     socket.on("acronym", setAcronym);
     socket.on("phase", (newPhase) => {
       setPhase(newPhase);
-
       if (newPhase === "submit") {
         setShowOverlay(true);
         setSubmission("");
@@ -102,46 +103,50 @@ export default function App() {
   }, [username]);
 
   const login = () => {
-    if (!username || !password) return setError("Enter both username and password");
-    socket.emit("login", { username, password }, (response) => {
-      if (response.success) {
+    if (!username || !password) return setError("Enter username and password");
+    socket.emit("login", { username, password }, (res) => {
+      if (res.success) {
         setIsAuthenticated(true);
         setError(null);
       } else {
-        setError(response.message || "Login failed");
+        setError(res.message || "Login failed");
       }
     });
   };
 
-  const joinRoom = (roomId) => {
-    if (!username) return setError("Enter your name");
-    socket.emit("join_room", { room: roomId, username });
-    setRoom(roomId);
-    setJoined(true);
-    setError(null);
+  const register = () => {
+    if (!username || !email || !password) return setError("All fields required");
+    socket.emit("register", { username, email, password }, (res) => {
+      if (res.success) {
+        setIsAuthenticated(true);
+        setError(null);
+      } else {
+        setError(res.message || "Registration failed");
+      }
+    });
   };
-
-  const submitEntry = () => {
-    if (!submission) return;
-    socket.emit("submit_entry", { room, username, text: submission });
-    setSubmission("");
-  };
-
-  const voteEntry = (entryId) => {
-    if (voteConfirmed) return;
-    socket.emit("vote_entry", { room, username, entryId });
-  };
-
-  const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
-  const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
   if (!isAuthenticated) {
     return (
       <div className="p-6 max-w-sm mx-auto min-h-screen flex flex-col justify-center bg-blue-950 text-white">
-        <h1 className="text-3xl font-bold mb-6 text-center">🔐 Login to Acrophobia</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center">🔐 {mode === "login" ? "Login" : "Register"}</h1>
+        {mode === "register" && (
+          <input className="border p-2 w-full mb-4 text-black" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        )}
         <input className="border p-2 w-full mb-4 text-black" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
         <input className="border p-2 w-full mb-4 text-black" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button onClick={login} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Login</button>
+        <button
+          onClick={mode === "login" ? login : register}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+        >
+          {mode === "login" ? "Login" : "Register"}
+        </button>
+        <button
+          onClick={() => setMode(mode === "login" ? "register" : "login")}
+          className="mt-2 underline text-sm text-blue-300"
+        >
+          {mode === "login" ? "Don't have an account? Register" : "Already have an account? Login"}
+        </button>
         {error && <p className="text-red-400 mt-4">{error}</p>}
       </div>
     );
