@@ -75,7 +75,6 @@ useEffect(() => {
     setShowResults(false);
     setShowAwards(false);
   } else if (newPhase === "next_round_overlay") {
-    setOverlayText(`Round ${round + 1} starting soon...`);
     setShowOverlay(true);
     setTimeout(() => setShowOverlay(false), 10000);
   } else if (newPhase === "results") {
@@ -86,7 +85,12 @@ useEffect(() => {
     socket.on("entries", setEntries);
     socket.on("votes", setVotes);
     socket.on("scores", setScores);
-    socket.on("round_number", setRound);
+    socket.on("round_number", (roundNum) => {
+      setRound(roundNum);
+      if (phase === "next_round_overlay") {
+        setOverlayText(`Round ${roundNum} starting soon...`);
+      }
+    });
     socket.on("countdown", setCountdown);
     socket.on("players", setPlayers);
     socket.on("user_stats", setUserStats);
