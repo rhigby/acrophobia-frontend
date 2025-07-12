@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 
 const socket = io("https://acrophobia-backend-2.onrender.com");
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
+const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 export default function App() {
   const [username, setUsername] = useState("");
