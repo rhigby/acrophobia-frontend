@@ -6,14 +6,7 @@ import { motion } from "framer-motion";
 const socket = io("https://acrophobia-backend-2.onrender.com");
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
-useEffect(() => {
-  const savedUser = localStorage.getItem("acrophobia_user");
-  if (savedUser) {
-    const { username } = JSON.parse(savedUser);
-    setUsername(username);
-    setIsAuthenticated(true);
-  }
-}, []);
+
 export default function App() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -33,6 +26,7 @@ export default function App() {
   const [countdown, setCountdown] = useState(null);
   const [round, setRound] = useState(0);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [overlayText, setOverlayText] = useState("");
   const [submittedEntry, setSubmittedEntry] = useState(null);
   const [highlighted, setHighlighted] = useState({});
   const [resultsMeta, setResultsMeta] = useState([]);
@@ -59,25 +53,32 @@ export default function App() {
   const voteEntry = (entryId) => {
     socket.emit("vote_entry", { room, username, entryId });
   };
-
+useEffect(() => {
+  const savedUser = localStorage.getItem("acrophobia_user");
+  if (savedUser) {
+    const { username } = JSON.parse(savedUser);
+    setUsername(username);
+    setIsAuthenticated(true);
+  }
+}, []);
   useEffect(() => {
     socket.on("acronym", setAcronym);
     socket.on("phase", (newPhase) => {
       setPhase(newPhase);
       if (newPhase === "submit") {
-  setOverlayText("Get Ready!");
-  setShowOverlay(true);
-  setTimeout(() => setShowOverlay(false), 2000);
-  setSubmission("");
-  setSubmittedEntry(null);
-  setVoteConfirmed(false);
-  setShowResults(false);
-  setShowAwards(false);
-} else if (newPhase === "next_round_overlay") {
-  setOverlayText(`Round ${round + 1} starting soon...`);
-  setShowOverlay(true);
-  setTimeout(() => setShowOverlay(false), 10000);
-}
+      setOverlayText("Get Ready!");
+      setShowOverlay(true);
+      setTimeout(() => setShowOverlay(false), 2000);
+      setSubmission("");
+      setSubmittedEntry(null);
+      setVoteConfirmed(false);
+      setShowResults(false);
+      setShowAwards(false);
+    } else if (newPhase === "next_round_overlay") {
+      setOverlayText(`Round ${round + 1} starting soon...`);
+      setShowOverlay(true);
+      setTimeout(() => setShowOverlay(false), 10000);
+    }
 
     });
     socket.on("entries", setEntries);
