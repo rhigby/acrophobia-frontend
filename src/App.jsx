@@ -64,23 +64,25 @@ useEffect(() => {
   useEffect(() => {
     socket.on("acronym", setAcronym);
     socket.on("phase", (newPhase) => {
-      setPhase(newPhase);
-      if (newPhase === "submit") {
-      setOverlayText("Get Ready!");
-      setShowOverlay(true);
-      setTimeout(() => setShowOverlay(false), 2000);
-      setSubmission("");
-      setSubmittedEntry(null);
-      setVoteConfirmed(false);
-      setShowResults(false);
-      setShowAwards(false);
-    } else if (newPhase === "next_round_overlay") {
-      setOverlayText(`Round ${round + 1} starting soon...`);
-      setShowOverlay(true);
-      setTimeout(() => setShowOverlay(false), 10000);
-    }
+  setPhase(newPhase);
+  if (newPhase === "submit") {
+    setOverlayText("Get Ready!");
+    setShowOverlay(true);
+    setTimeout(() => setShowOverlay(false), 2000);
+    setSubmission("");
+    setSubmittedEntry(null);
+    setVoteConfirmed(false);
+    setShowResults(false);
+    setShowAwards(false);
+  } else if (newPhase === "next_round_overlay") {
+    setOverlayText(`Round ${round + 1} starting soon...`);
+    setShowOverlay(true);
+    setTimeout(() => setShowOverlay(false), 10000);
+  } else if (newPhase === "results") {
+    setShowResults(true); // ✅ THIS IS THE FIX
+  }
+});
 
-    });
     socket.on("entries", setEntries);
     socket.on("votes", setVotes);
     socket.on("scores", setScores);
