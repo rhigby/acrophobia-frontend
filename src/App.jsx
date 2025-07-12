@@ -190,8 +190,24 @@ export default function App() {
       <div className="flex-1 p-6">
         <h2 className="text-xl mb-4">Room: {room} — Round {round}</h2>
         {countdown !== null && (
-          <div className="text-4xl font-bold text-red-500 mb-4">{countdown}</div>
+          <div className="fixed top-4 right-4 text-5xl font-bold text-red-500 bg-black bg-opacity-60 px-4 py-2 rounded shadow-lg z-50">{countdown}</div>
         )}
+
+        {acronym && (
+        <div className="flex justify-center mb-6 gap-4">
+          {acronym.split("").map((letter, i) => (
+            <motion.div
+              key={i}
+              className="w-20 h-20 bg-red-600 text-white text-4xl font-bold flex items-center justify-center rounded-lg border-4 border-blue-400 shadow-xl"
+              initial={{ rotateY: 90, opacity: 0 }}
+              animate={{ rotateY: 0, opacity: 1 }}
+              transition={{ delay: i * 0.1, type: "spring", stiffness: 200 }}
+            >
+              {letter}
+            </motion.div>
+          ))}
+        </div>
+      )}
 
         {phase === "submit" && (
           <div className="space-y-2">
