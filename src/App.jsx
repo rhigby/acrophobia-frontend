@@ -34,6 +34,11 @@ export default function App() {
   const [showAwards, setShowAwards] = useState(false);
   const [userStats, setUserStats] = useState(null);
   const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
+  const submitEntry = () => {
+  if (!submission) return;
+  socket.emit("submit_entry", { room, username, text: submission });
+  setSubmission("");
+};
   const joinRoom = (roomId) => {
   if (!username) return setError("Enter your name");
   socket.emit("join_room", { room: roomId, username });
