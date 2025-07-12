@@ -18,7 +18,6 @@ export default function App() {
   const [error, setError] = useState(null);
   const [players, setPlayers] = useState([]);
   const [acronym, setAcronym] = useState("");
-  const [revealedLetters, setRevealedLetters] = useState([]);
   const [entries, setEntries] = useState([]);
   const [submission, setSubmission] = useState("");
   const [phase, setPhase] = useState("waiting");
@@ -34,17 +33,12 @@ export default function App() {
   const [voteConfirmed, setVoteConfirmed] = useState(false);
   const [showAwards, setShowAwards] = useState(false);
   const [userStats, setUserStats] = useState(null);
-
   const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
 
   const submitEntry = () => {
     if (!submission) return;
     socket.emit("submit_entry", { room, username, text: submission });
     setSubmission("");
-  };
-
-  const voteEntry = (entryId) => {
-    socket.emit("vote_entry", { room, username, entryId });
   };
 
   const joinRoom = (roomId) => {
@@ -55,13 +49,12 @@ export default function App() {
     setError(null);
   };
 
-  useEffect(() => {
-    socket.on("acronym", (partial) => {
-      setAcronym(partial);
-      setRevealedLetters(partial.split(""));
-      new Audio("/beep.mp3").play().catch(() => {});
-    });
+  const voteEntry = (entryId) => {
+    socket.emit("vote_entry", { room, username, entryId });
+  };
 
+  useEffect(() => {
+    socket.on("acronym", setAcronym);
     socket.on("phase", (newPhase) => {
       setPhase(newPhase);
       if (newPhase === "submit") {
@@ -83,7 +76,6 @@ export default function App() {
         setTimeout(() => setShowOverlay(false), 10000);
       }
     });
-
     socket.on("entries", setEntries);
     socket.on("votes", setVotes);
     socket.on("scores", setScores);
@@ -104,14 +96,30 @@ export default function App() {
     });
     socket.on("highlight_results", setHighlighted);
     socket.on("results_metadata", ({ timestamps }) => {
-      const fixed = timestamps.map((entry) => ({
+      const fixedTimestamps = timestamps.map((entry) => ({
         ...entry,
         time: ((entry.time || 0) / 1000).toFixed(2),
       }));
-      setResultsMeta(fixed);
+      setResultsMeta(fixedTimestamps);
     });
 
-    return () => socket.removeAllListeners();
+    return () => {
+      socket.off("acronym");
+      socket.off("phase");
+      socket.off("entries");
+      socket.off("votes");
+      socket.off("scores");
+      socket.off("round_number");
+      socket.off("countdown");
+      socket.off("players");
+      socket.off("user_stats");
+      socket.off("beep");
+      socket.off("room_full");
+      socket.off("entry_submitted");
+      socket.off("vote_confirmed");
+      socket.off("highlight_results");
+      socket.off("results_metadata");
+    };
   }, [username]);
 
   const login = () => {
@@ -185,32 +193,121 @@ export default function App() {
             </li>
           ))}
         </ul>
+        {userStats && (
+          <div className="mt-6 bg-blue-800 p-4 rounded text-sm text-white">
+            <h3 className="font-bold mb-2">Your Stats</h3>
+            <ul className="space-y-1">
+              <li>Games Played: {userStats.games_played}</li>
+              <li>Total Points: {userStats.total_points}</li>
+              <li>Wins: {userStats.total_wins}</li>
+              <li>Fastest Time: {userStats.fastest_submission_ms || "–"} ms</li>
+              <li>Votes for Winners: {userStats.voted_for_winner_count}</li>
+            </ul>
+          </div>
+        )}
       </div>
+
       <div className="flex-1 p-6">
         <h2 className="text-xl mb-4">Room: {room} — Round {round}</h2>
         {countdown !== null && (
           <div className="fixed top-4 right-4 text-5xl font-bold text-red-500 bg-black bg-opacity-60 px-4 py-2 rounded shadow-lg z-50">{countdown}</div>
         )}
 
-        {revealedLetters.length > 0 && (
+        {acronym && (
           <div className="flex justify-center mb-6 gap-4">
-            {revealedLetters.map((letter, i) => (
+            {acronym.split("").map((letter, i) => (
               <motion.div
                 key={i}
                 className="w-20 h-20 bg-red-600 text-white text-4xl font-bold flex items-center justify-center rounded-lg border-4 border-blue-400 shadow-xl"
                 initial={{ rotateY: 90, opacity: 0 }}
                 animate={{ rotateY: 0, opacity: 1 }}
-                transition={{ delay: 0.2 * i, type: "spring", stiffness: 200 }}
+                transition={{ delay: i * 0.2, type: "spring", stiffness: 200 }}
               >
                 {letter}
               </motion.div>
             ))}
           </div>
         )}
+
+        {phase === "submit" && (
+          <div className="space-y-2">
+            <input
+              className="border border-blue-700 p-2 w-full text-xl bg-black text-blue-200"
+              placeholder="Type your answer and press Enter..."
+              value={submission}
+              disabled={!!submittedEntry}
+              onChange={(e) => setSubmission(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitEntry()}
+            />
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+              onClick={submitEntry}
+              disabled={!!submittedEntry}
+            >
+              Submit
+            </button>
+            {submittedEntry && (
+              <div className="text-green-400 mt-2">Submitted: “{submittedEntry}”</div>
+            )}
+          </div>
+        )}
+
+        {phase === "vote" && (
+          <div className="space-y-2">
+            <h4 className="font-semibold">Vote for your favorite:</h4>
+            {entries.map((e) => (
+              <button
+                key={e.id}
+                onClick={() => voteEntry(e.id)}
+                className={`block w-full border rounded p-2 hover:bg-blue-900 text-left ${votes[username] === e.id ? "bg-blue-800 border-blue-500" : "border-blue-700"}`}
+              >
+                {e.text}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {showResults && (
+          <div className="space-y-2 mt-4">
+            <h4 className="font-semibold mb-2">Results:</h4>
+            {entries.map((e) => {
+              const timeMeta = resultsMeta.find((m) => m.id === e.id);
+              const seconds = timeMeta ? `${timeMeta.time}s` : "";
+              return (
+                <motion.div
+                  key={e.id}
+                  className={`p-2 rounded border flex flex-col mb-2 ${
+                    e.id === highlighted.winner
+                      ? "border-yellow-400 bg-yellow-900 animate-pulse"
+                      : e.id === highlighted.fastest
+                      ? "border-green-400 bg-green-900 animate-pulse"
+                      : "border-blue-700 bg-blue-950"
+                  }`}
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold">{e.username}</span>
+                      {e.id === highlighted.winner && <span className="text-yellow-300">🏁</span>}
+                      {e.id === highlighted.fastest && <span className="text-green-300">⏱</span>}
+                      {highlighted.voters?.includes(e.username) && <span className="text-blue-300">👍</span>}
+                    </div>
+                    <span className="text-sm text-gray-300">
+                      Votes: {votes[e.id] || 0} {seconds ? `• ${seconds}` : ""}
+                    </span>
+                  </div>
+                  <div className="text-lg mt-1">{e.text}</div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
 
 
 
