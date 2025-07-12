@@ -101,9 +101,66 @@ export default function App() {
     };
   }, [username]);
 
-  const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
+  const login = () => {
+    if (!username || !password) return setError("Enter both username and password");
+    socket.emit("login", { username, password }, (response) => {
+      if (response.success) {
+        setIsAuthenticated(true);
+        setError(null);
+      } else {
+        setError(response.message || "Login failed");
+      }
+    });
+  };
+
+  const joinRoom = (roomId) => {
+    if (!username) return setError("Enter your name");
+    socket.emit("join_room", { room: roomId, username });
+    setRoom(roomId);
+    setJoined(true);
+    setError(null);
+  };
+
+  const submitEntry = () => {
+    if (!submission) return;
+    socket.emit("submit_entry", { room, username, text: submission });
+    setSubmission("");
+  };
+
+  const voteEntry = (entryId) => {
+    if (voteConfirmed) return;
+    socket.emit("vote_entry", { room, username, entryId });
+  };
 
   const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
+  const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
+
+  if (!isAuthenticated) {
+    return (
+      <div className="p-6 max-w-sm mx-auto min-h-screen flex flex-col justify-center bg-blue-950 text-white">
+        <h1 className="text-3xl font-bold mb-6 text-center">🔐 Login to Acrophobia</h1>
+        <input className="border p-2 w-full mb-4 text-black" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+        <input className="border p-2 w-full mb-4 text-black" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <button onClick={login} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Login</button>
+        {error && <p className="text-red-400 mt-4">{error}</p>}
+      </div>
+    );
+  }
+
+  if (!joined) {
+    return (
+      <div className="p-6 max-w-xl mx-auto min-h-screen bg-blue-950 text-white">
+        <h1 className="text-3xl font-bold mb-4">🎮 Acrophobia Lobby</h1>
+        <h2 className="text-xl font-semibold mb-2">Select a Room</h2>
+        <div className="grid grid-cols-2 gap-2">
+          {ROOMS.map((r) => (
+            <button key={r} onClick={() => joinRoom(r)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">{r}</button>
+          ))}
+        </div>
+        {error && <p className="text-red-400 mt-4">{error}</p>}
+      </div>
+    );
+  }
 
   return (
     <div className={`flex min-h-screen ${bgColor} font-mono`}>
@@ -131,13 +188,8 @@ export default function App() {
         )}
       </div>
 
-      <div className="flex-1 p-6 relative">
-        {showOverlay && (
-          <div className="absolute inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-center z-50">
-            <h1 className="text-6xl font-extrabold text-white animate-pulse">Round {round}</h1>
-          </div>
-        )}
-
+      <div className="flex-1 p-6">
+        <h2 className="text-xl mb-4">Room: {room} — Round {round}</h2>
         {countdown !== null && (
           <div className="fixed top-4 right-4 text-5xl font-bold text-red-500 bg-black bg-opacity-60 px-4 py-2 rounded shadow-lg z-50">{countdown}</div>
         )}
@@ -170,7 +222,7 @@ export default function App() {
             />
             <button
               className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
-              onClick={() => submitEntry()}
+              onClick={submitEntry}
               disabled={!!submittedEntry}
             >
               Submit
@@ -236,6 +288,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
