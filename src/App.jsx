@@ -135,22 +135,9 @@ export default function App() {
     return (
       <div className="p-6 max-w-sm mx-auto min-h-screen flex flex-col justify-center bg-blue-950 text-white">
         <h1 className="text-3xl font-bold mb-6 text-center">🔐 Login to Acrophobia</h1>
-        <input
-          className="border p-2 w-full mb-4 text-black"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          className="border p-2 w-full mb-4 text-black"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button onClick={login} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-          Login
-        </button>
+        <input className="border p-2 w-full mb-4 text-black" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+        <input className="border p-2 w-full mb-4 text-black" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <button onClick={login} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Login</button>
         {error && <p className="text-red-400 mt-4">{error}</p>}
       </div>
     );
@@ -163,13 +150,7 @@ export default function App() {
         <h2 className="text-xl font-semibold mb-2">Select a Room</h2>
         <div className="grid grid-cols-2 gap-2">
           {ROOMS.map((r) => (
-            <button
-              key={r}
-              onClick={() => joinRoom(r)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-            >
-              {r}
-            </button>
+            <button key={r} onClick={() => joinRoom(r)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">{r}</button>
           ))}
         </div>
         {error && <p className="text-red-400 mt-4">{error}</p>}
@@ -207,85 +188,90 @@ export default function App() {
       {/* Submit, vote, results, intermission, game over, etc. */}
       {/* Animate award icons after results are shown */}
       <div className="flex-1 p-6">
+        <h2 className="text-xl mb-4">Room: {room} — Round {round}</h2>
+        {countdown !== null && (
+          <div className="text-4xl font-bold text-red-500 mb-4">{countdown}</div>
+        )}
+
         {phase === "submit" && (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold">Acronym: {acronym}</h2>
+          <div className="space-y-2">
             <input
               className="border border-blue-700 p-2 w-full text-xl bg-black text-blue-200"
-              placeholder="Type your phrase..."
+              placeholder="Type your answer and press Enter..."
               value={submission}
               disabled={!!submittedEntry}
               onChange={(e) => setSubmission(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitEntry()}
             />
             <button
-              className="bg-green-600 px-4 py-2 rounded text-white"
+              className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
               onClick={submitEntry}
               disabled={!!submittedEntry}
             >
               Submit
             </button>
+            {submittedEntry && (
+              <div className="text-green-400 mt-2">Submitted: “{submittedEntry}”</div>
+            )}
           </div>
         )}
 
         {phase === "vote" && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold">Vote for the best entry</h2>
-            {entries.map((entry) => (
+          <div className="space-y-2">
+            <h4 className="font-semibold">Vote for your favorite:</h4>
+            {entries.map((e) => (
               <button
-                key={entry.id}
-                className={`w-full text-left p-3 border rounded-lg ${votes[username] === entry.id ? "bg-blue-800" : "bg-blue-950 hover:bg-blue-800"}`}
-                onClick={() => voteEntry(entry.id)}
+                key={e.id}
+                onClick={() => voteEntry(e.id)}
+                className={`block w-full border rounded p-2 hover:bg-blue-900 text-left ${votes[username] === e.id ? "bg-blue-800 border-blue-500" : "border-blue-700"}`}
               >
-                {entry.text}
+                {e.text}
               </button>
             ))}
           </div>
         )}
 
         {showResults && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold">Results</h2>
+          <div className="space-y-2 mt-4">
+            <h4 className="font-semibold mb-2">Results:</h4>
             {entries.map((e) => {
-              const meta = resultsMeta.find((m) => m.id === e.id);
+              const timeMeta = resultsMeta.find((m) => m.id === e.id);
+              const seconds = timeMeta ? `${timeMeta.time}s` : "";
               return (
                 <motion.div
                   key={e.id}
-                  className={`p-4 rounded border ${highlighted.winner === e.id ? "border-yellow-400 bg-yellow-900" : highlighted.fastest === e.id ? "border-green-400 bg-green-900" : "border-blue-700 bg-blue-950"}`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  className={`p-2 rounded border flex flex-col mb-2 ${
+                    e.id === highlighted.winner
+                      ? "border-yellow-400 bg-yellow-900 animate-pulse"
+                      : e.id === highlighted.fastest
+                      ? "border-green-400 bg-green-900 animate-pulse"
+                      : "border-blue-700 bg-blue-950"
+                  }`}
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
                 >
                   <div className="flex justify-between items-center">
-                    <div className="font-bold">{e.username}</div>
-                    <div className="text-sm text-gray-200">
-                      Votes: {votes[e.id] || 0} • ⏱ {meta?.time || "-"}s
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold">{e.username}</span>
+                      {e.id === highlighted.winner && <span className="text-yellow-300">🏁</span>}
+                      {e.id === highlighted.fastest && <span className="text-green-300">⏱</span>}
+                      {highlighted.voters?.includes(e.username) && <span className="text-blue-300">👍</span>}
                     </div>
+                    <span className="text-sm text-gray-300">
+                      Votes: {votes[e.id] || 0} {seconds ? `• ${seconds}` : ""}
+                    </span>
                   </div>
-                  <div className="mt-1">{e.text}</div>
+                  <div className="text-lg mt-1">{e.text}</div>
                 </motion.div>
               );
             })}
-          </div>
-        )}
-
-        {phase === "intermission" && (
-          <div className="text-xl text-blue-300">⏳ Intermission... Next round in {countdown}s</div>
-        )}
-
-        {phase === "game_over" && (
-          <div className="text-green-300">
-            <h2 className="text-2xl font-bold mb-2">🏆 Game Over</h2>
-            {Object.entries(scores)
-              .sort((a, b) => b[1] - a[1])
-              .map(([player, score]) => (
-                <div key={player}>{player}: {score} pts</div>
-              ))}
           </div>
         )}
       </div>
     </div>
   );
 }
+
 
 
 
