@@ -32,6 +32,13 @@ export default function App() {
   const [voteConfirmed, setVoteConfirmed] = useState(false);
   const [showAwards, setShowAwards] = useState(false);
   const [userStats, setUserStats] = useState(null);
+  const joinRoom = (roomId) => {
+  if (!username) return setError("Enter your name");
+  socket.emit("join_room", { room: roomId, username });
+  setRoom(roomId);
+  setJoined(true);
+  setError(null);
+};
 
   useEffect(() => {
     socket.on("acronym", setAcronym);
