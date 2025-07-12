@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 const socket = io("https://acrophobia-backend-2.onrender.com");
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
+const [overlayText, setOverlayText] = useState("");
 
 export default function App() {
   const [username, setUsername] = useState("");
@@ -187,11 +188,12 @@ useEffect(() => {
   }
 
   return (
-    {showOverlay && (
-  <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center text-4xl font-bold z-50">
-    {overlayText}
-  </div>
-)}
+    <>
+      {showOverlay && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center text-4xl font-bold z-50">
+          {overlayText}
+        </div>
+      )}
     <div className={`flex min-h-screen ${bgColor} font-mono`}>
       <div className="w-1/4 p-4 border-r border-blue-800">
         <h2 className="text-xl font-bold mb-2">Players</h2>
