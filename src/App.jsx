@@ -184,6 +184,28 @@ const nextRoundSound = useRef(null);
 
 
 
+const submitSound = useRef(null);
+
+useEffect(() => {
+  submitSound.current = new Audio("/submit.mp3");
+
+  socket.on("entry_submitted", ({ id, text }) => {
+    setSubmittedEntry({ id, text });
+    setSubmittedUsers((prev) => [...new Set([...prev, username])]);
+
+    // ✅ Play the sound
+    if (submitSound.current) {
+      submitSound.current.currentTime = 0;
+      submitSound.current.play().catch((e) => {
+        console.warn("Submit sound failed:", e);
+      });
+    }
+  });
+
+  return () => {
+    socket.off("entry_submitted");
+  };
+}, []);
 
 
 
@@ -227,10 +249,7 @@ const nextRoundSound = useRef(null);
   socket.on("submitted_users", (userList) => {
     setSubmittedUsers(userList);
   });
-  socket.on("entry_submitted", ({ id, text }) => {
-    setSubmittedEntry({ id, text });
-    setSubmittedUsers((prev) => [...new Set([...prev, username])]);
-  });
+  
   socket.on("acronym_ready", () => {
     setAcronymReady(true);
   });
