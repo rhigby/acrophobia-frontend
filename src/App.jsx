@@ -457,15 +457,22 @@ export default function App() {
                     {phase === "vote" && (
                         <div className="space-y-2">
                             <h4 className="font-semibold">Vote for your favorite:</h4>
-                            {entries.map((e) => (
-                                <button
-                                    key={e.id}
-                                    onClick={() => voteEntry(e.id)}
-                                    className={`block w-full border rounded p-2 hover:bg-blue-900 text-left ${votes[username] === e.id ? "bg-blue-800 border-blue-500" : "border-blue-700"}`}
-                                >
-                                    {e.text}
-                                </button>
-                            ))}
+                           {entries.map((e) => {
+                                const isOwnEntry = e.username === username;
+                                return (
+                                    <button
+                                        key={e.id}
+                                        onClick={() => voteEntry(e.id)}
+                                        disabled={isOwnEntry}
+                                        className={`block w-full border rounded p-2 text-left
+                                            ${isOwnEntry ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-900"}
+                                            ${votes[username] === e.id ? "bg-blue-800 border-blue-500" : "border-blue-700"}`}
+                                    >
+                                        {e.text}
+                                    </button>
+                                );
+                            })}
+
                         </div>
                     )}
 
