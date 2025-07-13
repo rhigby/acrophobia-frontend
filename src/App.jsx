@@ -153,98 +153,96 @@ export default function App() {
 
 
     useEffect(() => {
-        const letterSound = new Audio("/letters.wav");
+  const letterSound = new Audio("/letters.wav");
 
-          const playLetterBeep = () => {
-            letterSound.currentTime = 0;
-            letterSound.play().catch(() => {});
-          };
-        
-          socket.on("letter_beep", playLetterBeep);
-  return () => socket.off("letter_beep", playLetterBeep);
-        socket.on("voted_users", setVotedUsers);
-        socket.on("acronym", setAcronym);
-        socket.on("phase", (newPhase) => {
-            setPhase(newPhase);
-            if (newPhase === "submit") {
-                setSubmittedUsers([]);
-                setAcronymReady(false);
-                setOverlayText("Get Ready!");
-                setShowOverlay(true);
-                setTimeout(() => setShowOverlay(false), 2000);
-                setSubmission("");
-                setSubmittedEntry(null);
-                setVoteConfirmed(false);
-                setShowResults(false);
-                setShowAwards(false);
-            } else if (newPhase === "next_round_overlay") {
-                setShowOverlay(true);
-                setTimeout(() => setShowOverlay(false), 10000);
-            } else if (newPhase === "results") {
-                setShowResults(true); // ✅ THIS IS THE FIX
-            }
-        });
-        socket.on("submitted_users", (userList) => {
-            setSubmittedUsers(userList);
-        });
+  const playLetterBeep = () => {
+    letterSound.currentTime = 0;
+    letterSound.play().catch(() => {});
+  };
 
-        socket.on("entry_submitted", ({ id, text }) => {
-            setSubmittedEntry({ id, text });
-            setSubmittedUsers((prev) => [...new Set([...prev, username])]); // ✅ add self
-        });
+  socket.on("letter_beep", playLetterBeep);
+  socket.on("voted_users", setVotedUsers);
+  socket.on("acronym", setAcronym);
+  socket.on("phase", (newPhase) => {
+    setPhase(newPhase);
+    if (newPhase === "submit") {
+      setSubmittedUsers([]);
+      setAcronymReady(false);
+      setOverlayText("Get Ready!");
+      setShowOverlay(true);
+      setTimeout(() => setShowOverlay(false), 2000);
+      setSubmission("");
+      setSubmittedEntry(null);
+      setVoteConfirmed(false);
+      setShowResults(false);
+      setShowAwards(false);
+    } else if (newPhase === "next_round_overlay") {
+      setShowOverlay(true);
+      setTimeout(() => setShowOverlay(false), 10000);
+    } else if (newPhase === "results") {
+      setShowResults(true);
+    }
+  });
+  socket.on("submitted_users", (userList) => {
+    setSubmittedUsers(userList);
+  });
+  socket.on("entry_submitted", ({ id, text }) => {
+    setSubmittedEntry({ id, text });
+    setSubmittedUsers((prev) => [...new Set([...prev, username])]);
+  });
+  socket.on("acronym_ready", () => {
+    setAcronymReady(true);
+  });
+  socket.on("entries", setEntries);
+  socket.on("votes", setVotes);
+  socket.on("scores", setScores);
+  socket.on("round_number", (roundNum) => {
+    setRound(roundNum);
+    if (phase === "next_round_overlay") {
+      setOverlayText(`Round ${roundNum} starting soon...`);
+    }
+  });
+  socket.on("countdown", setCountdown);
+  socket.on("players", setPlayers);
+  socket.on("user_stats", setUserStats);
+  socket.on("beep", () => new Audio("/beep.mp3").play().catch(() => {}));
+  socket.on("room_full", () => setError("Room is full"));
+  socket.on("vote_confirmed", (entryId) => {
+    setVotes((v) => ({ ...v, [username]: entryId }));
+    setVoteConfirmed(true);
+    new Audio("/submit.mp3").play().catch(() => {});
+  });
+  socket.on("highlight_results", setHighlighted);
+  socket.on("results_metadata", ({ timestamps }) => {
+    const fixedTimestamps = timestamps.map((entry) => ({
+      ...entry,
+      time: parseFloat(entry.time).toFixed(2),
+    }));
+    setResultsMeta(fixedTimestamps);
+  });
 
+  // ✅ Correct location for the cleanup block
+  return () => {
+    socket.off("letter_beep", playLetterBeep);
+    socket.off("voted_users");
+    socket.off("acronym");
+    socket.off("phase");
+    socket.off("entries");
+    socket.off("votes");
+    socket.off("scores");
+    socket.off("round_number");
+    socket.off("countdown");
+    socket.off("players");
+    socket.off("user_stats");
+    socket.off("beep");
+    socket.off("room_full");
+    socket.off("vote_confirmed");
+    socket.off("highlight_results");
+    socket.off("results_metadata");
+    socket.off("submitted_users");
+  };
+}, [username]);
 
-        socket.on("acronym_ready", () => {
-            setAcronymReady(true);
-        });
-        socket.on("entries", setEntries);
-        socket.on("votes", setVotes);
-        socket.on("scores", setScores);
-        socket.on("round_number", (roundNum) => {
-            setRound(roundNum);
-            if (phase === "next_round_overlay") {
-                setOverlayText(`Round ${roundNum} starting soon...`);
-            }
-        });
-        socket.on("countdown", setCountdown);
-        socket.on("players", setPlayers);
-        socket.on("user_stats", setUserStats);
-        socket.on("beep", () => new Audio("/beep.mp3").play().catch(() => {}));
-        socket.on("room_full", () => setError("Room is full"));
-        
-        socket.on("vote_confirmed", (entryId) => {
-            setVotes((v) => ({ ...v, [username]: entryId }));
-            setVoteConfirmed(true);
-            new Audio("/submit.mp3").play().catch(() => {});
-        });
-        socket.on("highlight_results", setHighlighted);
-        socket.on("results_metadata", ({ timestamps }) => {
-            const fixedTimestamps = timestamps.map((entry) => ({
-                ...entry,
-                time: parseFloat(entry.time).toFixed(2), // optional formatting
-            }));
-            setResultsMeta(fixedTimestamps);
-        });
-
-        return () => {
-            socket.off("voted_users");
-            socket.off("acronym");
-            socket.off("phase");
-            socket.off("entries");
-            socket.off("votes");
-            socket.off("scores");
-            socket.off("round_number");
-            socket.off("countdown");
-            socket.off("players");
-            socket.off("user_stats");
-            socket.off("beep");
-            socket.off("room_full");
-            socket.off("vote_confirmed");
-            socket.off("highlight_results");
-            socket.off("results_metadata");
-            socket.off("submitted_users");
-        };
-    }, [username]);
 
     const login = () => {
         if (!username || !password) return setError("Enter username and password");
