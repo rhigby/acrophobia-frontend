@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { motion } from "framer-motion";
+import Cookies from "js-cookie";
 
 const socket = io("https://acrophobia-backend-2.onrender.com", {
    withCredentials: true,
