@@ -255,26 +255,28 @@ useEffect(() => {
       <div className="w-1/4 p-4 border-r border-blue-800">
         <h2 className="text-xl font-bold mb-2">Players</h2>
         <ul>
-           {sortedPlayers.map((p) => (
-             <li
-               key={p.username}
-               className={`mb-1 flex justify-between px-2 py-1 rounded ${
-                 submittedUsers.includes(p.username)
-                   ? "bg-green-700 text-white font-bold"
-                   : "bg-gray-800 text-gray-300"
-               }`}
-             >
-               <span>
-                 {p.username}
-               </span>
-               <span>
-  {p.username}
-  {submittedUsers.includes(p.username) && <span className="ml-1 text-green-300">✅</span>}
-</span>
+  {sortedPlayers.map((p) => {
+    const hasSubmitted = submittedUsers.includes(p.username);
+    const hasVoted = Object.keys(votes).includes(p.username);
 
-             </li>
-           ))}
-         </ul>
+    return (
+      <li
+        key={p.username}
+        className={`mb-1 flex justify-between px-2 py-1 rounded ${
+          hasSubmitted ? "bg-green-700 text-white font-bold" : "bg-gray-800 text-gray-300"
+        }`}
+      >
+        <span className="flex items-center gap-1">
+          {p.username}
+          {hasSubmitted && <span className="text-green-300">✍️</span>}
+          {hasVoted && <span className="text-blue-300">🗳️</span>}
+        </span>
+        <span className="font-semibold">{scores[p.username] || 0}</span>
+      </li>
+    );
+  })}
+</ul>
+
 
         {userStats && (
           <div className="mt-6 bg-blue-800 p-4 rounded text-sm text-white">
