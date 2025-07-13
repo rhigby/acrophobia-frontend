@@ -90,6 +90,10 @@ useEffect(() => {
     setShowResults(true); // ✅ THIS IS THE FIX
   }
 });
+     socket.on("submitted_users", (userList) => {
+        setSubmittedUsers(userList);
+   });
+
   socket.on("entry_submitted", ({ id, text }) => {
      setSubmittedEntry({ id, text });
      setSubmittedUsers((prev) => [...new Set([...prev, username])]); // ✅ add self
@@ -146,6 +150,7 @@ useEffect(() => {
       socket.off("vote_confirmed");
       socket.off("highlight_results");
       socket.off("results_metadata");
+       socket.off("submitted_users");
     };
   }, [username]);
 
