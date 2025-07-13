@@ -11,6 +11,7 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 export default function App() {
+   const [submittedUsers, setSubmittedUsers] = useState([]);
    const [acronymReady, setAcronymReady] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -72,6 +73,7 @@ useEffect(() => {
     socket.on("phase", (newPhase) => {
   setPhase(newPhase);
   if (newPhase === "submit") {
+     setSubmittedUsers([]);
      setAcronymReady(false);
     setOverlayText("Get Ready!");
     setShowOverlay(true);
@@ -88,6 +90,11 @@ useEffect(() => {
     setShowResults(true); // ✅ THIS IS THE FIX
   }
 });
+  socket.on("entry_submitted", ({ id, text }) => {
+     setSubmittedEntry({ id, text });
+     setSubmittedUsers((prev) => [...new Set([...prev, username])]); // ✅ add self
+   });
+
    socket.on("acronym_ready", () => {
      setAcronymReady(true);
    });
@@ -216,13 +223,27 @@ useEffect(() => {
       <div className="w-1/4 p-4 border-r border-blue-800">
         <h2 className="text-xl font-bold mb-2">Players</h2>
         <ul>
-          {sortedPlayers.map((p) => (
-            <li key={p.username} className="mb-1 flex justify-between">
-              <span>{p.username}</span>
-              <span className="font-semibold">{scores[p.username] || 0}</span>
-            </li>
-          ))}
-        </ul>
+           {sortedPlayers.map((p) => (
+             <li
+               key={p.username}
+               className={`mb-1 flex justify-between px-2 py-1 rounded ${
+                 submittedUsers.includes(p.username)
+                   ? "bg-green-700 text-white font-bold"
+                   : "bg-gray-800 text-gray-300"
+               }`}
+             >
+               <span>
+                 {p.username}
+               </span>
+               <span>
+  {p.username}
+  {submittedUsers.includes(p.username) && <span className="ml-1 text-green-300">✅</span>}
+</span>
+
+             </li>
+           ))}
+         </ul>
+
         {userStats && (
           <div className="mt-6 bg-blue-800 p-4 rounded text-sm text-white">
             <h3 className="font-bold mb-2">Your Stats</h3>
