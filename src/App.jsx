@@ -123,22 +123,29 @@ export default function App() {
     }, []);
 
         useEffect(() => {
-          beginSound.current = new Audio("/begin.mp3"); // assuming file is in /public
-        
-          // Handler for acronym ready
-         const handleAcronymReady = () => {
-  setAcronymReady(true);
+  beginSound.current = new Audio("/begin.mp3");
 
-  // ⏱️ Delay playback by 500ms
-  setTimeout(() => {
-    if (beginSound.current) {
-      beginSound.current.currentTime = 0;
-      beginSound.current.play().catch((e) => {
-        console.warn("Autoplay failed:", e);
-      });
-    }
-  }, 500); // half-second delay
-};
+  const handleAcronymReady = () => {
+    setAcronymReady(true);
+
+    // ⏱️ Delay playback by 500ms
+    setTimeout(() => {
+      if (beginSound.current) {
+        beginSound.current.currentTime = 0;
+        beginSound.current.play().catch((e) => {
+          console.warn("Autoplay failed:", e);
+        });
+      }
+    }, 500);
+  };
+
+  socket.on("acronym_ready", handleAcronymReady);
+
+  return () => {
+    socket.off("acronym_ready", handleAcronymReady);
+  };
+}, []);
+
 
 
     useEffect(() => {
