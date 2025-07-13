@@ -245,8 +245,7 @@ useEffect(() => {
     >
       {acronym}
     </motion.h1>
-  </div>
-)}
+
 
           </div>
         )}
