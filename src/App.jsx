@@ -153,6 +153,15 @@ export default function App() {
 
 
     useEffect(() => {
+        const letterSound = new Audio("/letters.wav");
+
+          const playLetterBeep = () => {
+            letterSound.currentTime = 0;
+            letterSound.play().catch(() => {});
+          };
+        
+          socket.on("letter_beep", playLetterBeep);
+  return () => socket.off("letter_beep", playLetterBeep);
         socket.on("voted_users", setVotedUsers);
         socket.on("acronym", setAcronym);
         socket.on("phase", (newPhase) => {
