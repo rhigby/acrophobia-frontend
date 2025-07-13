@@ -49,12 +49,15 @@ export default function App() {
   };
 
   const joinRoom = (roomId) => {
-    if (!username) return setError("Enter your name");
-    socket.emit("join_room", { room: roomId, username });
-    setRoom(roomId);
-    setJoined(true);
-    setError(null);
-  };
+  const user = username || Cookies.get("acrophobia_user");
+  if (!user) return setError("Enter your name");
+  setUsername(user);
+  socket.emit("join_room", { room: roomId, username: user });
+  setRoom(roomId);
+  setJoined(true);
+  setError(null);
+};
+
 
   const voteEntry = (entryId) => {
     socket.emit("vote_entry", { room, username, entryId });
