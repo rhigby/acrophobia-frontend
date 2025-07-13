@@ -234,17 +234,18 @@ useEffect(() => {
 
         {acronym && (
           <div className="flex justify-center mb-6 gap-4">
-            {acronym.split("").map((letter, i) => (
-              <motion.div
-                key={i}
-                className="w-20 h-20 bg-red-600 text-white text-4xl font-bold flex items-center justify-center rounded-lg border-4 border-blue-400 shadow-xl"
-                initial={{ rotateY: 90, opacity: 0 }}
-                animate={{ rotateY: 0, opacity: 1 }}
-                transition={{ delay: i * 0.2, type: "spring", stiffness: 200 }}
-              >
-                {letter}
-              </motion.div>
-            ))}
+            {acronym && (
+  <div className="flex justify-center mb-6">
+    <motion.h1
+      className="text-8xl font-black text-red-600 drop-shadow-[0_0_20px_orange]"
+      initial={{ rotateY: 90, opacity: 0 }}
+      animate={{ rotateY: 0, opacity: 1 }}
+      transition={{ duration: 0.8, type: "spring", stiffness: 120 }}
+    >
+      {acronym}
+    </motion.h1>
+  </div>
+)}
           </div>
         )}
 
