@@ -49,6 +49,7 @@ export default function App() {
   const [overlayText, setOverlayText] = useState("");
   const [submittedEntry, setSubmittedEntry] = useState(null);
   const [highlighted, setHighlighted] = useState({});
+  const [submissionWarning, setSubmissionWarning] = useState("");
   const [resultsMeta, setResultsMeta] = useState([]);
   const [showResults, setShowResults] = useState(false);
   const [voteConfirmed, setVoteConfirmed] = useState(false);
