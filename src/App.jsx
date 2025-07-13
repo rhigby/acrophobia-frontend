@@ -267,7 +267,7 @@ export default function App() {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-black via-blue-900 to-black text-white">
                 <motion.h1
-                    className="text-7xl font-extrabold text-red-600 tracking-widest mb-4"
+                    className="text-7xl font-bold text-red-600 tracking-widest mb-4"
                     style={{
                         fontFamily: "Impact, sans-serif",
                         textShadow: "0 0 4px orange, 0 0 8px red"
@@ -333,7 +333,7 @@ export default function App() {
         <>
             {showOverlay && (
                 <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-                    <div className="text-5xl font-extrabold text-red-500 drop-shadow-[0_0_10px_orange]">
+                    <div className="text-5xl font-extrabold text-red-500 drop-shadow-[0_0_5px_orange]">
                         {overlayText}
                     </div>
                 </div>
