@@ -507,7 +507,11 @@ useEffect(() => {
             })}
           </div>
         )}
-        {/* Chat Box */}
+        
+
+      </div>
+      
+{/* Chat Box */}
 <div className="mt-6 border-t border-blue-800 pt-4">
   <div className="h-40 overflow-y-auto bg-blue-950 border border-blue-800 rounded p-2 text-sm mb-2">
     {chatMessages.map((msg, i) => (
@@ -537,10 +541,6 @@ useEffect(() => {
     </button>
   </div>
 </div>
-
-      </div>
-      
-
 
     </div>
     </>
