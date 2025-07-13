@@ -126,20 +126,20 @@ export default function App() {
           beginSound.current = new Audio("/begin.mp3"); // assuming file is in /public
         
           // Handler for acronym ready
-          const handleAcronymReady = () => {
-            setAcronymReady(true);
-        
-            // ✅ Play the "Begin" audio once the acronym is fully revealed
-            beginSound.current.currentTime = 0;
-            beginSound.current.play().catch(() => {});
-          };
-        
-          socket.on("acronym_ready", handleAcronymReady);
-        
-          return () => {
-            socket.off("acronym_ready", handleAcronymReady);
-          };
-        }, []);
+         const handleAcronymReady = () => {
+  setAcronymReady(true);
+
+  // ⏱️ Delay playback by 500ms
+  setTimeout(() => {
+    if (beginSound.current) {
+      beginSound.current.currentTime = 0;
+      beginSound.current.play().catch((e) => {
+        console.warn("Autoplay failed:", e);
+      });
+    }
+  }, 500); // half-second delay
+};
+
 
     useEffect(() => {
         const handleConnect = () => {
