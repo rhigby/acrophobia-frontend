@@ -11,6 +11,7 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 export default function App() {
+   const [acronymReady, setAcronymReady] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -71,6 +72,7 @@ useEffect(() => {
     socket.on("phase", (newPhase) => {
   setPhase(newPhase);
   if (newPhase === "submit") {
+     setAcronymReady(false);
     setOverlayText("Get Ready!");
     setShowOverlay(true);
     setTimeout(() => setShowOverlay(false), 2000);
@@ -86,7 +88,9 @@ useEffect(() => {
     setShowResults(true); // ✅ THIS IS THE FIX
   }
 });
-
+   socket.on("acronym_ready", () => {
+     setAcronymReady(true);
+   });
     socket.on("entries", setEntries);
     socket.on("votes", setVotes);
     socket.on("scores", setScores);
@@ -260,20 +264,22 @@ useEffect(() => {
         {phase === "submit" && (
           <div className="space-y-2">
             <input
-              className="border border-blue-700 p-2 w-full text-xl bg-black text-blue-200"
-              placeholder="Type your answer and press Enter..."
-              value={submission}
-              disabled={!!submittedEntry}
-              onChange={(e) => setSubmission(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && submitEntry()}
-            />
-            <button
-              className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
-              onClick={submitEntry}
-              disabled={!!submittedEntry}
-            >
-              Submit
-            </button>
+                 className="border border-blue-700 p-2 w-full text-xl bg-black text-blue-200"
+                 placeholder="Type your answer and press Enter..."
+                 value={submission}
+                 disabled={!acronymReady || !!submittedEntry} // ✅ only active when ready
+                 onChange={(e) => setSubmission(e.target.value)}
+                 onKeyDown={(e) => e.key === "Enter" && submitEntry()}
+               />
+               
+               <button
+                 className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+                 onClick={submitEntry}
+                 disabled={!acronymReady || !!submittedEntry} // ✅ also disable the button
+               >
+                 Submit
+               </button>
+
             {submittedEntry && (
               <div className="text-green-400 mt-2">Submitted: “{submittedEntry}”</div>
             )}
