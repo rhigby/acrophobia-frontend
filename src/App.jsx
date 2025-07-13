@@ -412,13 +412,7 @@ useEffect(() => {
                  onKeyDown={(e) => e.key === "Enter" && submitEntry()}
                />
                
-               <button
-                 className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
-                 onClick={submitEntry}
-                 disabled={!acronymReady || !!submittedEntry} // ✅ also disable the button
-               >
-                 Submit
-               </button>
+      
              {submissionWarning && (
                <div className="text-red-400 mt-2">{submissionWarning}</div>
              )}
