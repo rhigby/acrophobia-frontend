@@ -202,10 +202,7 @@ export default function App() {
         socket.on("user_stats", setUserStats);
         socket.on("beep", () => new Audio("/beep.mp3").play().catch(() => {}));
         socket.on("room_full", () => setError("Room is full"));
-        socket.on("entry_submitted", ({ id, text }) => {
-            setSubmittedEntry(text);
-            new Audio("/submit.mp3").play().catch(() => {});
-        });
+        
         socket.on("vote_confirmed", (entryId) => {
             setVotes((v) => ({ ...v, [username]: entryId }));
             setVoteConfirmed(true);
@@ -233,7 +230,6 @@ export default function App() {
             socket.off("user_stats");
             socket.off("beep");
             socket.off("room_full");
-            socket.off("entry_submitted");
             socket.off("vote_confirmed");
             socket.off("highlight_results");
             socket.off("results_metadata");
