@@ -94,6 +94,25 @@ const sendMessage = () => {
   const voteEntry = (entryId) => {
     socket.emit("vote_entry", { room, username, entryId });
   };
+
+  const sendChat = () => {
+  if (chatInput.trim()) {
+    socket.emit("chat_message", { room, username, text: chatInput.trim() });
+    setChatInput("");
+  }
+};
+
+  useEffect(() => {
+  const handleChat = (msg) => {
+    setChatMessages((prev) => [...prev.slice(-49), msg]); // keep last 50 messages
+  };
+
+  socket.on("chat_message", handleChat);
+
+  return () => {
+    socket.off("chat_message", handleChat);
+  };
+}, []);
 useEffect(() => {
   const handleConnect = () => {
     socket.emit("check_session", (res) => {
@@ -160,9 +179,7 @@ useEffect(() => {
      setSubmittedEntry({ id, text });
      setSubmittedUsers((prev) => [...new Set([...prev, username])]); // ✅ add self
    });
-  socket.on("chat_message", (msg) => {
-    setChatMessages((prev) => [...prev.slice(-49), msg]); // keep last 50 messages
-  });
+
 
    socket.on("acronym_ready", () => {
      setAcronymReady(true);
@@ -486,33 +503,35 @@ useEffect(() => {
             })}
           </div>
         )}
-      </div>
-      <div className="mt-8">
-  <h3 className="text-lg font-semibold mb-2 text-white">💬 Chat</h3>
-  <div className="bg-blue-900 h-40 overflow-y-auto rounded p-2 text-sm mb-2 border border-blue-700">
-    {chatMessages.map((m, i) => (
-      <div key={i}>
-        <span className="text-blue-300 font-bold">{m.username}:</span>{" "}
-        <span className="text-blue-100">{m.text}</span>
+        {/* Chat Box */}
+<div className="mt-6 border-t border-blue-800 pt-4">
+  <div className="h-40 overflow-y-auto bg-blue-950 border border-blue-800 rounded p-2 text-sm mb-2">
+    {chatMessages.map((msg, i) => (
+      <div key={i} className="text-blue-200">
+        <span className="font-bold text-blue-400">{msg.username}:</span> {msg.text}
       </div>
     ))}
   </div>
   <div className="flex gap-2">
     <input
-      className="flex-1 p-1 rounded text-black"
+      type="text"
+      className="flex-1 p-2 bg-black text-white border border-blue-700 rounded"
+      placeholder="Type a message..."
       value={chatInput}
       onChange={(e) => setChatInput(e.target.value)}
-      onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-      placeholder="Type a message..."
+      onKeyDown={(e) => e.key === "Enter" && sendChat()}
     />
     <button
-      className="bg-blue-600 text-white px-3 py-1 rounded"
-      onClick={sendMessage}
+      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+      onClick={sendChat}
     >
       Send
     </button>
   </div>
 </div>
+      </div>
+      
+
 
     </div>
     </>
