@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { motion } from "framer-motion";
+import Cookies from "js-cookie"; // npm install js-cookie
 
 const socket = io("https://acrophobia-backend-2.onrender.com");
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
@@ -54,13 +55,13 @@ export default function App() {
     socket.emit("vote_entry", { room, username, entryId });
   };
 useEffect(() => {
-  const savedUser = localStorage.getItem("acrophobia_user");
-  if (savedUser) {
-    const { username } = JSON.parse(savedUser);
-    setUsername(username);
+  const cookieUser = Cookies.get("acrophobia_user");
+  if (cookieUser) {
+    setUsername(cookieUser);
     setIsAuthenticated(true);
   }
 }, []);
+
   useEffect(() => {
     socket.on("acronym", setAcronym);
     socket.on("phase", (newPhase) => {
@@ -138,6 +139,7 @@ useEffect(() => {
     socket.emit("login", { username, password }, (res) => {
       if (res.success) {
         setIsAuthenticated(true);
+         Cookies.set("acrophobia_user", username, { expires: 7 });
         setError(null);
       } else {
         setError(res.message || "Login failed");
@@ -150,6 +152,7 @@ useEffect(() => {
     socket.emit("register", { username, email, password }, (res) => {
       if (res.success) {
         setIsAuthenticated(true);
+        Cookies.set("acrophobia_user", username, { expires: 7 });
         setError(null);
       } else {
         setError(res.message || "Registration failed");
