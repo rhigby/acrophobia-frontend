@@ -25,6 +25,7 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 export default function App() {
+  const [authLoading, setAuthLoading] = useState(true);
    const [votedUsers, setVotedUsers] = useState([]);
    const [submittedUsers, setSubmittedUsers] = useState([]);
    const [acronymReady, setAcronymReady] = useState(false);
@@ -56,6 +57,8 @@ export default function App() {
   const [showAwards, setShowAwards] = useState(false);
   const [userStats, setUserStats] = useState(null);
   const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
+
+  
 
   const submitEntry = () => {
   if (!submission) return;
@@ -90,6 +93,7 @@ useEffect(() => {
         setUsername(res.username);
         setIsAuthenticated(true);
         setJoined(false);
+        setAuthLoading(false); // ✅ done loading
       } else {
         const cookieUser = Cookies.get("acrophobia_user");
         if (cookieUser) {
@@ -99,18 +103,19 @@ useEffect(() => {
               setIsAuthenticated(true);
               setJoined(false);
             }
+            setAuthLoading(false); // ✅ done loading
           });
+        } else {
+          setAuthLoading(false); // ✅ done loading
         }
       }
     });
   };
 
   socket.on("connect", handleConnect);
-
-  return () => {
-    socket.off("connect", handleConnect); // ✅ cleanup
-  };
+  return () => socket.off("connect", handleConnect);
 }, []);
+
 
 
 
@@ -230,6 +235,15 @@ useEffect(() => {
     });
   };
 
+  if (authLoading) {
+  return (
+    <div className="flex items-center justify-center h-screen bg-blue-950 text-white">
+      <div className="text-xl">Checking session...</div>
+    </div>
+  );
+}
+
+  
   if (!isAuthenticated) {
     return (
       <div className="p-6 max-w-sm mx-auto min-h-screen flex flex-col justify-center bg-blue-950 text-white">
