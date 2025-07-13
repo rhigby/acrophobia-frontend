@@ -60,14 +60,28 @@ export default function App() {
     socket.emit("vote_entry", { room, username, entryId });
   };
 useEffect(() => {
-  socket.emit("check_session", (res) => {
-    if (res.authenticated) {
-      setUsername(res.username);
-      setIsAuthenticated(true);
-      setJoined(false); // ✅ show room select screen after login
-    }
+  socket.on("connect", () => {
+    socket.emit("check_session", (res) => {
+      if (res.authenticated) {
+        setUsername(res.username);
+        setIsAuthenticated(true);
+        setJoined(false); // ✅ go to lobby
+      } else {
+        const cookieUser = Cookies.get("acrophobia_user");
+        if (cookieUser) {
+          setUsername(cookieUser);
+          setIsAuthenticated(true);
+          setJoined(false); // ✅ go to lobby
+        }
+      }
+    });
   });
+
+  return () => {
+    socket.off("connect");
+  };
 }, []);
+
 
 
 
