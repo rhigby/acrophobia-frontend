@@ -276,7 +276,7 @@ export default function App() {
                     animate={{ rotateY: 360 }}
                     transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
                 >
-                    BRB
+                    ACRO
                 </motion.h1>
 
                 <motion.div
