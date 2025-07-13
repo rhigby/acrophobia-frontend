@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef  } from "react";
 import { io } from "socket.io-client";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
@@ -26,6 +26,7 @@ const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-20
 
 export default function App() {
   const [chatMessages, setChatMessages] = useState([]);
+  const chatEndRef = useRef(null);
 const [chatInput, setChatInput] = useState("");
   const [authLoading, setAuthLoading] = useState(true);
    const [votedUsers, setVotedUsers] = useState([]);
@@ -101,7 +102,10 @@ const sendMessage = () => {
     setChatInput("");
   }
 };
-
+useEffect(() => {
+  chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+}, [chatMessages]);
+  
   useEffect(() => {
   const handleChat = (msg) => {
     setChatMessages((prev) => [...prev.slice(-49), msg]); // keep last 50 messages
@@ -511,7 +515,11 @@ useEffect(() => {
         <span className="font-bold text-blue-400">{msg.username}:</span> {msg.text}
       </div>
     ))}
+
+    {/* 👇 Place the scroll target div right here */}
+    <div ref={chatEndRef}></div>
   </div>
+
   <div className="flex gap-2">
     <input
       type="text"
@@ -529,6 +537,7 @@ useEffect(() => {
     </button>
   </div>
 </div>
+
       </div>
       
 
