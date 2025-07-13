@@ -237,16 +237,32 @@ useEffect(() => {
 
   if (authLoading) {
   return (
-    <div className="flex items-center justify-center h-screen bg-blue-950 text-white">
-      <div className="space-y-4 w-64">
-        <div className="h-8 bg-blue-800 rounded animate-pulse" />
-        <div className="h-6 bg-blue-800 rounded animate-pulse" />
-        <div className="h-6 bg-blue-800 rounded animate-pulse" />
-        <div className="h-10 bg-blue-700 rounded animate-pulse" />
-      </div>
+    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-black via-blue-900 to-black text-white">
+      <motion.h1
+        className="text-7xl font-extrabold text-red-600 tracking-widest mb-4"
+        style={{
+          fontFamily: "Impact, sans-serif",
+          textShadow: "0 0 4px orange, 0 0 8px red"
+        }}
+        initial={{ rotateY: 0 }}
+        animate={{ rotateY: 360 }}
+        transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+      >
+        BRB
+      </motion.h1>
+
+      <motion.div
+        className="text-lg text-blue-200"
+        initial={{ opacity: 0.3 }}
+        animate={{ opacity: [0.3, 1, 0.3] }}
+        transition={{ repeat: Infinity, duration: 2 }}
+      >
+        Checking session...
+      </motion.div>
     </div>
   );
 }
+
 
 
   
