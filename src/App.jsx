@@ -80,10 +80,14 @@ export default function App() {
             setChatInput("");
         }
     };
-
+    const beginSound = useRef(null);
     const joinRoom = (roomId) => {
         const user = username || Cookies.get("acrophobia_user");
         if (!user) return setError("Enter your name");
+        // ✅ Only initialize audio AFTER user has interacted (e.g., clicked "Join Room")
+          if (!beginSound.current) {
+            beginSound.current = new Audio("/begin.mp3");
+          }
         setUsername(user);
         socket.emit("join_room", { room: roomId, username: user });
         setRoom(roomId);
@@ -117,7 +121,6 @@ export default function App() {
             socket.off("chat_message", handleChat);
         };
     }, []);
-    const beginSound = useRef(null);
 
         useEffect(() => {
           beginSound.current = new Audio("/begin.mp3"); // assuming file is in /public
