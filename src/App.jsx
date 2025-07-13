@@ -262,14 +262,34 @@ useEffect(() => {
     return (
       <li
         key={p.username}
-        className={`mb-1 flex justify-between px-2 py-1 rounded ${
+        className={`mb-1 flex justify-between items-center px-2 py-1 rounded ${
           hasSubmitted ? "bg-green-700 text-white font-bold" : "bg-gray-800 text-gray-300"
         }`}
       >
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-2">
           {p.username}
-          {hasSubmitted && <span className="text-green-300">✍️</span>}
-          {hasVoted && <span className="text-blue-300">🗳️</span>}
+          {hasSubmitted && (
+            <motion.span
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="text-green-300"
+              title="Answered"
+            >
+              ✍️
+            </motion.span>
+          )}
+          {hasVoted && (
+            <motion.span
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="text-blue-300"
+              title="Voted"
+            >
+              🗳️
+            </motion.span>
+          )}
         </span>
         <span className="font-semibold">{scores[p.username] || 0}</span>
       </li>
@@ -277,10 +297,12 @@ useEffect(() => {
   })}
 </ul>
 
-<div className="text-xs mt-2 text-gray-400">
-  <div>✍️ = Answered</div>
-  <div>🗳️ = Voted</div>
+
+<div className="text-xs mt-3 text-gray-400">
+  <div className="flex items-center gap-1"><span className="text-green-300">✍️</span> Answered</div>
+  <div className="flex items-center gap-1"><span className="text-blue-300">🗳️</span> Voted</div>
 </div>
+
 
         {userStats && (
           <div className="mt-6 bg-blue-800 p-4 rounded text-sm text-white">
