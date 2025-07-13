@@ -18,7 +18,7 @@ function isValidSubmission(submission, acronym) {
 }
 
 const socket = io("https://acrophobia-backend-2.onrender.com", {
-   withCredentials: true,
+  withCredentials: true,
   transports: ["websocket"]
 });
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
@@ -365,7 +365,7 @@ export default function App() {
           </div>
         </div>
       )}
-      <div className={`flex min-h-screen ${bgColor} font-mono`}>
+      <div className={`flex flex-col min-h-screen ${bgColor} font-mono`}>
         <div className="w-1/4 p-4 border-r border-blue-800">
           <h2 className="text-xl font-bold mb-2">Players</h2>
           <ul>
@@ -437,9 +437,7 @@ export default function App() {
         </div>
 
         <div className="flex-1 p-6">
-          <h2 className="text-xl mb-4">
-            Room: {room} — Round {round}
-          </h2>
+          <h2 className="text-xl mb-4">Room: {room} — Round {round}</h2>
           {countdown !== null && (
             <div className="fixed top-4 right-4 text-5xl font-bold text-red-500 bg-black bg-opacity-60 px-4 py-2 rounded shadow-lg z-50">
               {countdown}
@@ -553,9 +551,7 @@ export default function App() {
             <div className="h-40 overflow-y-auto bg-blue-950 border border-blue-800 rounded p-2 text-sm mb-2">
               {chatMessages.map((msg, i) => (
                 <div key={i} className="text-blue-200">
-                  <span className="font-bold text-blue-400">
-                    {msg.username}:
-                  </span>{" "}
+                  <span className="font-bold text-blue-400">{msg.username}:</span>{" "}
                   {msg.text}
                 </div>
               ))}
@@ -586,6 +582,7 @@ export default function App() {
     </>
   );
 }
+
 
 
 
