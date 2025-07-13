@@ -107,12 +107,12 @@ useEffect(() => {
     });
     socket.on("highlight_results", setHighlighted);
     socket.on("results_metadata", ({ timestamps }) => {
-      const fixedTimestamps = timestamps.map((entry) => ({
-        ...entry,
-        time: ((entry.time || 0) / 1000).toFixed(2),
-      }));
-      setResultsMeta(fixedTimestamps);
-    });
+  const fixedTimestamps = timestamps.map((entry) => ({
+    ...entry,
+    time: parseFloat(entry.time).toFixed(2), // optional formatting
+  }));
+  setResultsMeta(fixedTimestamps);
+});
 
     return () => {
       socket.off("acronym");
@@ -293,18 +293,18 @@ useEffect(() => {
               const timeMeta = resultsMeta.find((m) => m.id === e.id);
               const seconds = timeMeta ? `${timeMeta.time}s` : "";
               return (
-                <motion.div
-                  key={e.id}
-                  className={`p-2 rounded border flex flex-col mb-2 ${
-                    e.id === highlighted.winner
-                      ? "border-yellow-400 bg-yellow-900 animate-pulse"
-                      : e.id === highlighted.fastest
-                      ? "border-green-400 bg-green-900 animate-pulse"
-                      : "border-blue-700 bg-blue-950"
-                  }`}
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                >
+                 <motion.div
+      key={e.id}
+      className={`p-2 rounded border flex flex-col mb-2 ${
+        e.id === highlighted.winner
+          ? "border-yellow-400 bg-yellow-900 animate-pulse"
+          : e.id === highlighted.fastest
+          ? "border-green-400 bg-green-900 animate-pulse"
+          : "border-blue-700 bg-blue-950"
+      }`}
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+    >
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <span className="font-bold">{e.username}</span>
