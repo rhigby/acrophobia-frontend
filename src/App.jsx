@@ -429,7 +429,9 @@ export default function App() {
                 <li>Games Played: {userStats.games_played}</li>
                 <li>Total Points: {userStats.total_points}</li>
                 <li>Wins: {userStats.total_wins}</li>
-                <li>Fastest Time: {userStats.fastest_submission_ms || "–"} ms</li>
+                <li>
+                  Fastest Time: {userStats.fastest_submission_ms || "–"} ms
+                </li>
                 <li>Votes for Winners: {userStats.voted_for_winner_count}</li>
               </ul>
             </div>
@@ -547,7 +549,7 @@ export default function App() {
           )}
 
           {/* Chat Box */}
-          <div className="mt-6 border-t border-blue-800 pt-4">
+          <div className="mt-6 border-t border-blue-800 pt-4 flex flex-col justify-end">
             <div className="h-40 overflow-y-auto bg-blue-950 border border-blue-800 rounded p-2 text-sm mb-2">
               {chatMessages.map((msg, i) => (
                 <div key={i} className="text-blue-200">
@@ -555,7 +557,6 @@ export default function App() {
                   {msg.text}
                 </div>
               ))}
-
               {/* 👇 Place the scroll target div right here */}
               <div ref={chatEndRef}></div>
             </div>
@@ -582,6 +583,7 @@ export default function App() {
     </>
   );
 }
+
 
 
 
