@@ -277,6 +277,10 @@ useEffect(() => {
   })}
 </ul>
 
+<div className="text-xs mt-2 text-gray-400">
+  <div>✍️ = Answered</div>
+  <div>🗳️ = Voted</div>
+</div>
 
         {userStats && (
           <div className="mt-6 bg-blue-800 p-4 rounded text-sm text-white">
