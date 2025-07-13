@@ -64,6 +64,7 @@ useEffect(() => {
   });
 }, []);
 
+
   useEffect(() => {
     socket.on("acronym", setAcronym);
     socket.on("phase", (newPhase) => {
