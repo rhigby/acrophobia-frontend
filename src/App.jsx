@@ -238,10 +238,16 @@ useEffect(() => {
   if (authLoading) {
   return (
     <div className="flex items-center justify-center h-screen bg-blue-950 text-white">
-      <div className="text-xl">Checking session...</div>
+      <div className="space-y-4 w-64">
+        <div className="h-8 bg-blue-800 rounded animate-pulse" />
+        <div className="h-6 bg-blue-800 rounded animate-pulse" />
+        <div className="h-6 bg-blue-800 rounded animate-pulse" />
+        <div className="h-10 bg-blue-700 rounded animate-pulse" />
+      </div>
     </div>
   );
 }
+
 
   
   if (!isAuthenticated) {
