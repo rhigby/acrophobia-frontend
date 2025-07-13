@@ -232,23 +232,23 @@ useEffect(() => {
           <div className="fixed top-4 right-4 text-5xl font-bold text-red-500 bg-black bg-opacity-60 px-4 py-2 rounded shadow-lg z-50">{countdown}</div>
         )}
 
-        {acronym && (
+       {acronym && (
   <div className="flex justify-center mb-6">
     <motion.h1
-      className="text-8xl font-black text-red-600"
+      className="text-8xl font-extrabold text-red-600 tracking-widest"
       style={{
-        textShadow: "0 0 8px orange, 0 0 12px orange, 0 0 16px orange"
+        fontFamily: "Impact, sans-serif",
+        textShadow: "0 0 4px orange, 0 0 6px orange"
       }}
       initial={{ rotateY: 180, opacity: 0 }}
       animate={{ rotateY: 0, opacity: 1 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
+      transition={{ duration: 0.7, ease: "easeOut" }}
     >
       {acronym}
     </motion.h1>
+  </div>
+)}
 
-
-          </div>
-        )}
 
         {phase === "submit" && (
           <div className="space-y-2">
