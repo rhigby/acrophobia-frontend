@@ -63,9 +63,11 @@ useEffect(() => {
     if (res.authenticated) {
       setUsername(res.username);
       setIsAuthenticated(true);
+      setJoined(false); // ✅ show room select screen after login
     }
   });
 }, []);
+
 
 
   useEffect(() => {
