@@ -270,7 +270,7 @@ export default function App() {
                     className="text-7xl font-bold text-red-600 tracking-widest mb-4"
                     style={{
                         fontFamily: "Impact, sans-serif",
-                        textShadow: "0 0 4px orange, 0 0 8px red"
+                        textShadow: "0 0 4px orange, 0 0 4px red"
                     }}
                     initial={{ rotateY: 0 }}
                     animate={{ rotateY: 360 }}
@@ -416,10 +416,10 @@ export default function App() {
                     {acronym && (
                         <div className="flex justify-center mb-6">
                             <motion.h1
-                                className="text-8xl font-extrabold text-red-600 tracking-widest"
+                                className="text-8xl font-bold text-red-600 tracking-widest"
                                 style={{
                                     fontFamily: "Impact, sans-serif",
-                                    textShadow: "0 0 4px orange, 0 0 6px orange"
+                                    textShadow: "0 0 4px orange, 0 0 4px orange"
                                 }}
                                 initial={{ rotateY: 180, opacity: 0 }}
                                 animate={{ rotateY: 0, opacity: 1 }}
