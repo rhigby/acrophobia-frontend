@@ -517,7 +517,7 @@ export default function App() {
                         </div>
                     {/* Chat Box */}
                         <div className="border-t border-blue-800 p-4 bg-blue-950 w-full fixed bottom-0 left-1/4 right-0 z-10">
-                            <div className="h-40 overflow-y-auto bg-blue-900 border border-blue-700 rounded p-2 text-sm mb-2">
+                            <div className="h-40 overflow-y-auto bg-black-900 border border-blue-700 rounded p-2 text-sm mb-2">
                             {chatMessages.map((msg, i) => (
                                 <div key={i} className="text-blue-200">
                                     <span className="font-bold text-blue-400">{msg.username}:</span> {msg.text}
