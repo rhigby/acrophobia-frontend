@@ -306,18 +306,18 @@ useEffect(() => {
       animate={{ scale: 1, opacity: 1 }}
     >
                   <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold">{e.username}</span>
-                      {e.id === highlighted.winner && <span className="text-yellow-300">🏁</span>}
-                      {e.id === highlighted.fastest && <span className="text-green-300">⏱</span>}
-                      {highlighted.voters?.includes(e.username) && <span className="text-blue-300">👍</span>}
-                    </div>
-                    <span className="text-sm text-gray-300">
-                      Votes: {votes[e.id] || 0} {seconds ? `• ${seconds}` : ""}
-                    </span>
-                  </div>
-                  <div className="text-lg mt-1">{e.text}</div>
-                </motion.div>
+        <div className="flex items-center gap-2">
+          <span className="font-bold">{e.username}</span>
+          {e.id === highlighted.winner && <span className="text-yellow-300">🏁</span>}
+          {e.id === highlighted.fastest && <span className="text-green-300">⏱</span>}
+          {highlighted.voters?.includes(e.username) && <span className="text-blue-300">👍</span>}
+        </div>
+        <span className="text-sm text-gray-300">
+          Votes: {votes[e.id] || 0} {seconds ? `• ${seconds}` : ""}
+        </span>
+      </div>
+      <div className="text-lg mt-1">{e.text}</div>
+    </motion.div>
               );
             })}
           </div>
