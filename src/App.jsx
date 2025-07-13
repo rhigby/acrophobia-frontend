@@ -117,6 +117,27 @@ export default function App() {
             socket.off("chat_message", handleChat);
         };
     }, []);
+    const beginSound = useRef(null);
+
+        useEffect(() => {
+          beginSound.current = new Audio("/begin.mp3"); // assuming file is in /public
+        
+          // Handler for acronym ready
+          const handleAcronymReady = () => {
+            setAcronymReady(true);
+        
+            // ✅ Play the "Begin" audio once the acronym is fully revealed
+            beginSound.current.currentTime = 0;
+            beginSound.current.play().catch(() => {});
+          };
+        
+          socket.on("acronym_ready", handleAcronymReady);
+        
+          return () => {
+            socket.off("acronym_ready", handleAcronymReady);
+          };
+        }, []);
+
     useEffect(() => {
         const handleConnect = () => {
             socket.emit("check_session", (res) => {
