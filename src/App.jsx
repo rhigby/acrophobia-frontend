@@ -25,6 +25,8 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 export default function App() {
+  const [chatMessages, setChatMessages] = useState([]);
+const [chatInput, setChatInput] = useState("");
   const [authLoading, setAuthLoading] = useState(true);
    const [votedUsers, setVotedUsers] = useState([]);
    const [submittedUsers, setSubmittedUsers] = useState([]);
@@ -71,6 +73,12 @@ export default function App() {
   setSubmission("");
 };
 
+const sendMessage = () => {
+  if (chatInput.trim()) {
+    socket.emit("chat_message", { room, username, text: chatInput });
+    setChatInput("");
+  }
+};
 
   const joinRoom = (roomId) => {
   const user = username || Cookies.get("acrophobia_user");
@@ -152,6 +160,9 @@ useEffect(() => {
      setSubmittedEntry({ id, text });
      setSubmittedUsers((prev) => [...new Set([...prev, username])]); // ✅ add self
    });
+  socket.on("chat_message", (msg) => {
+    setChatMessages((prev) => [...prev.slice(-49), msg]); // keep last 50 messages
+  });
 
    socket.on("acronym_ready", () => {
      setAcronymReady(true);
