@@ -448,8 +448,9 @@ export default function App() {
                             )}
 
                             {submittedEntry && (
-                                <div className="text-green-400 mt-2">Submitted: “{submittedEntry}”</div>
-                            )}
+                                  <div className="text-green-400 mt-2">Submitted: “{submittedEntry.text}”</div>
+                                )}
+
 
                         </div>
                     )}
