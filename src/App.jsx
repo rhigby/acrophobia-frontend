@@ -12,6 +12,7 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 export default function App() {
+   const [votedUsers, setVotedUsers] = useState([]);
    const [submittedUsers, setSubmittedUsers] = useState([]);
    const [acronymReady, setAcronymReady] = useState(false);
   const [username, setUsername] = useState("");
@@ -96,6 +97,7 @@ useEffect(() => {
 
 
   useEffect(() => {
+     socket.on("voted_users", setVotedUsers);
     socket.on("acronym", setAcronym);
     socket.on("phase", (newPhase) => {
   setPhase(newPhase);
@@ -162,6 +164,7 @@ useEffect(() => {
 });
 
     return () => {
+       socket.off("voted_users");
       socket.off("acronym");
       socket.off("phase");
       socket.off("entries");
