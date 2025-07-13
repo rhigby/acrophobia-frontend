@@ -233,19 +233,21 @@ useEffect(() => {
         )}
 
         {acronym && (
-          <div className="flex justify-center mb-6 gap-4">
-            {acronym && (
   <div className="flex justify-center mb-6">
     <motion.h1
-      className="text-8xl font-black text-red-600 drop-shadow-[0_0_20px_orange]"
-      initial={{ rotateY: 90, opacity: 0 }}
+      className="text-8xl font-black text-red-600"
+      style={{
+        textShadow: "0 0 8px orange, 0 0 12px orange, 0 0 16px orange"
+      }}
+      initial={{ rotateY: 180, opacity: 0 }}
       animate={{ rotateY: 0, opacity: 1 }}
-      transition={{ duration: 0.8, type: "spring", stiffness: 120 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
     >
       {acronym}
     </motion.h1>
   </div>
 )}
+
           </div>
         )}
 
