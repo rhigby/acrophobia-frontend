@@ -4,6 +4,19 @@ import { io } from "socket.io-client";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 
+function isValidSubmission(submission, acronym) {
+  if (!submission || !acronym) return false;
+
+  const words = submission.trim().split(/\s+/);
+  if (words.length !== acronym.length) return false;
+
+  const upperAcronym = acronym.toUpperCase();
+
+  return words.every((word, idx) =>
+    word[0]?.toUpperCase() === upperAcronym[idx]
+  );
+}
+
 const socket = io("https://acrophobia-backend-2.onrender.com", {
    withCredentials: true,
   transports: ["websocket"]
@@ -44,10 +57,16 @@ export default function App() {
   const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
 
   const submitEntry = () => {
-    if (!submission) return;
-    socket.emit("submit_entry", { room, username, text: submission });
-    setSubmission("");
-  };
+  if (!submission) return;
+  if (!isValidSubmission(submission, acronym)) {
+    setSubmissionWarning("Each word must start with the matching letter in the acronym.");
+    return;
+  }
+  setSubmissionWarning(null); // ✅ clear warning if valid
+  socket.emit("submit_entry", { room, username, text: submission });
+  setSubmission("");
+};
+
 
   const joinRoom = (roomId) => {
   const user = username || Cookies.get("acrophobia_user");
@@ -363,10 +382,14 @@ useEffect(() => {
                >
                  Submit
                </button>
+             {submissionWarning && (
+               <div className="text-red-400 mt-2">{submissionWarning}</div>
+             )}
 
-            {submittedEntry && (
-              <div className="text-green-400 mt-2">Submitted: “{submittedEntry}”</div>
-            )}
+             {submittedEntry && (
+               <div className="text-green-400 mt-2">Submitted: “{submittedEntry}”</div>
+             )}
+         
           </div>
         )}
 
