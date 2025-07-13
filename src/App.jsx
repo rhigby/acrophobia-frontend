@@ -2,9 +2,10 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { motion } from "framer-motion";
-import Cookies from "js-cookie"; // npm install js-cookie
 
-const socket = io("https://acrophobia-backend-2.onrender.com");
+const socket = io("https://acrophobia-backend-2.onrender.com", {
+  withCredentials: true
+});
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
@@ -55,11 +56,12 @@ export default function App() {
     socket.emit("vote_entry", { room, username, entryId });
   };
 useEffect(() => {
-  const cookieUser = Cookies.get("acrophobia_user");
-  if (cookieUser) {
-    setUsername(cookieUser);
-    setIsAuthenticated(true);
-  }
+  socket.emit("check_session", (res) => {
+    if (res.authenticated) {
+      setUsername(res.username);
+      setIsAuthenticated(true);
+    }
+  });
 }, []);
 
   useEffect(() => {
