@@ -476,6 +476,33 @@ useEffect(() => {
           </div>
         )}
       </div>
+      <div className="mt-8">
+  <h3 className="text-lg font-semibold mb-2 text-white">💬 Chat</h3>
+  <div className="bg-blue-900 h-40 overflow-y-auto rounded p-2 text-sm mb-2 border border-blue-700">
+    {chatMessages.map((m, i) => (
+      <div key={i}>
+        <span className="text-blue-300 font-bold">{m.username}:</span>{" "}
+        <span className="text-blue-100">{m.text}</span>
+      </div>
+    ))}
+  </div>
+  <div className="flex gap-2">
+    <input
+      className="flex-1 p-1 rounded text-black"
+      value={chatInput}
+      onChange={(e) => setChatInput(e.target.value)}
+      onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+      placeholder="Type a message..."
+    />
+    <button
+      className="bg-blue-600 text-white px-3 py-1 rounded"
+      onClick={sendMessage}
+    >
+      Send
+    </button>
+  </div>
+</div>
+
     </div>
     </>
   );
