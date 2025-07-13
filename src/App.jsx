@@ -146,6 +146,10 @@ export default function App() {
   };
 }, []);
 
+const nextRoundSound = useRef(null);
+    useEffect(() => {
+  nextRoundSound.current = new Audio("/nextround.mp3");
+}, []);
 
 
     useEffect(() => {
@@ -201,6 +205,12 @@ export default function App() {
       setAcronymReady(false);
       setOverlayText("Get Ready!");
       setShowOverlay(true);
+        if (nextRoundSound.current) {
+        nextRoundSound.current.currentTime = 0;
+        nextRoundSound.current.play().catch((e) => {
+          console.warn("Next round sound failed:", e);
+        });
+      }
       setTimeout(() => setShowOverlay(false), 2000);
       setSubmission("");
       setSubmittedEntry(null);
