@@ -418,7 +418,7 @@ export default function App() {
                             <motion.h1
                                 className="text-8xl font-bold text-red-600 tracking-widest"
                                 style={{
-                                    fontFamily: "Impact, sans-serif",
+                                    fontFamily: "Georgia, serif",
                                     textShadow: "0 0 4px orange, 0 0 4px orange"
                                 }}
                                 initial={{ rotateY: 180, opacity: 0 }}
