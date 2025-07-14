@@ -60,6 +60,9 @@ export default function App() {
     const [showAwards, setShowAwards] = useState(false);
     const [userStats, setUserStats] = useState(null);
     const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
+    const roundSounds = useRef({});
+    const voteSound = useRef(null);
+    const resultsSound = useRef(null);
 
 
 
@@ -106,6 +109,17 @@ export default function App() {
             setChatInput("");
         }
     };
+    useEffect(() => {
+      roundSounds.current = {
+        1: new Audio("/round1.mp3"),
+        2: new Audio("/round2.mp3"),
+        3: new Audio("/round3.mp3"),
+        4: new Audio("/round4.mp3"),
+        5: new Audio("/round5.mp3"),
+      };
+      voteSound.current = new Audio("/votinground.mp3");
+      resultsSound.current = new Audio("/results.mp3");
+    }, []);
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [chatMessages]);
@@ -221,31 +235,67 @@ useEffect(() => {
   socket.on("voted_users", setVotedUsers);
   socket.on("acronym", setAcronym);
   socket.on("phase", (newPhase) => {
-    setPhase(newPhase);
-    if (newPhase === "submit") {
-      setSubmittedUsers([]);
-      setAcronymReady(false);
-      setOverlayText("Get Ready!");
-      setShowOverlay(true);
-        if (nextRoundSound.current) {
-        nextRoundSound.current.currentTime = 0;
-        nextRoundSound.current.play().catch((e) => {
-          console.warn("Next round sound failed:", e);
-        });
-      }
-      setTimeout(() => setShowOverlay(false), 2000);
-      setSubmission("");
-      setSubmittedEntry(null);
-      setVoteConfirmed(false);
-      setShowResults(false);
-      setShowAwards(false);
-    } else if (newPhase === "next_round_overlay") {
-      setShowOverlay(true);
-      setTimeout(() => setShowOverlay(false), 10000);
-    } else if (newPhase === "results") {
-      setShowResults(true);
+  setPhase(newPhase);
+
+  if (newPhase === "submit") {
+    setSubmittedUsers([]);
+    setAcronymReady(false);
+    setOverlayText("Get Ready!");
+    setShowOverlay(true);
+
+    // 🔊 Play next round transition sound
+    if (nextRoundSound.current) {
+      nextRoundSound.current.currentTime = 0;
+      nextRoundSound.current.play().catch((e) =>
+        console.warn("Next round sound failed:", e)
+      );
     }
-  });
+
+    // 🔊 Play round-specific sound (based on current round state)
+    const roundAudio = roundSounds.current[round];
+    if (roundAudio) {
+      roundAudio.currentTime = 0;
+      roundAudio.play().catch((e) =>
+        console.warn(`Round ${round} sound failed:`, e)
+      );
+    }
+
+    setTimeout(() => setShowOverlay(false), 2000);
+    setSubmission("");
+    setSubmittedEntry(null);
+    setVoteConfirmed(false);
+    setShowResults(false);
+    setShowAwards(false);
+  }
+
+  else if (newPhase === "next_round_overlay") {
+    setShowOverlay(true);
+    setTimeout(() => setShowOverlay(false), 10000);
+  }
+
+  else if (newPhase === "results") {
+    setShowResults(true);
+
+    // 🔊 Optionally play results sound
+    if (resultsSound.current) {
+      resultsSound.current.currentTime = 0;
+      resultsSound.current.play().catch((e) =>
+        console.warn("Results sound failed:", e)
+      );
+    }
+  }
+
+  else if (newPhase === "vote") {
+    // 🔊 Optionally play voting sound
+    if (voteSound.current) {
+      voteSound.current.currentTime = 0;
+      voteSound.current.play().catch((e) =>
+        console.warn("Vote sound failed:", e)
+      );
+    }
+  }
+});
+
   socket.on("submitted_users", (userList) => {
     setSubmittedUsers(userList);
   });
