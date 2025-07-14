@@ -210,7 +210,7 @@ useEffect(() => {
 
 
     useEffect(() => {
-  const letterSound = new Audio("/letters.wav");
+  const letterSound = new Audio("/letterturn.wav");
 
   const playLetterBeep = () => {
     letterSound.currentTime = 0;
