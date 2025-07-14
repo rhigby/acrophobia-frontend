@@ -238,35 +238,36 @@ useEffect(() => {
   setPhase(newPhase);
 
   if (newPhase === "submit") {
-    setSubmittedUsers([]);
-    setAcronymReady(false);
-    setOverlayText("Get Ready!");
-    setShowOverlay(true);
+  setSubmittedUsers([]);
+  setAcronymReady(false);
+  setOverlayText("Get Ready!");
+  setShowOverlay(true);
 
-    // 🔊 Play next round transition sound
-    if (nextRoundSound.current) {
-      nextRoundSound.current.currentTime = 0;
-      nextRoundSound.current.play().catch((e) =>
-        console.warn("Next round sound failed:", e)
-      );
-    }
-
-    // 🔊 Play round-specific sound (based on current round state)
-    const roundAudio = roundSounds.current[round];
-    if (roundAudio) {
-      roundAudio.currentTime = 0;
-      roundAudio.play().catch((e) =>
-        console.warn(`Round ${round} sound failed:`, e)
-      );
-    }
-
-    setTimeout(() => setShowOverlay(false), 2000);
-    setSubmission("");
-    setSubmittedEntry(null);
-    setVoteConfirmed(false);
-    setShowResults(false);
-    setShowAwards(false);
+  // 🔊 Play transition sound
+  if (nextRoundSound.current) {
+    nextRoundSound.current.currentTime = 0;
+    nextRoundSound.current.play().catch((e) =>
+      console.warn("Next round sound failed:", e)
+    );
   }
+
+  // 🔊 Play correct round sound using roundRef
+  const roundAudio = roundSounds.current[roundRef.current];
+  if (roundAudio) {
+    roundAudio.currentTime = 0;
+    roundAudio.play().catch((e) =>
+      console.warn(`Round ${roundRef.current} sound failed:`, e)
+    );
+  }
+
+  setTimeout(() => setShowOverlay(false), 2000);
+  setSubmission("");
+  setSubmittedEntry(null);
+  setVoteConfirmed(false);
+  setShowResults(false);
+  setShowAwards(false);
+}
+
 
   else if (newPhase === "next_round_overlay") {
     setShowOverlay(true);
@@ -307,11 +308,13 @@ useEffect(() => {
   socket.on("votes", setVotes);
   socket.on("scores", setScores);
   socket.on("round_number", (roundNum) => {
-    setRound(roundNum);
-    if (phase === "next_round_overlay") {
-      setOverlayText(`Round ${roundNum} starting soon...`);
-    }
-  });
+  setRound(roundNum);       // updates state for UI
+  roundRef.current = roundNum; // immediate access for sound playback
+
+  if (phase === "next_round_overlay") {
+    setOverlayText(`Round ${roundNum} starting soon...`);
+  }
+});
   socket.on("countdown", setCountdown);
   socket.on("players", setPlayers);
   socket.on("user_stats", setUserStats);
