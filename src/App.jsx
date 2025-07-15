@@ -142,7 +142,7 @@ export default function App() {
     }, []);
     useEffect(() => {
       socket.on("active_users", (users) => {
-        setAllUsers(users);
+        set(users);
       });
     
       return () => socket.off("active_users");
@@ -483,20 +483,23 @@ useEffect(() => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full p-2 mb-3 border rounded bg-gray-900 text-white border-gray-600"
         />
-        <ul className="bg-gray-800 p-3 rounded overflow-y-auto text-left">
-          {allUsers
-            .filter((user) =>
-              user.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-            .map((user) => (
-              <li
-                key={user}
-                className="py-1 border-b border-gray-700 last:border-b-0"
-              >
-                {user}
-              </li>
-            ))}
-        </ul>
+        <ul className="bg-gray-800 p-3 rounded overflow-y-auto text-left max-h-60">
+  {allUsers
+    .filter(([username]) =>
+      username.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .map(([username, room]) => (
+      <li
+        key={username}
+        className="py-1 border-b border-gray-700 last:border-b-0"
+      >
+        {username}{" "}
+        <span className="text-sm text-gray-400">
+          ({room ? `In ${room}` : "Lobby"})
+        </span>
+      </li>
+    ))}
+</ul>
       </div>
 
         {error && <p className="text-red-400 mt-4">{error}</p>}
