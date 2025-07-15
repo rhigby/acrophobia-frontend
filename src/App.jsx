@@ -141,7 +141,10 @@ export default function App() {
         };
     }, []);
     useEffect(() => {
-      socket.on("active_users", setAllUsers);
+      socket.on("active_users", (users) => {
+        setAllUsers(users);
+      });
+    
       return () => socket.off("active_users");
     }, []);
 
