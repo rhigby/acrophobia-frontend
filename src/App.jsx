@@ -25,6 +25,7 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 export default function App() {
+    const [roomStats, setRoomStats] = useState({});
     const [chatMessages, setChatMessages] = useState([]);
     const chatEndRef = useRef(null);
     const [chatInput, setChatInput] = useState("");
@@ -106,6 +107,18 @@ export default function App() {
             setChatInput("");
         }
     };
+
+        useEffect(() => {
+          socket.on("room_list", (data) => {
+            // Expecting: { room1: { players: 3, round: 1 }, ... }
+            setRoomStats(data);
+          });
+        
+          return () => {
+            socket.off("room_list");
+          };
+        }, []);
+    
     const backgroundMusic = useRef(null);
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -423,10 +436,33 @@ useEffect(() => {
                 <h1 className="text-3xl font-bold mb-4">🎮 Acrophobia Lobby</h1>
                 <h2 className="text-xl font-semibold mb-2">Select a Room</h2>
                 <div className="grid grid-cols-2 gap-2">
-                    {ROOMS.map((r) => (
-                        <button key={r} onClick={() => joinRoom(r)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">{r}</button>
-                    ))}
+                  {ROOMS.map((r) => {
+                    const stats = roomStats[r];
+                    const playerCount = stats?.players || 0;
+                    const roundNum = stats?.round ?? "-";
+                
+                    const isFull = playerCount >= 10;
+                
+                    return (
+                      <button
+                        key={r}
+                        onClick={() => !isFull && joinRoom(r)}
+                        disabled={isFull}
+                        className={`px-4 py-2 rounded text-white ${
+                          isFull ? "bg-gray-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                        }`}
+                      >
+                        <div className="font-bold">{r}</div>
+                        <div className="text-sm">
+                          {isFull
+                            ? "Room Full"
+                            : `Players: ${playerCount} • Round: ${roundNum}`}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
+
                 {error && <p className="text-red-400 mt-4">{error}</p>}
             </div>
         );
