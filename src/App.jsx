@@ -483,23 +483,21 @@ useEffect(() => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full p-2 mb-3 border rounded bg-gray-900 text-white border-gray-600"
         />
-        <ul className="bg-gray-800 p-3 rounded overflow-y-auto text-left max-h-60">
+        <ul className="bg-gray-800 p-3 rounded overflow-y-auto text-left">
   {allUsers
-    .filter(([username]) =>
-      username.toLowerCase().includes(searchQuery.toLowerCase())
+    .filter((u) =>
+      u.username.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .map(([username, room]) => (
+    .map((u) => (
       <li
-        key={username}
+        key={u.username}
         className="py-1 border-b border-gray-700 last:border-b-0"
       >
-        {username}{" "}
-        <span className="text-sm text-gray-400">
-          ({room ? `In ${room}` : "Lobby"})
-        </span>
+        {u.username} <span className="text-gray-400 text-sm">({u.room})</span>
       </li>
     ))}
 </ul>
+
       </div>
 
         {error && <p className="text-red-400 mt-4">{error}</p>}
