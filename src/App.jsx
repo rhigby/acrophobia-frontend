@@ -130,6 +130,12 @@ useEffect(() => {
   fanfareSound.current = new Audio("/fanfare.mp3"); // or your converted file name
     fanfareSound.current.volume = 0.5;
 }, []);
+
+const voteSound = useRef(null);
+useEffect(() => {
+  voteSound.current = new Audio("/votinground.mp3"); // or your converted file name
+    fanfareSound.current.volume = 0.5;
+}, []);
         useEffect(() => {
   beginSound.current = new Audio("/begin.mp3");
 
@@ -256,6 +262,13 @@ useEffect(() => {
         fanfareSound.current.play().catch(() => {});
       }
       setShowResults(true);
+    } else if (newPhase === "vote") {
+     if (voteSound.current) {
+        voteSound.current.currentTime = 0;
+        voteSound.current.play().catch((e) => {
+          console.warn("Vote sound failed:", e);
+        });
+      }
     }
       if (backgroundMusic.current) {
         backgroundMusic.current.currentTime = 0;
