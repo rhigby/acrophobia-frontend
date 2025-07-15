@@ -106,11 +106,15 @@ export default function App() {
             setChatInput("");
         }
     };
+    const backgroundMusic = useRef(null);
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [chatMessages]);
 
     useEffect(() => {
+        backgroundMusic.current = new Audio("/background.mp3");
+        backgroundMusic.current.loop = true; // 🔁 Keep it looping
+        backgroundMusic.current.volume = 0.4; // 🎚 Optional: Lower the volume
         const handleChat = (msg) => {
             setChatMessages((prev) => [...prev.slice(-49), msg]); // keep last 50 messages
         };
@@ -245,6 +249,17 @@ useEffect(() => {
     } else if (newPhase === "results") {
       setShowResults(true);
     }
+      if (backgroundMusic.current) {
+        backgroundMusic.current.currentTime = 0;
+        backgroundMusic.current.play().catch((e) =>
+          console.warn("Background music failed to play:", e)
+        );
+      }
+      if (newPhase === "vote" || newPhase === "results") {
+          if (backgroundMusic.current) {
+            backgroundMusic.current.pause();
+          }
+        }
   });
   socket.on("submitted_users", (userList) => {
     setSubmittedUsers(userList);
