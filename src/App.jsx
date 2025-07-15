@@ -125,7 +125,11 @@ export default function App() {
             socket.off("chat_message", handleChat);
         };
     }, []);
-
+const fanfareSound = useRef(null);
+useEffect(() => {
+  fanfareSound.current = new Audio("/fanfare.mp3"); // or your converted file name
+    fanfareSound.current.volume = 0.5;
+}, []);
         useEffect(() => {
   beginSound.current = new Audio("/begin.mp3");
 
@@ -247,6 +251,13 @@ useEffect(() => {
       setShowOverlay(true);
       setTimeout(() => setShowOverlay(false), 10000);
     } else if (newPhase === "results") {
+        resultsSound.current.currentTime = 0;
+      resultsSound.current.play().catch(() => {});
+    
+      if (fanfareSound.current) {
+        fanfareSound.current.currentTime = 0;
+        fanfareSound.current.play().catch(() => {});
+      }
       setShowResults(true);
     }
       if (backgroundMusic.current) {
