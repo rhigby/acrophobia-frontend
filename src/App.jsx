@@ -485,17 +485,15 @@ useEffect(() => {
         />
         <ul className="bg-gray-800 p-3 rounded overflow-y-auto text-left">
   {allUsers
-    .filter((u) =>
-      u.username.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .map((u) => (
-      <li
-        key={u.username}
-        className="py-1 border-b border-gray-700 last:border-b-0"
-      >
-        {u.username} <span className="text-gray-400 text-sm">({u.room})</span>
-      </li>
-    ))}
+  .filter((u) =>
+    u.username.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+  .map((u) => (
+    <li key={u.username}>
+      {u.username} ({u.room})
+    </li>
+  ))}
+
 </ul>
 
       </div>
