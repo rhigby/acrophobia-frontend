@@ -25,6 +25,8 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 export default function App() {
+    const [allUsers, setAllUsers] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [roomStats, setRoomStats] = useState({});
     const [chatMessages, setChatMessages] = useState([]);
     const chatEndRef = useRef(null);
@@ -138,6 +140,11 @@ export default function App() {
             socket.off("chat_message", handleChat);
         };
     }, []);
+    useEffect(() => {
+      socket.on("active_users", setAllUsers);
+      return () => socket.off("active_users");
+    }, []);
+
 const fanfareSound = useRef(null);
 useEffect(() => {
   fanfareSound.current = new Audio("/fanfare.mp3"); // or your converted file name
@@ -465,6 +472,27 @@ useEffect(() => {
 
                 {error && <p className="text-red-400 mt-4">{error}</p>}
             </div>
+            <div className="mt-6 max-w-md mx-auto">
+              <input
+                type="text"
+                placeholder="Search for users..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full p-2 mb-3 border rounded bg-gray-900 text-white border-gray-600"
+              />
+              <ul className="bg-gray-800 p-3 rounded max-h-48 overflow-y-auto text-left">
+                {allUsers
+                  .filter((user) =>
+                    user.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((user) => (
+                    <li key={user} className="py-1 border-b border-gray-700 last:border-b-0">
+                      {user}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+
         );
     }
 
