@@ -265,8 +265,6 @@ useEffect(() => {
       console.warn(`Round ${roundRef.current} sound failed:`, e)
     );
   }
-
-  setTimeout(() => setShowOverlay(false), 2000);
   setSubmission("");
   setSubmittedEntry(null);
   setVoteConfirmed(false);
