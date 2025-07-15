@@ -438,63 +438,70 @@ useEffect(() => {
     }
 
     if (!joined) {
-        return (
-            <div className="p-6 max-w-xl mx-auto min-h-screen bg-blue-950 text-white">
-                <h1 className="text-3xl font-bold mb-4">🎮 Acrophobia Lobby</h1>
-                <h2 className="text-xl font-semibold mb-2">Select a Room</h2>
-                <div className="grid grid-cols-2 gap-2">
-                  {ROOMS.map((r) => {
-                    const stats = roomStats[r];
-                    const playerCount = stats?.players || 0;
-                    const roundNum = stats?.round ?? "-";
-                
-                    const isFull = playerCount >= 10;
-                
-                    return (
-                      <button
-                        key={r}
-                        onClick={() => !isFull && joinRoom(r)}
-                        disabled={isFull}
-                        className={`px-4 py-2 rounded text-white ${
-                          isFull ? "bg-gray-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-                        }`}
-                      >
-                        <div className="font-bold">{r}</div>
-                        <div className="text-sm">
-                          {isFull
-                            ? "Room Full"
-                            : `Players: ${playerCount} • Round: ${roundNum}`}
-                        </div>
-                      </button>
-                    );
-                  })}
+  return (
+    <>
+      <div className="p-6 max-w-xl mx-auto min-h-screen bg-blue-950 text-white">
+        <h1 className="text-3xl font-bold mb-4">🎮 Acrophobia Lobby</h1>
+        <h2 className="text-xl font-semibold mb-2">Select a Room</h2>
+        <div className="grid grid-cols-2 gap-2">
+          {ROOMS.map((r) => {
+            const stats = roomStats[r];
+            const playerCount = stats?.players || 0;
+            const roundNum = stats?.round ?? "-";
+            const isFull = playerCount >= 10;
+
+            return (
+              <button
+                key={r}
+                onClick={() => !isFull && joinRoom(r)}
+                disabled={isFull}
+                className={`px-4 py-2 rounded text-white ${
+                  isFull
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
+              >
+                <div className="font-bold">{r}</div>
+                <div className="text-sm">
+                  {isFull
+                    ? "Room Full"
+                    : `Players: ${playerCount} • Round: ${roundNum}`}
                 </div>
+              </button>
+            );
+          })}
+        </div>
 
-                {error && <p className="text-red-400 mt-4">{error}</p>}
-            </div>
-            <div className="mt-6 max-w-md mx-auto">
-              <input
-                type="text"
-                placeholder="Search for users..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full p-2 mb-3 border rounded bg-gray-900 text-white border-gray-600"
-              />
-              <ul className="bg-gray-800 p-3 rounded max-h-48 overflow-y-auto text-left">
-                {allUsers
-                  .filter((user) =>
-                    user.toLowerCase().includes(searchQuery.toLowerCase())
-                  )
-                  .map((user) => (
-                    <li key={user} className="py-1 border-b border-gray-700 last:border-b-0">
-                      {user}
-                    </li>
-                  ))}
-              </ul>
-            </div>
+        {error && <p className="text-red-400 mt-4">{error}</p>}
+      </div>
 
-        );
-    }
+      <div className="mt-6 max-w-md mx-auto">
+        <input
+          type="text"
+          placeholder="Search for users..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full p-2 mb-3 border rounded bg-gray-900 text-white border-gray-600"
+        />
+        <ul className="bg-gray-800 p-3 rounded max-h-48 overflow-y-auto text-left">
+          {allUsers
+            .filter((user) =>
+              user.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+            .map((user) => (
+              <li
+                key={user}
+                className="py-1 border-b border-gray-700 last:border-b-0"
+              >
+                {user}
+              </li>
+            ))}
+        </ul>
+      </div>
+    </>
+  );
+}
+
 
     return (
         <>
