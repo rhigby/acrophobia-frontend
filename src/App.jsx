@@ -214,7 +214,7 @@ useEffect(() => {
 
 
     useEffect(() => {
-  const letterSound = new Audio("/letterturn.wav");
+  const letterSound = new Audio("/letters.wav");
 
   const playLetterBeep = () => {
     letterSound.currentTime = 0;
@@ -280,7 +280,7 @@ useEffect(() => {
   socket.on("countdown", setCountdown);
   socket.on("players", setPlayers);
   socket.on("user_stats", setUserStats);
-  socket.on("beep", () => new Audio("/beep.mp3").play().catch(() => {}));
+  socket.on("beep", () => new Audio("/letter.wav").play().catch(() => {}));
   socket.on("room_full", () => setError("Room is full"));
   socket.on("vote_confirmed", (entryId) => {
     setVotes((v) => ({ ...v, [username]: entryId }));
