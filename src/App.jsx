@@ -114,7 +114,7 @@ export default function App() {
     useEffect(() => {
         backgroundMusic.current = new Audio("/background.mp3");
         backgroundMusic.current.loop = true; // 🔁 Keep it looping
-        backgroundMusic.current.volume = 0.2; // 🎚 Optional: Lower the volume
+        backgroundMusic.current.volume = 0.1; // 🎚 Optional: Lower the volume
         const handleChat = (msg) => {
             setChatMessages((prev) => [...prev.slice(-49), msg]); // keep last 50 messages
         };
