@@ -150,6 +150,11 @@ export default function App() {
           console.warn("Autoplay failed:", e);
         });
       }
+
+      // ⏱️ Hide overlay AFTER sound has started
+      setTimeout(() => {
+        setShowOverlay(false);
+      }, 1000); // optionally longer if your audio file is slow
     }, 500);
   };
 
@@ -159,6 +164,7 @@ export default function App() {
     socket.off("acronym_ready", handleAcronymReady);
   };
 }, []);
+
 
 const nextRoundSound = useRef(null);
     useEffect(() => {
