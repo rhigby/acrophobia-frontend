@@ -472,10 +472,7 @@ useEffect(() => {
           })}
         </div>
 
-        {error && <p className="text-red-400 mt-4">{error}</p>}
-      </div>
-
-      <div className="mt-6 max-w-md mx-auto">
+          <div className="mt-6 max-w-md mx-auto">
         <input
           type="text"
           placeholder="Search for users..."
@@ -498,6 +495,11 @@ useEffect(() => {
             ))}
         </ul>
       </div>
+
+        {error && <p className="text-red-400 mt-4">{error}</p>}
+      </div>
+
+      
     </>
   );
 }
