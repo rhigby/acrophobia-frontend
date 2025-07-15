@@ -483,7 +483,7 @@ useEffect(() => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full p-2 mb-3 border rounded bg-gray-900 text-white border-gray-600"
         />
-        <ul className="bg-gray-800 p-3 rounded max-h-48 overflow-y-auto text-left">
+        <ul className="bg-gray-800 p-3 rounded overflow-y-auto text-left">
           {allUsers
             .filter((user) =>
               user.toLowerCase().includes(searchQuery.toLowerCase())
