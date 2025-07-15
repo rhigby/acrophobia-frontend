@@ -60,9 +60,6 @@ export default function App() {
     const [showAwards, setShowAwards] = useState(false);
     const [userStats, setUserStats] = useState(null);
     const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
-    const roundSounds = useRef({});
-    const voteSound = useRef(null);
-    const resultsSound = useRef(null);
 
 
 
@@ -110,17 +107,6 @@ export default function App() {
         }
     };
     useEffect(() => {
-      roundSounds.current = {
-        1: new Audio("/round1.mp3"),
-        2: new Audio("/round2.mp3"),
-        3: new Audio("/round3.mp3"),
-        4: new Audio("/round4.mp3"),
-        5: new Audio("/round5.mp3"),
-      };
-      voteSound.current = new Audio("/votinground.mp3");
-      resultsSound.current = new Audio("/results.mp3");
-    }, []);
-    useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [chatMessages]);
 
@@ -150,11 +136,6 @@ export default function App() {
           console.warn("Autoplay failed:", e);
         });
       }
-
-      // ⏱️ Hide overlay AFTER sound has started
-      setTimeout(() => {
-        setShowOverlay(false);
-      }, 1000); // optionally longer if your audio file is slow
     }, 500);
   };
 
@@ -164,7 +145,6 @@ export default function App() {
     socket.off("acronym_ready", handleAcronymReady);
   };
 }, []);
-
 
 const nextRoundSound = useRef(null);
     useEffect(() => {
@@ -241,66 +221,31 @@ useEffect(() => {
   socket.on("voted_users", setVotedUsers);
   socket.on("acronym", setAcronym);
   socket.on("phase", (newPhase) => {
-  setPhase(newPhase);
-
-  if (newPhase === "submit") {
-  setSubmittedUsers([]);
-  setAcronymReady(false);
-  setOverlayText("Get Ready!");
-  setShowOverlay(true);
-
-  // 🔊 Play transition sound
-  if (nextRoundSound.current) {
-    nextRoundSound.current.currentTime = 0;
-    nextRoundSound.current.play().catch((e) =>
-      console.warn("Next round sound failed:", e)
-    );
-  }
-
-  // 🔊 Play correct round sound using roundRef
-  const roundAudio = roundSounds.current[roundRef.current];
-  if (roundAudio) {
-    roundAudio.currentTime = 0;
-    roundAudio.play().catch((e) =>
-      console.warn(`Round ${roundRef.current} sound failed:`, e)
-    );
-  }
-  setSubmission("");
-  setSubmittedEntry(null);
-  setVoteConfirmed(false);
-  setShowResults(false);
-  setShowAwards(false);
-}
-
-
-  else if (newPhase === "next_round_overlay") {
-    setShowOverlay(true);
-    setTimeout(() => setShowOverlay(false), 10000);
-  }
-
-  else if (newPhase === "results") {
-    setShowResults(true);
-
-    // 🔊 Optionally play results sound
-    if (resultsSound.current) {
-      resultsSound.current.currentTime = 0;
-      resultsSound.current.play().catch((e) =>
-        console.warn("Results sound failed:", e)
-      );
+    setPhase(newPhase);
+    if (newPhase === "submit") {
+      setSubmittedUsers([]);
+      setAcronymReady(false);
+      setOverlayText("Get Ready!");
+      setShowOverlay(true);
+        if (nextRoundSound.current) {
+        nextRoundSound.current.currentTime = 0;
+        nextRoundSound.current.play().catch((e) => {
+          console.warn("Next round sound failed:", e);
+        });
+      }
+      setTimeout(() => setShowOverlay(false), 2000);
+      setSubmission("");
+      setSubmittedEntry(null);
+      setVoteConfirmed(false);
+      setShowResults(false);
+      setShowAwards(false);
+    } else if (newPhase === "next_round_overlay") {
+      setShowOverlay(true);
+      setTimeout(() => setShowOverlay(false), 10000);
+    } else if (newPhase === "results") {
+      setShowResults(true);
     }
-  }
-
-  else if (newPhase === "vote") {
-    // 🔊 Optionally play voting sound
-    if (voteSound.current) {
-      voteSound.current.currentTime = 0;
-      voteSound.current.play().catch((e) =>
-        console.warn("Vote sound failed:", e)
-      );
-    }
-  }
-});
-
+  });
   socket.on("submitted_users", (userList) => {
     setSubmittedUsers(userList);
   });
@@ -312,13 +257,11 @@ useEffect(() => {
   socket.on("votes", setVotes);
   socket.on("scores", setScores);
   socket.on("round_number", (roundNum) => {
-  setRound(roundNum);       // updates state for UI
-  roundRef.current = roundNum; // immediate access for sound playback
-
-  if (phase === "next_round_overlay") {
-    setOverlayText(`Round ${roundNum} starting soon...`);
-  }
-});
+    setRound(roundNum);
+    if (phase === "next_round_overlay") {
+      setOverlayText(`Round ${roundNum} starting soon...`);
+    }
+  });
   socket.on("countdown", setCountdown);
   socket.on("players", setPlayers);
   socket.on("user_stats", setUserStats);
