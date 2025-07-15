@@ -485,12 +485,10 @@ useEffect(() => {
         />
         <ul className="bg-gray-800 p-3 rounded overflow-y-auto text-left">
   {allUsers
-  .filter((u) =>
-    u.username.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  .filter((u) => u?.username && u.username.toLowerCase().includes(searchQuery.toLowerCase()))
   .map((u) => (
     <li key={u.username}>
-      {u.username} ({u.room})
+      {u.username} <span className="text-gray-400 text-sm">({u.room || "lobby"})</span>
     </li>
   ))}
 
