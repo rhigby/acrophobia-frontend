@@ -280,7 +280,7 @@ useEffect(() => {
   socket.on("countdown", setCountdown);
   socket.on("players", setPlayers);
   socket.on("user_stats", setUserStats);
-  socket.on("beep", () => new Audio("/tick.wav").play().catch(() => {}));
+  socket.on("beep", () => new Audio("/tick.mp3").play().catch(() => {}));
   socket.on("room_full", () => setError("Room is full"));
   socket.on("vote_confirmed", (entryId) => {
     setVotes((v) => ({ ...v, [username]: entryId }));
