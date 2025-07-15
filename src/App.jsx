@@ -251,9 +251,6 @@ useEffect(() => {
       setShowOverlay(true);
       setTimeout(() => setShowOverlay(false), 10000);
     } else if (newPhase === "results") {
-        resultsSound.current.currentTime = 0;
-      resultsSound.current.play().catch(() => {});
-    
       if (fanfareSound.current) {
         fanfareSound.current.currentTime = 0;
         fanfareSound.current.play().catch(() => {});
