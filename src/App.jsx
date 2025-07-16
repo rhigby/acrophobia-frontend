@@ -518,7 +518,7 @@ useEffect(() => {
     <div className={`flex flex-col min-h-screen ${bgColor} font-mono`}>
       <div className="flex flex-1 w-full max-w-screen-xl mx-auto flex-col md:flex-row overflow-hidden">
         {/* Players Section (now left on desktop, top on mobile) */}
-        <div className="w-full md:w-1/4 border-b md:border-b-0 md:border-r border-blue-800 bg-blue-950 p-4 md:h-auto md:min-h-screen">
+        <div className="w-full md:w-60 border-b md:border-b-0 md:border-r border-blue-800 bg-blue-950 p-4 md:h-auto md:min-h-screen">
           <h2 className="text-lg md:text-xl font-bold mb-2">Players</h2>
           <ul>
             {sortedPlayers.map((p) => {
