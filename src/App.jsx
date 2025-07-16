@@ -517,8 +517,8 @@ useEffect(() => {
 
     <div className={`flex flex-col min-h-screen ${bgColor} font-mono`}>
       <div className="flex flex-1 w-full max-w-screen-xl mx-auto flex-col md:flex-row overflow-hidden">
-        {/* Players Section */}
-        <div className="w-full md:w-1/4 border-t md:border-t-0 md:border-r border-blue-800 bg-blue-950 p-4 md:min-h-screen">
+        {/* Players Section (now left on desktop, top on mobile) */}
+        <div className="w-full md:w-1/4 border-b md:border-b-0 md:border-r border-blue-800 bg-blue-950 p-4 md:h-auto md:min-h-screen">
           <h2 className="text-lg md:text-xl font-bold mb-2">Players</h2>
           <ul>
             {sortedPlayers.map((p) => {
@@ -631,7 +631,9 @@ useEffect(() => {
                       onClick={() => voteEntry(e.id)}
                       disabled={isOwnEntry}
                       className={`block w-full border rounded p-2 text-left ${
-                        isOwnEntry ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-900"
+                        isOwnEntry
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-blue-900"
                       } ${
                         votes[username] === e.id
                           ? "bg-blue-800 border-blue-500"
