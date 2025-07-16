@@ -125,24 +125,30 @@ export default function App() {
           setChatInput("");
         };
 
-        useEffect(() => {
-          const handlePrivateMessage = ({ from, text }) => {
-            setChatMessages((prev) => [
-              ...prev,
-              {
-                username: `from ${from}`, // show sender’s name
-                text,
-                private: true,
-              },
-            ]);
-          };
-        
-          socket.on("private_message", handlePrivateMessage);
-        
-          return () => {
-            socket.off("private_message", handlePrivateMessage);
-          };
-        }, []);
+       useEffect(() => {
+  const handlePrivateMessage = ({ from, to, text }) => {
+        const currentUser = username;
+    
+        let displayName = "";
+        if (from === currentUser) {
+          displayName = `to ${to}`;
+        } else {
+          displayName = `from ${from}`;
+        }
+    
+        setChatMessages((prev) => [
+          ...prev,
+          {
+            username: displayName,
+            text,
+            private: true,
+          },
+        ]);
+      };
+    
+      socket.on("private_message", handlePrivateMessage);
+      return () => socket.off("private_message", handlePrivateMessage);
+    }, [username]);
 
 
         useEffect(() => {
