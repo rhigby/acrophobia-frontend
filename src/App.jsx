@@ -126,8 +126,15 @@ export default function App() {
         };
 
         useEffect(() => {
-          const handlePrivateMessage = (msg) => {
-            setChatMessages((prev) => [...prev.slice(-49), msg]);
+          const handlePrivateMessage = ({ from, text }) => {
+            setChatMessages((prev) => [
+              ...prev,
+              {
+                username: `from ${from}`, // show sender’s name
+                text,
+                private: true,
+              },
+            ]);
           };
         
           socket.on("private_message", handlePrivateMessage);
