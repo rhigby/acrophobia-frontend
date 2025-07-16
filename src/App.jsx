@@ -568,18 +568,6 @@ useEffect(() => {
                     </div>
 
 
-                    {userStats && (
-                        <div className="mt-6 bg-blue-800 p-4 rounded text-sm text-white">
-                            <h3 className="font-bold mb-2">Your Stats</h3>
-                            <ul className="space-y-1">
-                                <li>Games Played: {userStats.games_played}</li>
-                                <li>Total Points: {userStats.total_points}</li>
-                                <li>Wins: {userStats.total_wins}</li>
-                                <li>Fastest Time: {userStats.fastest_submission_ms || "–"} ms</li>
-                                <li>Votes for Winners: {userStats.voted_for_winner_count}</li>
-                            </ul>
-                        </div>
-                    )}
                 </div>
 
                     <div className="flex flex-col flex-1 relative">
