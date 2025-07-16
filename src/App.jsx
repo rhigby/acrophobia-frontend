@@ -516,121 +516,9 @@ useEffect(() => {
     )}
 
     <div className={`flex flex-col min-h-screen ${bgColor} font-mono`}>
-      <div className="flex flex-col flex-1 w-full max-w-screen-xl mx-auto overflow-hidden">
-        <div className="flex-1 p-4 md:p-6 overflow-y-auto pb-72 md:pb-48">
-          <h2 className="text-lg md:text-xl mb-4">
-            Room: {room} — Round {round}
-          </h2>
-
-          {countdown !== null && (
-            <div className="fixed top-4 right-4 text-3xl md:text-5xl font-bold text-red-500 bg-black bg-opacity-60 px-4 py-2 rounded shadow-lg z-50">
-              {countdown}
-            </div>
-          )}
-
-          {acronym && (
-            <div className="flex justify-center mb-6">
-              <motion.h1
-                className="text-5xl md:text-8xl font-bold text-red-600 tracking-widest"
-                style={{
-                  fontFamily: "Arial, san-serif",
-                  textShadow: "0 0 4px orange, 0 0 4px orange"
-                }}
-                initial={{ rotateY: 180, opacity: 0 }}
-                animate={{ rotateY: 0, opacity: 1 }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
-              >
-                {acronym}
-              </motion.h1>
-            </div>
-          )}
-
-          {phase === "submit" && (
-            <div className="space-y-2">
-              <input
-                className="border border-blue-700 p-2 w-full text-lg md:text-xl bg-black text-blue-200"
-                placeholder="Type your answer and press Enter..."
-                value={submission}
-                disabled={!acronymReady || !!submittedEntry}
-                onChange={(e) => setSubmission(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && submitEntry()}
-              />
-              {submissionWarning && <div className="text-red-400 mt-2">{submissionWarning}</div>}
-              {submittedEntry && (
-                <div className="text-green-400 mt-2">
-                  Submitted: “{submittedEntry.text}”
-                </div>
-              )}
-            </div>
-          )}
-
-          {phase === "vote" && (
-            <div className="space-y-2">
-              <h4 className="font-semibold">Vote for your favorite:</h4>
-              {entries.map((e) => {
-                const isOwnEntry = e.username === username;
-                return (
-                  <button
-                    key={e.id}
-                    onClick={() => voteEntry(e.id)}
-                    disabled={isOwnEntry}
-                    className={`block w-full border rounded p-2 text-left ${
-                      isOwnEntry
-                        ? "opacity-50 cursor-not-allowed"
-                        : "hover:bg-blue-900"
-                    } ${
-                      votes[username] === e.id
-                        ? "bg-blue-800 border-blue-500"
-                        : "border-blue-700"
-                    }`}
-                  >
-                    {e.text}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {showResults && (
-            <div className="space-y-2 mt-4">
-              <h4 className="font-semibold mb-2">Results:</h4>
-              {entries.map((e) => {
-                const timeMeta = resultsMeta.find((m) => m.id === e.id);
-                const seconds = timeMeta ? `${timeMeta.time}s` : "";
-                return (
-                  <motion.div
-                    key={e.id}
-                    className={`p-2 rounded border flex flex-col mb-2 ${
-                      e.id === highlighted.winner
-                        ? "border-yellow-400 bg-yellow-900 animate-pulse"
-                        : e.id === highlighted.fastest
-                        ? "border-green-400 bg-green-900 animate-pulse"
-                        : "border-blue-700 bg-blue-950"
-                    }`}
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold">{e.username}</span>
-                        {e.id === highlighted.winner && <span className="text-yellow-300">🏁</span>}
-                        {e.id === highlighted.fastest && <span className="text-green-300">⏱</span>}
-                        {highlighted.voters?.includes(e.username) && <span className="text-blue-300">👍</span>}
-                      </div>
-                      <span className="text-sm text-gray-300">
-                        Votes: {votes[e.id] || 0} {seconds ? `• ${seconds}` : ""}
-                      </span>
-                    </div>
-                    <div className="text-lg mt-1">{e.text}</div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Players Section Below Game Content on Mobile */}
-        <div className="w-full md:w-1/4 md:absolute md:top-0 md:left-0 md:h-full md:border-r border-t md:border-t-0 border-blue-800 bg-blue-950 p-4">
+      <div className="flex flex-1 w-full max-w-screen-xl mx-auto flex-col md:flex-row overflow-hidden">
+        {/* Players Section (now left on desktop, top on mobile) */}
+        <div className="w-full md:w-1/4 border-b md:border-b-0 md:border-r border-blue-800 bg-blue-950 p-4 md:h-auto md:min-h-screen">
           <h2 className="text-lg md:text-xl font-bold mb-2">Players</h2>
           <ul>
             {sortedPlayers.map((p) => {
@@ -683,42 +571,158 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* Chat Box */}
-        <div className="border-t border-blue-800 p-4 bg-blue-950 w-full z-10">
-          <div className="h-40 overflow-y-auto bg-black border border-blue-700 rounded p-2 text-sm mb-2">
-            {chatMessages.map((msg, i) => (
-              <div
-                key={i}
-                className="flex flex-wrap items-start text-blue-200 break-words"
-              >
-                <span className="font-bold text-blue-400 mr-1">{msg.username}:</span>
-                {msg.text}
+        {/* Main Gameplay Section */}
+        <div className="flex flex-col flex-1 relative overflow-y-auto">
+          <div className="flex-1 p-4 md:p-6 pb-72 md:pb-48">
+            <h2 className="text-lg md:text-xl mb-4">
+              Room: {room} — Round {round}
+            </h2>
+
+            {countdown !== null && (
+              <div className="fixed top-4 right-4 text-3xl md:text-5xl font-bold text-red-500 bg-black bg-opacity-60 px-4 py-2 rounded shadow-lg z-50">
+                {countdown}
               </div>
-            ))}
-            <div ref={chatEndRef}></div>
+            )}
+
+            {acronym && (
+              <div className="flex justify-center mb-6">
+                <motion.h1
+                  className="text-5xl md:text-8xl font-bold text-red-600 tracking-widest"
+                  style={{
+                    fontFamily: "Arial, san-serif",
+                    textShadow: "0 0 4px orange, 0 0 4px orange"
+                  }}
+                  initial={{ rotateY: 180, opacity: 0 }}
+                  animate={{ rotateY: 0, opacity: 1 }}
+                  transition={{ duration: 0.7, ease: "easeOut" }}
+                >
+                  {acronym}
+                </motion.h1>
+              </div>
+            )}
+
+            {phase === "submit" && (
+              <div className="space-y-2">
+                <input
+                  className="border border-blue-700 p-2 w-full text-lg md:text-xl bg-black text-blue-200"
+                  placeholder="Type your answer and press Enter..."
+                  value={submission}
+                  disabled={!acronymReady || !!submittedEntry}
+                  onChange={(e) => setSubmission(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && submitEntry()}
+                />
+                {submissionWarning && <div className="text-red-400 mt-2">{submissionWarning}</div>}
+                {submittedEntry && (
+                  <div className="text-green-400 mt-2">
+                    Submitted: “{submittedEntry.text}”
+                  </div>
+                )}
+              </div>
+            )}
+
+            {phase === "vote" && (
+              <div className="space-y-2">
+                <h4 className="font-semibold">Vote for your favorite:</h4>
+                {entries.map((e) => {
+                  const isOwnEntry = e.username === username;
+                  return (
+                    <button
+                      key={e.id}
+                      onClick={() => voteEntry(e.id)}
+                      disabled={isOwnEntry}
+                      className={`block w-full border rounded p-2 text-left ${
+                        isOwnEntry
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-blue-900"
+                      } ${
+                        votes[username] === e.id
+                          ? "bg-blue-800 border-blue-500"
+                          : "border-blue-700"
+                      }`}
+                    >
+                      {e.text}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {showResults && (
+              <div className="space-y-2 mt-4">
+                <h4 className="font-semibold mb-2">Results:</h4>
+                {entries.map((e) => {
+                  const timeMeta = resultsMeta.find((m) => m.id === e.id);
+                  const seconds = timeMeta ? `${timeMeta.time}s` : "";
+                  return (
+                    <motion.div
+                      key={e.id}
+                      className={`p-2 rounded border flex flex-col mb-2 ${
+                        e.id === highlighted.winner
+                          ? "border-yellow-400 bg-yellow-900 animate-pulse"
+                          : e.id === highlighted.fastest
+                          ? "border-green-400 bg-green-900 animate-pulse"
+                          : "border-blue-700 bg-blue-950"
+                      }`}
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">{e.username}</span>
+                          {e.id === highlighted.winner && <span className="text-yellow-300">🏁</span>}
+                          {e.id === highlighted.fastest && <span className="text-green-300">⏱</span>}
+                          {highlighted.voters?.includes(e.username) && <span className="text-blue-300">👍</span>}
+                        </div>
+                        <span className="text-sm text-gray-300">
+                          Votes: {votes[e.id] || 0} {seconds ? `• ${seconds}` : ""}
+                        </span>
+                      </div>
+                      <div className="text-lg mt-1">{e.text}</div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
-          <div className="flex gap-2">
-            <input
-              type="text"
-              className="flex-1 p-2 bg-black text-white border border-blue-700 rounded"
-              placeholder="Type a message..."
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendChat()}
-            />
-            <button
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-              onClick={sendChat}
-            >
-              Send
-            </button>
+          {/* Chat Box */}
+          <div className="border-t border-blue-800 p-4 bg-blue-950 w-full z-10">
+            <div className="h-40 overflow-y-auto bg-black border border-blue-700 rounded p-2 text-sm mb-2">
+              {chatMessages.map((msg, i) => (
+                <div
+                  key={i}
+                  className="flex flex-wrap items-start text-blue-200 break-words"
+                >
+                  <span className="font-bold text-blue-400 mr-1">{msg.username}:</span>
+                  {msg.text}
+                </div>
+              ))}
+              <div ref={chatEndRef}></div>
+            </div>
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                className="flex-1 p-2 bg-black text-white border border-blue-700 rounded"
+                placeholder="Type a message..."
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendChat()}
+              />
+              <button
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                onClick={sendChat}
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </>
 );
+
 
 }
 
