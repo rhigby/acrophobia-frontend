@@ -104,11 +104,27 @@ export default function App() {
     };
 
     const sendChat = () => {
-        if (chatInput.trim()) {
-            socket.emit("chat_message", { room, username, text: chatInput.trim() });
-            setChatInput("");
-        }
-    };
+          if (!chatInput.trim()) return;
+        
+          if (chatInput.startsWith("/")) {
+            const [rawUser, ...messageParts] = chatInput.slice(1).split(" ");
+            const to = rawUser.trim();
+            const message = messageParts.join(" ").trim();
+        
+            if (to && message) {
+              socket.emit("private_message", { to, message });
+              setChatMessages((prev) => [
+                ...prev,
+                { username: `to ${to}`, text: message, private: true },
+              ]);
+            }
+          } else {
+            socket.emit("chat_message", { username, text: chatInput });
+          }
+        
+          setChatInput("");
+        };
+
 
         useEffect(() => {
           socket.on("room_list", (data) => {
@@ -532,7 +548,13 @@ useEffect(() => {
                   }`}
                 >
                   <span className="flex items-center gap-2">
+                      <span
+                          onClick={() => setChatInput(`/${p.username} `)}
+                          className="cursor-pointer hover:underline"
+                          title="Send private message"
+                        >
                     {p.username}
+                      </span>
                     {hasSubmitted && (
                       <motion.span
                         initial={{ scale: 0.5, opacity: 0 }}
@@ -689,14 +711,25 @@ useEffect(() => {
           <div className="border-t border-blue-800 p-4 bg-blue-950 w-full z-10">
             <div className="h-40 overflow-y-auto bg-black border border-blue-700 rounded p-2 text-sm mb-2">
               {chatMessages.map((msg, i) => (
-                <div
-                  key={i}
-                  className="flex flex-wrap items-start text-blue-200 break-words"
-                >
-                  <span className="font-bold text-blue-400 mr-1">{msg.username}:</span>
-                  {msg.text}
-                </div>
-              ))}
+                  <div
+                    key={i}
+                    className={`flex flex-wrap items-start break-words ${
+                      msg.private ? "text-pink-300" : "text-blue-200"
+                    }`}
+                  >
+                    <span className="font-bold mr-1">
+                      {msg.private ? (
+                        <span className="italic">
+                          (Private) {msg.username}:
+                        </span>
+                      ) : (
+                        <span className="text-blue-400">{msg.username}:</span>
+                      )}
+                    </span>
+                    <span>{msg.text}</span>
+                  </div>
+                ))}
+
               <div ref={chatEndRef}></div>
             </div>
 
