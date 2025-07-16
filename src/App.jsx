@@ -125,6 +125,18 @@ export default function App() {
           setChatInput("");
         };
 
+        useEffect(() => {
+          const handlePrivateMessage = (msg) => {
+            setChatMessages((prev) => [...prev.slice(-49), msg]);
+          };
+        
+          socket.on("private_message", handlePrivateMessage);
+        
+          return () => {
+            socket.off("private_message", handlePrivateMessage);
+          };
+        }, []);
+
 
         useEffect(() => {
           socket.on("room_list", (data) => {
