@@ -516,7 +516,61 @@ useEffect(() => {
     )}
 
     <div className={`flex flex-col min-h-screen ${bgColor} font-mono`}>
-      <div className="flex flex-1 w-full max-w-screen-xl mx-auto flex-col-reverse md:flex-row overflow-hidden">
+      <div className="flex flex-1 w-full max-w-screen-xl mx-auto flex-col md:flex-row overflow-hidden">
+        {/* Players Section */}
+        <div className="w-full md:w-1/4 border-t md:border-t-0 md:border-r border-blue-800 bg-blue-950 p-4 md:min-h-screen">
+          <h2 className="text-lg md:text-xl font-bold mb-2">Players</h2>
+          <ul>
+            {sortedPlayers.map((p) => {
+              const hasSubmitted = submittedUsers.includes(p.username);
+              const hasVoted = Object.keys(votes).includes(p.username);
+              return (
+                <li
+                  key={p.username}
+                  className={`mb-1 flex justify-between items-center px-2 py-1 rounded ${
+                    hasSubmitted ? "bg-green-700 text-white font-bold" : "bg-gray-800 text-gray-300"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    {p.username}
+                    {hasSubmitted && (
+                      <motion.span
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="text-green-300"
+                        title="Answered"
+                      >
+                        ✍️
+                      </motion.span>
+                    )}
+                    {hasVoted && (
+                      <motion.span
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="text-blue-300"
+                        title="Voted"
+                      >
+                        🗳️
+                      </motion.span>
+                    )}
+                  </span>
+                  <span className="font-semibold">{scores[p.username] || 0}</span>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="text-xs mt-3 text-gray-400">
+            <div className="flex items-center gap-1">
+              <span className="text-green-300">✍️</span> Answered
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-blue-300">🗳️</span> Voted
+            </div>
+          </div>
+        </div>
+
         {/* Main Gameplay Section */}
         <div className="flex flex-col flex-1 relative overflow-y-auto">
           <div className="flex-1 p-4 md:p-6 pb-72 md:pb-48">
@@ -662,64 +716,11 @@ useEffect(() => {
             </div>
           </div>
         </div>
-
-        {/* Players Section (always last to stack under game on mobile) */}
-        <div className="w-full md:w-1/4 border-t md:border-t-0 md:border-r border-blue-800 bg-blue-950 p-4 md:min-h-screen">
-          <h2 className="text-lg md:text-xl font-bold mb-2">Players</h2>
-          <ul>
-            {sortedPlayers.map((p) => {
-              const hasSubmitted = submittedUsers.includes(p.username);
-              const hasVoted = Object.keys(votes).includes(p.username);
-              return (
-                <li
-                  key={p.username}
-                  className={`mb-1 flex justify-between items-center px-2 py-1 rounded ${
-                    hasSubmitted ? "bg-green-700 text-white font-bold" : "bg-gray-800 text-gray-300"
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    {p.username}
-                    {hasSubmitted && (
-                      <motion.span
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="text-green-300"
-                        title="Answered"
-                      >
-                        ✍️
-                      </motion.span>
-                    )}
-                    {hasVoted && (
-                      <motion.span
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="text-blue-300"
-                        title="Voted"
-                      >
-                        🗳️
-                      </motion.span>
-                    )}
-                  </span>
-                  <span className="font-semibold">{scores[p.username] || 0}</span>
-                </li>
-              );
-            })}
-          </ul>
-          <div className="text-xs mt-3 text-gray-400">
-            <div className="flex items-center gap-1">
-              <span className="text-green-300">✍️</span> Answered
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-blue-300">🗳️</span> Voted
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </>
 );
+
 
 
 
