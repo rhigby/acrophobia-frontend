@@ -574,8 +574,19 @@ useEffect(() => {
       <div className="flex flex-1 w-full max-w-screen-xl mx-auto flex-col md:flex-row overflow-hidden">
        
         <div className="w-full md:w-1/4 border-b md:border-b-0 md:border-r border-blue-800 bg-blue-950 p-4 md:h-auto md:min-h-screen">
-        
-          <h2 className="text-lg md:text-xl font-bold mb-2">Players</h2>
+            <div className="flex justify-between items-center mb-2">
+                <h2 className="text-lg md:text-xl font-bold">Players</h2>
+                <button
+                  onClick={() => {
+                    socket.emit("leave_room");
+                    setJoined(false);
+                    setRoom(null);
+                  }}
+                  className="text-xs text-blue-300 underline ml-2"
+                >
+                  ← Back
+                </button>
+              </div>
             
           <ul>
             {sortedPlayers.map((p) => {
