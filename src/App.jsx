@@ -558,14 +558,14 @@ useEffect(() => {
       <div className="flex flex-1 w-full max-w-screen-xl mx-auto flex-col md:flex-row overflow-hidden">
        
         <div className="w-full md:w-1/4 border-b md:border-b-0 md:border-r border-blue-800 bg-blue-950 p-4 md:h-auto md:min-h-screen">
-        <div className="mb-4">
+        <div className="w-full flex justify-end p-2 bg-blue-950">
     <button
       onClick={() => {
         socket.emit("leave_room");
-        setJoined(false);
-        setRoom(null);
+        setJoined(false); // Return to lobby screen
+        setRoom(null);    // Clear room state
       }}
-      className="text-sm text-blue-300 underline hover:text-blue-400 transition"
+      className="text-sm text-blue-300 underline"
     >
       ← Back to Lobby
     </button>
