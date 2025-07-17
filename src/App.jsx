@@ -556,19 +556,20 @@ useEffect(() => {
 
     <div className={`flex flex-col min-h-screen ${bgColor} font-mono`}>
       <div className="flex flex-1 w-full max-w-screen-xl mx-auto flex-col md:flex-row overflow-hidden">
-        {/* Players Section (now left on desktop, top on mobile) */}
-           <button
-          onClick={() => {
-            socket.emit("leave_room");
-            setJoined(false); // Return to lobby screen
-            setRoom(null);    // Clear room state
-          }}
-          className="text-sm text-blue-300 underline mt-4"
-        >
-          ← Back to Lobby
-        </button>
+       
         <div className="w-full md:w-1/4 border-b md:border-b-0 md:border-r border-blue-800 bg-blue-950 p-4 md:h-auto md:min-h-screen">
-        
+        <div className="mb-4">
+    <button
+      onClick={() => {
+        socket.emit("leave_room");
+        setJoined(false);
+        setRoom(null);
+      }}
+      className="text-sm text-blue-300 underline hover:text-blue-400 transition"
+    >
+      ← Back to Lobby
+    </button>
+  </div>
           <h2 className="text-lg md:text-xl font-bold mb-2">Players</h2>
             
           <ul>
