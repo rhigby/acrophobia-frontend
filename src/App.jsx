@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Acrophobia from "./pages/Acrophobia";
-import Yahtzee from "./pages/Yahtzee";
+import Yahtzee from "./pages/yahtzee";
 
 export default function App() {
   return (
