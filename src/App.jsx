@@ -561,17 +561,20 @@ useEffect(() => {
        
         <div className="w-full md:w-1/4 border-b md:border-b-0 md:border-r border-blue-800 bg-blue-950 p-4 md:h-auto md:min-h-screen">
             <div className="flex justify-between items-center mb-2">
+                <div className="flex justify-end mb-4">
+                  <button
+                    onClick={() => {
+                      socket.emit("leave_room");
+                      setJoined(false);
+                      setRoom(null);
+                    }}
+                    className="text-xs text-blue-300 underline"
+                  >
+                    ← Back to Lobby
+                  </button>
+                </div>
+
                 <h2 className="text-lg md:text-xl font-bold">Players</h2>
-                <button
-                  onClick={() => {
-                    socket.emit("leave_room");
-                    setJoined(false);
-                    setRoom(null);
-                  }}
-                  className="text-sm text-blue-300 underline ml-2"
-                >
-                  ← Back to lobby
-                </button>
               </div>
             
           <ul>
