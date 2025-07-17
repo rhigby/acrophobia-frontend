@@ -546,25 +546,26 @@ useEffect(() => {
 
     return (
   <>
-     {joined && (
-  <div className="fixed top-3 right-4 z-50">
-    <button
-      onClick={() => {
-        socket.emit("leave_room");
-        setJoined(false);
-        setRoom(null);
-      }}
-      className="text-sm text-blue-300 underline hover:text-blue-400 bg-blue-950 px-3 py-1 rounded"
-    >
-      ← Back to Lobby
-    </button>
-  </div>
-)}
+     
     {showOverlay && (
       <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
         <div className="text-4xl md:text-5xl font-extrabold text-red-500 drop-shadow-[0_0_5px_orange]">
           {overlayText}
         </div>
+      </div>
+    )}
+        {joined && (
+      <div className="fixed top-4 right-6 z-50">
+        <button
+          onClick={() => {
+            socket.emit("leave_room");
+            setJoined(false);
+            setRoom(null);
+          }}
+          className="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm shadow"
+        >
+          ← Back to Lobby
+        </button>
       </div>
     )}
 
