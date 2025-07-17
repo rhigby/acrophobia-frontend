@@ -104,26 +104,24 @@ export default function App() {
     };
 
     const sendChat = () => {
-          if (!chatInput.trim()) return;
-        
-          if (chatInput.startsWith("/")) {
-            const [rawUser, ...messageParts] = chatInput.slice(1).split(" ");
-            const to = rawUser.trim();
-            const message = messageParts.join(" ").trim();
-        
-            if (to && message) {
-              socket.emit("private_message", { to, message });
-              setChatMessages((prev) => [
-                ...prev,
-                { username: `to ${to}`, text: message, private: true },
-              ]);
-            }
-          } else {
-            socket.emit("chat_message", { username, text: chatInput });
-          }
-        
-          setChatInput("");
-        };
+  if (!chatInput.trim()) return;
+
+  if (chatInput.startsWith("/")) {
+    const [rawUser, ...messageParts] = chatInput.slice(1).split(" ");
+    const to = rawUser.trim();
+    const message = messageParts.join(" ").trim();
+
+    if (to && message) {
+      socket.emit("private_message", { to, message });
+      // 🛑 DO NOT manually add to chatMessages here anymore
+    }
+  } else {
+    socket.emit("chat_message", { room, username, text: chatInput });
+  }
+
+  setChatInput("");
+};
+
 
        useEffect(() => {
   const handlePrivateMessage = ({ from, to, text }) => {
