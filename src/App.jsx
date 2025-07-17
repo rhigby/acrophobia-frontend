@@ -568,7 +568,7 @@ useEffect(() => {
                     setJoined(false);
                     setRoom(null);
                   }}
-                  className="text-xs text-blue-300 underline ml-2"
+                  className="text-sm text-blue-300 underline ml-2"
                 >
                   ← Back to lobby
                 </button>
