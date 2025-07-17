@@ -570,7 +570,7 @@ useEffect(() => {
                   }}
                   className="text-xs text-blue-300 underline ml-2"
                 >
-                  ← Back
+                  ← Back to lobby
                 </button>
               </div>
             
