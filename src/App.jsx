@@ -125,28 +125,28 @@ export default function App() {
 
        useEffect(() => {
   const handlePrivateMessage = ({ from, to, text }) => {
-        const currentUser = username;
-    
-        let displayName = "";
-        if (from === currentUser) {
-          displayName = `to ${to}`;
-        } else {
-          displayName = `from ${from}`;
-        }
-    
-        setChatMessages((prev) => [
-          ...prev,
-          {
-            username: displayName,
-            text,
-            private: true,
-          },
-        ]);
-      };
-    
-      socket.on("private_message", handlePrivateMessage);
-      return () => socket.off("private_message", handlePrivateMessage);
-    }, [username]);
+    const isSender = from === username;
+    const displayName = isSender ? `to ${to}` : `from ${from}`;
+
+    setChatMessages((prev) => [
+      ...prev,
+      {
+        username: displayName,
+        text,
+        private: true,
+      },
+    ]);
+  };
+
+  socket.on("private_message", handlePrivateMessage);
+  socket.on("private_message_ack", handlePrivateMessage);
+
+  return () => {
+    socket.off("private_message", handlePrivateMessage);
+    socket.off("private_message_ack", handlePrivateMessage);
+  };
+}, [username]);
+
 
 
         useEffect(() => {
