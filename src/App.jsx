@@ -554,20 +554,6 @@ useEffect(() => {
         </div>
       </div>
     )}
-        {joined && (
-      <div className="fixed top-4 right-6 z-50">
-        <button
-          onClick={() => {
-            socket.emit("leave_room");
-            setJoined(false);
-            setRoom(null);
-          }}
-          className="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm shadow"
-        >
-          ← Back to Lobby
-        </button>
-      </div>
-    )}
 
     <div className={`flex flex-col min-h-screen ${bgColor} font-mono`}>
 
