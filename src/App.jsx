@@ -402,31 +402,62 @@ useEffect(() => {
 }, [username]);
 
 
-    const login = () => {
-        if (!username || !password) return setError("Enter username and password");
-        socket.emit("login", { username, password }, (res) => {
-            if (res.success) {
-                setIsAuthenticated(true);
-                Cookies.set("acrophobia_user", username, { expires: 7 });
-                setError(null);
-            } else {
-                setError(res.message || "Login failed");
-            }
-        });
-    };
+    const login = async () => {
+  if (!username || !password) return setError("Enter username and password");
 
-    const register = () => {
-        if (!username || !email || !password) return setError("All fields required");
-        socket.emit("register", { username, email, password }, (res) => {
-            if (res.success) {
-                setIsAuthenticated(true);
-                Cookies.set("acrophobia_user", username, { expires: 7 });
-                setError(null);
-            } else {
-                setError(res.message || "Registration failed");
-            }
-        });
-    };
+  try {
+    const res = await fetch("https://acrophobia-backend-2.onrender.com/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include", // ✅ needed for cookies
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      setIsAuthenticated(true);
+      Cookies.set("acrophobia_user", username, { expires: 7 });
+      setError(null);
+    } else {
+      setError(data.error || "Login failed");
+    }
+  } catch (err) {
+    console.error("Login failed", err);
+    setError("Login error");
+  }
+};
+
+
+    const register = async () => {
+  if (!username || !email || !password) {
+    return setError("All fields required");
+  }
+
+  try {
+    const res = await fetch("https://acrophobia-backend-2.onrender.com/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include", // ✅ include session cookie
+      body: JSON.stringify({ username, email, password })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      setIsAuthenticated(true);
+      Cookies.set("acrophobia_user", username, { expires: 7 });
+      setError(null);
+    } else {
+      setError(data.error || "Registration failed");
+    }
+  } catch (err) {
+    console.error("Registration error:", err);
+    setError("Could not register. Try again.");
+  }
+};
+
 
     if (authLoading) {
         return (
