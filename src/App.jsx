@@ -122,6 +122,22 @@ export default function App() {
   setChatInput("");
 };
 
+useEffect(() => {
+  fetch("https://acrophobia-backend-2.onrender.com/api/me", {
+    credentials: "include"
+  })
+    .then(res => res.ok ? res.json() : Promise.reject())
+    .then(data => {
+      console.log("✅ Logged in as:", data.username);
+      socket.emit("login_cookie", { username: data.username }, () => {
+        console.log("✅ Session linked via socket");
+      });
+    })
+    .catch(() => {
+      console.log("❌ Not logged in");
+      // Optionally route to /login or set a login-needed flag here
+    });
+}, []);
 
        useEffect(() => {
   const handlePrivateMessage = ({ from, to, text }) => {
