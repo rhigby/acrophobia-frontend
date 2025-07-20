@@ -3,6 +3,10 @@ import { useEffect, useState, useRef  } from "react";
 import { io } from "socket.io-client";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
+import MessageBoard from "./MessageBoard";
+
+<MessageBoard user={user} socket={socket} />
+
 
 function isValidSubmission(submission, acronym) {
     if (!submission || !acronym) return false;
