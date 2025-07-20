@@ -97,7 +97,7 @@ export default function App() {
         setJoined(true);
         setError(null);
     };
-
+useEffect(() => {
     fetch("https://acrophobia-backend-2.onrender.com/api/debug-session", {
       credentials: "include"
     }).then(res => res.json()).then(console.log);
@@ -105,6 +105,8 @@ export default function App() {
     const voteEntry = (entryId) => {
         socket.emit("vote_entry", { room, username, entryId });
     };
+    }, []);
+
 
     const sendChat = () => {
   if (!chatInput.trim()) return;
