@@ -98,6 +98,9 @@ export default function App() {
         setError(null);
     };
 
+    fetch("https://acrophobia-backend-2.onrender.com/api/debug-session", {
+      credentials: "include"
+    }).then(res => res.json()).then(console.log);
 
     const voteEntry = (entryId) => {
         socket.emit("vote_entry", { room, username, entryId });
