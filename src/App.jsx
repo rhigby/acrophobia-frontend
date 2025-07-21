@@ -4,7 +4,6 @@ import { io } from "socket.io-client";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 
-
 function isValidSubmission(submission, acronym) {
     if (!submission || !acronym) return false;
 
@@ -26,7 +25,6 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 export default function App() {
-    const user = username ? { username } : null;
     const [allUsers, setAllUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [roomStats, setRoomStats] = useState({});
@@ -87,7 +85,7 @@ export default function App() {
     };
     const beginSound = useRef(null);
     const joinRoom = (roomId) => {
-        user = username || Cookies.get("acrophobia_user");
+        const user = username || Cookies.get("acrophobia_user");
         if (!user) return setError("Enter your name");
         // ✅ Only initialize audio AFTER user has interacted (e.g., clicked "Join Room")
           if (!beginSound.current) {
@@ -99,16 +97,11 @@ export default function App() {
         setJoined(true);
         setError(null);
     };
-useEffect(() => {
-    fetch("https://acrophobia-backend-2.onrender.com/api/debug-session", {
-      credentials: "include"
-    }).then(res => res.json()).then(console.log);
+
 
     const voteEntry = (entryId) => {
         socket.emit("vote_entry", { room, username, entryId });
     };
-    }, []);
-
 
     const sendChat = () => {
   if (!chatInput.trim()) return;
@@ -129,22 +122,6 @@ useEffect(() => {
   setChatInput("");
 };
 
-useEffect(() => {
-  fetch("https://acrophobia-backend-2.onrender.com/api/me", {
-    credentials: "include"
-  })
-    .then(res => res.ok ? res.json() : Promise.reject("Unauthorized"))
-    .then(data => {
-      console.log("✅ Logged in as:", data.username);
-      socket.emit("login_cookie", { username: data.username }, () => {
-        console.log("✅ Session linked via socket");
-      });
-    })
-    .catch(() => {
-      console.log("❌ Not logged in");
-      // Optionally route to /login or set a login-needed flag here
-    });
-}, []);
 
        useEffect(() => {
   const handlePrivateMessage = ({ from, to, text }) => {
@@ -160,7 +137,7 @@ useEffect(() => {
       },
     ]);
   };
-    
+
   socket.on("private_message", handlePrivateMessage);
   socket.on("private_message_ack", handlePrivateMessage);
 
@@ -425,62 +402,31 @@ useEffect(() => {
 }, [username]);
 
 
-    const login = async () => {
-  if (!username || !password) return setError("Enter username and password");
+    const login = () => {
+        if (!username || !password) return setError("Enter username and password");
+        socket.emit("login", { username, password }, (res) => {
+            if (res.success) {
+                setIsAuthenticated(true);
+                Cookies.set("acrophobia_user", username, { expires: 7 });
+                setError(null);
+            } else {
+                setError(res.message || "Login failed");
+            }
+        });
+    };
 
-  try {
-    const res = await fetch("https://acrophobia-backend-2.onrender.com/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include", // ✅ needed for cookies
-      body: JSON.stringify({ username, password })
-    });
-
-    const data = await res.json();
-    if (data.success) {
-      setIsAuthenticated(true);
-      Cookies.set("acrophobia_user", username, { expires: 7 });
-      setError(null);
-    } else {
-      setError(data.error || "Login failed");
-    }
-  } catch (err) {
-    console.error("Login failed", err);
-    setError("Login error");
-  }
-};
-
-
-    const register = async () => {
-  if (!username || !email || !password) {
-    return setError("All fields required");
-  }
-
-  try {
-    const res = await fetch("https://acrophobia-backend-2.onrender.com/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      credentials: "include", // ✅ include session cookie
-      body: JSON.stringify({ username, email, password })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      setIsAuthenticated(true);
-      Cookies.set("acrophobia_user", username, { expires: 7 });
-      setError(null);
-    } else {
-      setError(data.error || "Registration failed");
-    }
-  } catch (err) {
-    console.error("Registration error:", err);
-    setError("Could not register. Try again.");
-  }
-};
-
+    const register = () => {
+        if (!username || !email || !password) return setError("All fields required");
+        socket.emit("register", { username, email, password }, (res) => {
+            if (res.success) {
+                setIsAuthenticated(true);
+                Cookies.set("acrophobia_user", username, { expires: 7 });
+                setError(null);
+            } else {
+                setError(res.message || "Registration failed");
+            }
+        });
+    };
 
     if (authLoading) {
         return (
@@ -856,6 +802,67 @@ useEffect(() => {
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
