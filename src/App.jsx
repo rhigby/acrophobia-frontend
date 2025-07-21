@@ -469,18 +469,28 @@ useEffect(() => {
 }, [username]);
 
 
-    const login = () => {
-        if (!username || !password) return setError("Enter username and password");
-        socket.emit("login", { username, password }, (res) => {
-            if (res.success) {
-                setIsAuthenticated(true);
-                Cookies.set("acrophobia_user", username, { expires: 7 });
-                setError(null);
-            } else {
-                setError(res.message || "Login failed");
-            }
-        });
-    };
+   const login = () => {
+  if (!username || !password) return setError("Enter username and password");
+
+  socket.emit("login", { username, password }, async (res) => {
+    if (res.success) {
+      setIsAuthenticated(true);
+      Cookies.set("acrophobia_user", username, { expires: 7 });
+      setError(null);
+
+      // ✅ Set HTTP session cookie for backend
+      await fetch("https://acrophobia-backend-2.onrender.com/api/login-cookie", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username })
+      });
+    } else {
+      setError(res.message || "Login failed");
+    }
+  });
+};
+
 
     const register = () => {
         if (!username || !email || !password) return setError("All fields required");
