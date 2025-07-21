@@ -222,6 +222,23 @@ useEffect(() => {
   };
 }, []);
 
+const resetGameState = () => {
+  setAcronym("");
+  setPhase("waiting");
+  setEntries([]);
+  setVotes({});
+  setSubmittedUsers([]);
+  setSubmittedEntry(null);
+  setVoteConfirmed(false);
+  setShowResults(false);
+  setShowAwards(false);
+  setResultsMeta([]);
+  setCountdown(null);
+  setRound(0);
+  setHighlighted({});
+};
+
+    
 const nextRoundSound = useRef(null);
     useEffect(() => {
   nextRoundSound.current = new Audio("/nextround.mp3");
@@ -563,8 +580,9 @@ useEffect(() => {
             <div className="flex justify-between items-center mb-2">
                 <div className="flex justify-end mb-4">
                   <button
-                    onClick={() => {
+                   onClick={() => {
                       socket.emit("leave_room");
+                      resetGameState(); // ⬅️ Important
                       setJoined(false);
                       setRoom(null);
                     }}
