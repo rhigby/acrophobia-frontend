@@ -549,11 +549,67 @@ useEffect(() => {
   ))}
 
 </ul>
+              
 
       </div>
 
         {error && <p className="text-red-400 mt-4">{error}</p>}
       </div>
+<div className="mt-8 bg-gray-800 p-4 rounded">
+  <h2 className="text-xl font-bold mb-4 text-white">📬 Message Board</h2>
+
+  <form onSubmit={(e) => {
+    e.preventDefault();
+    if (newTitle && newContent) {
+      fetch("/api/messages", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: newTitle, content: newContent }),
+      }).then(res => {
+        if (res.ok) {
+          setNewTitle("");
+          setNewContent("");
+        }
+      });
+    }
+  }}>
+    <input
+      className="w-full p-2 mb-2 rounded bg-gray-900 text-white border border-gray-600"
+      placeholder="Title"
+      value={newTitle}
+      onChange={(e) => setNewTitle(e.target.value)}
+    />
+    <textarea
+      className="w-full p-2 mb-2 rounded bg-gray-900 text-white border border-gray-600"
+      placeholder="Write your message..."
+      value={newContent}
+      onChange={(e) => setNewContent(e.target.value)}
+    />
+    <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white" type="submit">
+      Post Message
+    </button>
+  </form>
+
+  <div className="mt-4 space-y-3 max-h-96 overflow-y-auto">
+    {messages.map((m) => (
+      <div key={m.id} className="bg-black p-3 rounded border border-gray-700">
+        <h3 className="font-bold text-blue-300">{m.title}</h3>
+        <p className="text-white">{m.content}</p>
+        <p className="text-xs text-gray-400">— {m.username} • {new Date(m.timestamp).toLocaleString()}</p>
+        {m.replies.length > 0 && (
+          <div className="ml-4 mt-2 text-sm text-gray-300 space-y-1">
+            {m.replies.map((r) => (
+              <div key={r.id}>
+                ↳ <span className="text-blue-200">{r.content}</span> — <span className="text-gray-400">{r.username}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
 
       
     </>
