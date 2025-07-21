@@ -30,6 +30,7 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 export default function App() {
+    const user = username ? { username } : null;
     const [allUsers, setAllUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [roomStats, setRoomStats] = useState({});
@@ -90,7 +91,7 @@ export default function App() {
     };
     const beginSound = useRef(null);
     const joinRoom = (roomId) => {
-        const user = username || Cookies.get("acrophobia_user");
+        user = username || Cookies.get("acrophobia_user");
         if (!user) return setError("Enter your name");
         // ✅ Only initialize audio AFTER user has interacted (e.g., clicked "Join Room")
           if (!beginSound.current) {
@@ -136,7 +137,7 @@ useEffect(() => {
   fetch("https://acrophobia-backend-2.onrender.com/api/me", {
     credentials: "include"
   })
-    .then(res => res.ok ? res.json() : Promise.reject())
+    .then(res => res.ok ? res.json() : Promise.reject("Unauthorized"))
     .then(data => {
       console.log("✅ Logged in as:", data.username);
       socket.emit("login_cookie", { username: data.username }, () => {
