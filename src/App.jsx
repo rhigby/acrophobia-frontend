@@ -19,7 +19,7 @@ function isValidSubmission(submission, acronym) {
 
 const socket = io("https://acrophobia-backend-2.onrender.com", {
     withCredentials: true,
-    transports: ["websocket"]
+    transports: ["websocket", "polling"]
 });
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
