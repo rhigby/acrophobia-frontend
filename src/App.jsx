@@ -5,8 +5,6 @@ import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 
 
-
-
 function isValidSubmission(submission, acronym) {
     if (!submission || !acronym) return false;
 
