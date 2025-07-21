@@ -575,8 +575,9 @@ useEffect(() => {
       </div>
 
         {error && <p className="text-red-400 mt-4">{error}</p>}
-      </div>
-<div className="mt-8 bg-gray-800 p-4 rounded">
+
+
+          
   <h2 className="text-xl font-bold mb-4 text-white">📬 Message Board</h2>
 
   <form onSubmit={(e) => {
@@ -631,6 +632,9 @@ useEffect(() => {
     ))}
   </div>
 </div>
+          
+      </div>
+<div className="mt-8 bg-gray-800 p-4 rounded">
 
       
     </>
