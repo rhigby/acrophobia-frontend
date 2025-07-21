@@ -150,7 +150,36 @@ export default function App() {
   };
 }, [username]);
 
+const sendBoardMessage = async () => {
+  const BASE_API = "https://acrophobia-backend-2.onrender.com";
+  const payload = {
+    title: newMessageTitle,
+    content: newMessageContent,
+    replyTo: null
+  };
+  try {
+    const res = await fetch(`${BASE_API}/api/messages`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+      body: JSON.stringify(payload)
+    });
 
+    if (res.ok) {
+      setNewMessageTitle("");
+      setNewMessageContent("");
+    } else {
+      const errText = await res.text();
+      console.error("❌ Error submitting message:", errText);
+    }
+  } catch (err) {
+    console.error("❌ Network error:", err);
+  }
+};
+
+    
 useEffect(() => {
     const BASE_API = "https://acrophobia-backend-2.onrender.com";
   const fetchMessages = async () => {
