@@ -3,9 +3,10 @@ import { useEffect, useState, useRef  } from "react";
 import { io } from "socket.io-client";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
+
 import MessageBoard from "./MessageBoard";
 
-<MessageBoard user={user} socket={socket} />
+
 
 
 function isValidSubmission(submission, acronym) {
@@ -162,7 +163,7 @@ useEffect(() => {
       },
     ]);
   };
-
+    <MessageBoard user={user} socket={socket} />
   socket.on("private_message", handlePrivateMessage);
   socket.on("private_message_ack", handlePrivateMessage);
 
