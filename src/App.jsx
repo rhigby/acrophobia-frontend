@@ -152,8 +152,9 @@ export default function App() {
 
 
 useEffect(() => {
+    const BASE_API = "https://acrophobia-backend-2.onrender.com";
   const fetchMessages = async () => {
-    const res = await fetch("/api/messages", { credentials: "include" });
+    const res = await fetch(`${BASE_API}/api/messages`, { credentials: "include" });
     if (res.ok) {
       const data = await res.json();
       setMessages(data);
