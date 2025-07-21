@@ -25,6 +25,9 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 export default function App() {
+    const [messages, setMessages] = useState([]);
+    const [newTitle, setNewTitle] = useState("");
+    const [newContent, setNewContent] = useState("");
     const [allUsers, setAllUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [roomStats, setRoomStats] = useState({});
@@ -148,6 +151,23 @@ export default function App() {
 }, [username]);
 
 
+useEffect(() => {
+  const fetchMessages = async () => {
+    const res = await fetch("/api/messages", { credentials: "include" });
+    if (res.ok) {
+      const data = await res.json();
+      setMessages(data);
+    }
+  };
+
+  fetchMessages();
+
+  socket.on("new_message", (msg) => {
+    setMessages((prev) => [msg, ...prev]);
+  });
+
+  return () => socket.off("new_message");
+}, []);
 
         useEffect(() => {
           socket.on("room_list", (data) => {
