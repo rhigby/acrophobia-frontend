@@ -454,7 +454,7 @@ useEffect(() => {
 
   socket.emit("login", { username, password }, (res) => {
     if (res.success) {
-      Cookies.set("acrophobia_user", username, { expires: 7 });
+      Cookies.set("acrophobia_user", username, { expires: 7, sameSite: "None", secure: true});
       setUsername(username);
       setIsAuthenticated(true);
       setError(null);
@@ -470,7 +470,7 @@ useEffect(() => {
         socket.emit("register", { username, email, password }, (res) => {
             if (res.success) {
                 setIsAuthenticated(true);
-                Cookies.set("acrophobia_user", username, { expires: 7 });
+                Cookies.set("acrophobia_user", username, { expires: 7, sameSite: "None", secure: true});
                 setError(null);
             } else {
                 setError(res.message || "Registration failed");
