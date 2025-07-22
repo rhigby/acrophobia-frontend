@@ -38,7 +38,6 @@ export default function App() {
     const [votedUsers, setVotedUsers] = useState([]);
     const [submittedUsers, setSubmittedUsers] = useState([]);
     const [acronymReady, setAcronymReady] = useState(false);
-    const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [mode, setMode] = useState("login");
@@ -66,6 +65,8 @@ export default function App() {
     const [showAwards, setShowAwards] = useState(false);
     const [userStats, setUserStats] = useState(null);
     const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
+    const [authChecked, setAuthChecked] = useState(false);
+    const [username, setUsername] = useState<string | null>(null);
 
 
 
@@ -125,7 +126,38 @@ export default function App() {
   setChatInput("");
 };
 
+     useEffect(() => {
+    const cookieUser = Cookies.get("acrophobia_user");
 
+    if (!cookieUser) {
+      setAuthChecked(true); // no cookie, proceed unauthenticated
+      return;
+    }
+
+    socket.on("connect", () => {
+      socket.emit("whoami", (res: { username?: string }) => {
+        if (res.username) {
+          setUsername(res.username);
+        } else {
+          Cookies.remove("acrophobia_user");
+        }
+        setAuthChecked(true);
+      });
+    });
+
+    return () => socket.off("connect");
+  }, []);
+
+  if (!authChecked) {
+    return <div>Checking session...</div>;
+  }
+
+  if (!username) {
+    return <div>Please log in</div>;
+  }
+
+  return <Lobby username={username} />;
+    
        useEffect(() => {
   const handlePrivateMessage = ({ from, to, text }) => {
     const isSender = from === username;
