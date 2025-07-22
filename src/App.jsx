@@ -18,7 +18,8 @@ function isValidSubmission(submission, acronym) {
 }
 export const socket = io("https://acrophobia-backend-2.onrender.com", {
   withCredentials: true,
-  transports: ["websocket", "polling"]
+  transports: ["websocket", "polling"],
+    autoConnect: false
 });
 
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
@@ -125,51 +126,47 @@ export default function App() {
 };
 
 
-    useEffect(() => {
-      const cookieUser = Cookies.get("acrophobia_user");
+   useEffect(() => {
+  const cookieUser = Cookies.get("acrophobia_user");
+  if (!cookieUser) {
+    setAuthChecked(true);
+    return;
+  }
 
-      if (!cookieUser) {
-        setAuthChecked(true);
-        return;
+  fetch("https://acrophobia-backend-2.onrender.com/api/me", {
+    credentials: "include"
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Not logged in");
+      return res.json();
+    })
+    .then(data => {
+      setUsername(data.username);
+      setIsAuthenticated(true);
+
+      // ✅ Connect socket AFTER confirming login
+      if (!socket.connected) {
+        socket.connect();
       }
 
+      // ✅ Now we can safely emit whoami
       socket.emit("whoami", (res) => {
         if (res.username) {
-          setUsername(res.username);
-          setIsAuthenticated(true);
+          console.log("👤 Restored session as:", res.username);
         } else {
-          Cookies.remove("acrophobia_user");
+          console.warn("⚠️ Backend could not identify user");
         }
-        setAuthChecked(true);
       });
-    }, []);
+    })
+    .catch(() => {
+      Cookies.remove("acrophobia_user");
+      setIsAuthenticated(false);
+    })
+    .finally(() => {
+      setAuthChecked(true);
+    });
+}, []);
 
-
-    useEffect(() => {
-          const cookieUser = Cookies.get("acrophobia_user");
-          if (!cookieUser) {
-            return setAuthChecked(true);
-          }
-        
-          fetch("https://acrophobia-backend-2.onrender.com/api/me", {
-            credentials: "include"
-          })
-            .then(res => res.json())
-            .then(data => {
-              setUsername(data.username);
-              setIsAuthenticated(true);
-        
-              // ✅ Only now: connect
-              socket.connect();
-            })
-            .catch(() => {
-              Cookies.remove("acrophobia_user");
-              setIsAuthenticated(false);
-            })
-            .finally(() => {
-              setAuthChecked(true);
-            });
-        }, []);
 
     
        useEffect(() => {
