@@ -578,7 +578,7 @@ useEffect(() => {
     if (!joined) {
   return (
     <>
-      <div className="p-6 max-w-6xl mx-auto min-h-screen bg-blue-950 text-white">
+      <div className="p-6 w-full min-h-screen bg-blue-950 text-white">
   <h1 className="text-3xl font-bold mb-4">🎮 Acrophobia Lobby</h1>
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
     
