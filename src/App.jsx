@@ -18,7 +18,7 @@ function isValidSubmission(submission, acronym) {
 }
 export const socket = io("https://acrophobia-backend-2.onrender.com", {
   withCredentials: true,
-  transports: ["websocket", "polling"]E
+  transports: ["websocket", "polling"]
 });
 
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
