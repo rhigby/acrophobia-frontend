@@ -488,7 +488,7 @@ useEffect(() => {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ username })
+          body: JSON.stringify({ "licNstick" })
         });
 
         if (!sessionRes.ok) {
