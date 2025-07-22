@@ -16,11 +16,12 @@ function isValidSubmission(submission, acronym) {
         word[0]?.toUpperCase() === upperAcronym[idx]
     );
 }
-
-const socket = io("https://acrophobia-backend-2.onrender.com", {
-    withCredentials: true,
-    transports: ["websocket", "polling"]
+export const socket = io("https://acrophobia-backend-2.onrender.com", {
+  withCredentials: true,
+  transports: ["websocket", "polling"],
+  autoConnect: false // ⬅️ CRITICAL LINE
 });
+
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
@@ -144,6 +145,32 @@ export default function App() {
       });
     }, []);
 
+
+    useEffect(() => {
+          const cookieUser = Cookies.get("acrophobia_user");
+          if (!cookieUser) {
+            return setAuthChecked(true);
+          }
+        
+          fetch("https://acrophobia-backend-2.onrender.com/api/me", {
+            credentials: "include"
+          })
+            .then(res => res.json())
+            .then(data => {
+              setUsername(data.username);
+              setIsAuthenticated(true);
+        
+              // ✅ Only now: connect
+              socket.connect();
+            })
+            .catch(() => {
+              Cookies.remove("acrophobia_user");
+              setIsAuthenticated(false);
+            })
+            .finally(() => {
+              setAuthChecked(true);
+            });
+        }, []);
 
     
        useEffect(() => {
