@@ -68,8 +68,6 @@ export default function App() {
     const [authChecked, setAuthChecked] = useState(false);
     const [username, setUsername] = useState<string | null>(null);
 
-
-
     const submitEntry = () => {
         if (!submission) return;
         if (!isValidSubmission(submission, acronym)) {
@@ -126,32 +124,26 @@ export default function App() {
   setChatInput("");
 };
 
-     useEffect(() => {
-    const cookieUser = Cookies.get("acrophobia_user");
-
-    if (!cookieUser) {
-      setAuthChecked(true); // no cookie, proceed unauthenticated
-      return;
-    }
 
     useEffect(() => {
-    const cookieUser = Cookies.get("acrophobia_user");
+      const cookieUser = Cookies.get("acrophobia_user");
 
-    if (!cookieUser) {
-      setAuthChecked(true);
-      return;
-    }
-
-    socket.emit("whoami", (res) => {
-      if (res.username) {
-        setUsername(res.username);
-        setIsAuthenticated(true);
-      } else {
-        Cookies.remove("acrophobia_user");
+      if (!cookieUser) {
+        setAuthChecked(true);
+        return;
       }
-      setAuthChecked(true);
-    });
-  }, []);
+
+      socket.emit("whoami", (res) => {
+        if (res.username) {
+          setUsername(res.username);
+          setIsAuthenticated(true);
+        } else {
+          Cookies.remove("acrophobia_user");
+        }
+        setAuthChecked(true);
+      });
+    }, []);
+
 
     
        useEffect(() => {
@@ -983,11 +975,6 @@ useEffect(() => {
     </div>
   </>
 );
-
-
-
-
-
 }
 
 
