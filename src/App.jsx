@@ -652,7 +652,8 @@ useEffect(() => {
             body: JSON.stringify({
               title: newTitle,
               content: newContent,
-              replyTo: null
+              replyTo: null,
+              username
             }),
           });
 
