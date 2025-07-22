@@ -469,28 +469,50 @@ useEffect(() => {
 }, [username]);
 
 
-   const login = () => {
-  if (!username || !password) return setError("Enter username and password");
+   const login = async () => {
+  if (!username || !password) {
+    setError("Enter username and password");
+    return;
+  }
 
   socket.emit("login", { username, password }, async (res) => {
     if (res.success) {
-      setIsAuthenticated(true);
-      Cookies.set("acrophobia_user", username, { expires: 7 });
-      setError(null);
+      try {
+        // Set frontend cookie (optional)
+        Cookies.set("acrophobia_user", username, { expires: 7 });
 
-      // ✅ Set session on the backend
-      await fetch("https://acrophobia-backend-2.onrender.com/api/login-cookie", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username })
-      });
+        // Call the backend to set up the session
+        const sessionRes = await fetch("https://acrophobia-backend-2.onrender.com/api/login-cookie", {
+          method: "POST",
+          credentials: "include", // Required for cross-origin cookies
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ username })
+        });
+
+        if (!sessionRes.ok) {
+          const text = await sessionRes.text();
+          console.warn("⚠️ Session not saved properly:", text);
+          setError("Login failed (session not saved)");
+          return;
+        }
+
+        // ✅ Everything succeeded
+        setIsAuthenticated(true);
+        setError(null);
+
+      } catch (err) {
+        console.error("❌ Error setting session:", err);
+        setError("Login failed (network/session error)");
+      }
 
     } else {
       setError(res.message || "Login failed");
     }
   });
 };
+
 
 
 
