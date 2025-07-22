@@ -478,18 +478,20 @@ useEffect(() => {
       Cookies.set("acrophobia_user", username, { expires: 7 });
       setError(null);
 
-      // ✅ Set HTTP session cookie for backend
+      // ✅ Set session on the backend
       await fetch("https://acrophobia-backend-2.onrender.com/api/login-cookie", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username })
       });
+
     } else {
       setError(res.message || "Login failed");
     }
   });
 };
+
 
 
     const register = () => {
