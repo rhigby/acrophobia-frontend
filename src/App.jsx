@@ -134,29 +134,25 @@ export default function App() {
       return;
     }
 
-    socket.on("connect", () => {
-      socket.emit("whoami", (res: { username?: string }) => {
-        if (res.username) {
-          setUsername(res.username);
-        } else {
-          Cookies.remove("acrophobia_user");
-        }
-        setAuthChecked(true);
-      });
-    });
+    useEffect(() => {
+    const cookieUser = Cookies.get("acrophobia_user");
 
-    return () => socket.off("connect");
+    if (!cookieUser) {
+      setAuthChecked(true);
+      return;
+    }
+
+    socket.emit("whoami", (res) => {
+      if (res.username) {
+        setUsername(res.username);
+        setIsAuthenticated(true);
+      } else {
+        Cookies.remove("acrophobia_user");
+      }
+      setAuthChecked(true);
+    });
   }, []);
 
-  if (!authChecked) {
-    return <div>Checking session...</div>;
-  }
-
-  if (!username) {
-    return <div>Please log in</div>;
-  }
-
-  return <Lobby username={username} />;
     
        useEffect(() => {
   const handlePrivateMessage = ({ from, to, text }) => {
@@ -327,16 +323,6 @@ const nextRoundSound = useRef(null);
 }, []);
 
 
-useEffect(() => {
-  const cookieUser = Cookies.get("acrophobia_user");
-  if (cookieUser) {
-    setUsername(cookieUser);
-    setIsAuthenticated(true);
-    setJoined(false);
-  }
-  setAuthLoading(false); // ✅ done loading
-}, []);
-
 const submitSound = useRef(null);
 
 useEffect(() => {
@@ -478,88 +464,124 @@ useEffect(() => {
 }, [username]);
 
 
-   const login = async () => {
-  if (!username || !password) {
-    setError("Enter username and password");
-    return;
-  }
-
-  socket.emit("login", { username, password }, (res) => {
-    if (res.success) {
-      Cookies.set("acrophobia_user", username, { expires: 7, sameSite: "None", secure: true});
-      setUsername(username);
-      setIsAuthenticated(true);
-      setError(null);
-    } else {
-      setError(res.message || "Login failed");
+   const login = () => {
+    if (!username || !password) {
+      setError("Enter username and password");
+      return;
     }
-  });
-};
+
+    socket.emit("login", { username, password }, (res) => {
+      if (res.success) {
+        Cookies.set("acrophobia_user", username, {
+          expires: 7,
+          sameSite: "None",
+          secure: true
+        });
+        setIsAuthenticated(true);
+        setError(null);
+      } else {
+        setError(res.message || "Login failed");
+      }
+    });
+  };
 
 
     const register = () => {
-        if (!username || !email || !password) return setError("All fields required");
-        socket.emit("register", { username, email, password }, (res) => {
-            if (res.success) {
-                setIsAuthenticated(true);
-                Cookies.set("acrophobia_user", username, { expires: 7, sameSite: "None", secure: true});
-                setError(null);
-            } else {
-                setError(res.message || "Registration failed");
-            }
-        });
-    };
-
-    if (authLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-black via-blue-900 to-black text-white">
-                <motion.h1
-                    className="text-7xl font-bold text-red-600 tracking-widest mb-4"
-                    style={{
-                        fontFamily: "Impact, sans-serif",
-                        textShadow: "0 0 4px orange, 0 0 4px red"
-                    }}
-                    initial={{ rotateY: 0 }}
-                    animate={{ rotateY: 360 }}
-                    transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-                >
-                    ACRO
-                </motion.h1>
-
-                <motion.div
-                    className="text-lg text-blue-200"
-                    initial={{ opacity: 0.3 }}
-                    animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                >
-                    Checking session...
-                </motion.div>
-            </div>
-        );
+    if (!username || !email || !password) {
+      setError("All fields required");
+      return;
     }
+
+    socket.emit("register", { username, email, password }, (res) => {
+      if (res.success) {
+        Cookies.set("acrophobia_user", username, {
+          expires: 7,
+          sameSite: "None",
+          secure: true
+        });
+        setIsAuthenticated(true);
+        setError(null);
+      } else {
+        setError(res.message || "Registration failed");
+      }
+    });
+  };
+
+   if (!authChecked) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-black via-blue-900 to-black text-white">
+        <motion.h1
+          className="text-7xl font-bold text-red-600 tracking-widest mb-4"
+          style={{
+            fontFamily: "Impact, sans-serif",
+            textShadow: "0 0 4px orange, 0 0 4px red"
+          }}
+          initial={{ rotateY: 0 }}
+          animate={{ rotateY: 360 }}
+          transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+        >
+          ACRO
+        </motion.h1>
+        <motion.div
+          className="text-lg text-blue-200"
+          initial={{ opacity: 0.3 }}
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+        >
+          Checking session...
+        </motion.div>
+      </div>
+    );
+  }
 
 
 
 
     if (!isAuthenticated) {
-        return (
-            <div className="p-6 max-w-sm mx-auto min-h-screen flex flex-col justify-center bg-blue-950 text-white">
-                <h1 className="text-3xl font-bold mb-6 text-center">🔐 {mode === "login" ? "Login" : "Register"}</h1>
-                {mode === "register" && (
-                    <input className="border p-2 w-full mb-4 text-black" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                )}
-                <input className="border p-2 w-full mb-4 text-black" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-                <input className="border p-2 w-full mb-4 text-black" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                <button onClick={mode === "login" ? login : register} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-                    {mode === "login" ? "Login" : "Register"}
-                </button>
-                <button onClick={() => setMode(mode === "login" ? "register" : "login")} className="mt-2 underline text-sm text-blue-300">
-                    {mode === "login" ? "Don't have an account? Register" : "Already have an account? Login"}
-                </button>
-                {error && <p className="text-red-400 mt-4">{error}</p>}
-            </div>
-        );
-    }
+    return (
+      <div className="p-6 max-w-sm mx-auto min-h-screen flex flex-col justify-center bg-blue-950 text-white">
+        <h1 className="text-3xl font-bold mb-6 text-center">
+          🔐 {mode === "login" ? "Login" : "Register"}
+        </h1>
+        {mode === "register" && (
+          <input
+            className="border p-2 w-full mb-4 text-black"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        )}
+        <input
+          className="border p-2 w-full mb-4 text-black"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <input
+          className="border p-2 w-full mb-4 text-black"
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button
+          onClick={mode === "login" ? login : register}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+        >
+          {mode === "login" ? "Login" : "Register"}
+        </button>
+        <button
+          onClick={() => setMode(mode === "login" ? "register" : "login")}
+          className="mt-2 underline text-sm text-blue-300"
+        >
+          {mode === "login"
+            ? "Don't have an account? Register"
+            : "Already have an account? Login"}
+        </button>
+        {error && <p className="text-red-400 mt-4">{error}</p>}
+      </div>
+    );
+  }
 
     if (!joined) {
   return (
