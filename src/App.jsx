@@ -295,43 +295,20 @@ const nextRoundSound = useRef(null);
 }, []);
 
 
-    useEffect(() => {
-        const handleConnect = () => {
-            socket.emit("check_session", (res) => {
-                if (res.authenticated) {
-                    setUsername(res.username);
-                    setIsAuthenticated(true);
-                    setJoined(false);
-                    setAuthLoading(false); // ✅ done loading
-                } else {
-                    const cookieUser = Cookies.get("acrophobia_user");
-                    if (cookieUser) {
-                        socket.emit("login_cookie", { username: cookieUser }, (res) => {
-                            if (res.success) {
-                                setUsername(res.username);
-                                setIsAuthenticated(true);
-                                setJoined(false);
-                            }
-                            setAuthLoading(false); // ✅ done loading
-                        });
-                    } else {
-                        setAuthLoading(false); // ✅ done loading
-                    }
-                }
-            });
-        };
-
-        socket.on("connect", handleConnect);
-        return () => socket.off("connect", handleConnect);
-    }, []);
-
-
+useEffect(() => {
+  const cookieUser = Cookies.get("acrophobia_user");
+  if (cookieUser) {
+    setUsername(cookieUser);
+    setIsAuthenticated(true);
+    setJoined(false);
+  }
+  setAuthLoading(false); // ✅ done loading
+}, []);
 
 const submitSound = useRef(null);
 
 useEffect(() => {
   submitSound.current = new Audio("/submit.mp3");
-
   socket.on("entry_submitted", ({ id, text }) => {
     setSubmittedEntry({ id, text });
     setSubmittedUsers((prev) => [...new Set([...prev, username])]);
@@ -475,45 +452,17 @@ useEffect(() => {
     return;
   }
 
-  socket.emit("login", { username, password }, async (res) => {
+  socket.emit("login", { username, password }, (res) => {
     if (res.success) {
-      try {
-        // Set frontend cookie (optional)
-        Cookies.set("acrophobia_user", username, { expires: 7 });
-
-        // Call the backend to set up the session
-        const sessionRes = await fetch("https://acrophobia-backend-2.onrender.com/api/login-cookie", {
-          method: "POST",
-          credentials: "include", // Required for cross-origin cookies
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ username: "LicNstick" })
-        });
-
-        if (!sessionRes.ok) {
-          const text = await sessionRes.text();
-          console.warn("⚠️ Session not saved properly:", text);
-          setError("Login failed (session not saved)");
-          return;
-        }
-
-        // ✅ Everything succeeded
-        setIsAuthenticated(true);
-        setError(null);
-
-      } catch (err) {
-        console.error("❌ Error setting session:", err);
-        setError("Login failed (network/session error)");
-      }
-
+      Cookies.set("acrophobia_user", username, { expires: 7 });
+      setUsername(username);
+      setIsAuthenticated(true);
+      setError(null);
     } else {
       setError(res.message || "Login failed");
     }
   });
 };
-
-
 
 
     const register = () => {
