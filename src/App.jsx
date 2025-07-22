@@ -484,25 +484,30 @@ useEffect(() => {
 
 
    const login = () => {
-    if (!username || !password) {
-      setError("Enter username and password");
-      return;
-    }
+  console.log("🔐 Login button clicked");
+  if (!username || !password) {
+    console.warn("Missing credentials");
+    setError("Enter username and password");
+    return;
+  }
 
-    socket.emit("login", { username, password }, (res) => {
-      if (res.success) {
-        Cookies.set("acrophobia_user", username, {
-          expires: 7,
-          sameSite: "None",
-          secure: true
-        });
-        setIsAuthenticated(true);
-        setError(null);
-      } else {
-        setError(res.message || "Login failed");
-      }
-    });
-  };
+  console.log("Emitting login:", username, password);
+  socket.emit("login", { username, password }, (res) => {
+    console.log("Login response:", res);
+    if (res.success) {
+      Cookies.set("acrophobia_user", username, {
+        expires: 7,
+        sameSite: "None",
+        secure: true
+      });
+      setIsAuthenticated(true);
+      setError(null);
+    } else {
+      setError(res.message || "Login failed");
+    }
+  });
+};
+
 
 
     const register = () => {
