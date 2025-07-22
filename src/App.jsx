@@ -66,7 +66,7 @@ export default function App() {
     const [userStats, setUserStats] = useState(null);
     const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
     const [authChecked, setAuthChecked] = useState(false);
-    const [username, setUsername] = useState<string | null>(null);
+    const [username, setUsername] = useState(null);
 
     const submitEntry = () => {
         if (!submission) return;
