@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LandingPage from './pages/landingpage.jsx';
-import App from './App.jsx';
+import LandingPage from './pages/landingpage';
+import App from './App';
 // import Login from './pages/Login';
 
 export default function MainRouter() {
