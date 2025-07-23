@@ -655,6 +655,7 @@ if (profileView === "profile") {
           type="email"
           className="w-full p-2 rounded bg-gray-900 text-white border border-gray-600"
           value={email}
+        autoComplete="off"
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
@@ -664,8 +665,9 @@ if (profileView === "profile") {
         <input
           type="password"
           className="w-full p-2 rounded bg-gray-900 text-white border border-gray-600"
-          placeholder="••••••••"
+          placeholder=""
           value={password}
+        autoComplete="off"
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
