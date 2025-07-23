@@ -127,60 +127,21 @@ export default function App() {
 };
 
 useEffect(() => {
-  fetch("https://acrophobia-backend-2.onrender.com/api/me", {
-    credentials: "include"
-  })
-    .then(res => {
-      if (!res.ok) throw new Error("Not logged in");
-      return res.json();
-    })
-    .then(data => {
-      setUsername(data.username);
-      setIsAuthenticated(true);
-
-      // ✅ Connect socket AFTER confirming login
-      if (!socket.connected) {
-        socket.connect();
-      }
-
-      // ✅ Now we can safely emit whoami
-      socket.emit("whoami", (res) => {
-        if (res.username) {
-          console.log("👤 Restored session as:", res.username);
-        } else {
-          console.warn("⚠️ Backend could not identify user");
-        }
-      });
-    })
-    .catch(() => {
-      Cookies.remove("acrophobia_user");
-      setIsAuthenticated(false);
-    })
-    .finally(() => {
-      setAuthChecked(true);
-    });
-}, []);
-
-useEffect(() => {
   const token = localStorage.getItem("acrophobia_token");
-  if (!token) {
-    setAuthChecked(true); // ✅ Prevents hanging if no token
-    return;
-  }
 
-  fetch("https://acrophobia-backend-2.onrender.com/api/me", {
-    headers: { Authorization: `Bearer ${token}` },
-    credentials: "include",
-  })
-    .then((res) => {
+  const restoreSession = async () => {
+    try {
+      const res = await fetch("https://acrophobia-backend-2.onrender.com/api/me", {
+        credentials: "include",
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+
       if (!res.ok) throw new Error("Not logged in");
-      return res.json();
-    })
-    .then((data) => {
+      const data = await res.json();
+
       setUsername(data.username);
       setIsAuthenticated(true);
-
-      socket.auth = { token };
+      socket.auth = token ? { token } : {};
       if (!socket.connected) socket.connect();
 
       socket.emit("whoami", (res) => {
@@ -188,14 +149,16 @@ useEffect(() => {
           console.log("Session restored as:", res.username);
         }
       });
-    })
-    .catch(() => {
+    } catch (err) {
       localStorage.removeItem("acrophobia_token");
+      Cookies.remove("acrophobia_user");
       setIsAuthenticated(false);
-    })
-    .finally(() => {
-      setAuthChecked(true); // ✅ Important
-    });
+    } finally {
+      setAuthChecked(true);
+    }
+  };
+
+  restoreSession();
 }, []);
 
        useEffect(() => {
