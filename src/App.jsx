@@ -127,6 +127,13 @@ export default function App() {
 };
 
 useEffect(() => {
+  const autofilledEmail = document.querySelector("input[type='email']")?.value;
+  if (autofilledEmail) {
+    setEmail(autofilledEmail);
+  }
+}, []);
+    
+useEffect(() => {
   const token = localStorage.getItem("acrophobia_token");
 
   const restoreSession = async () => {
