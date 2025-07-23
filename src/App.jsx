@@ -482,9 +482,13 @@ useEffect(() => {
    const login = () => {
   console.log("🔐 Login button clicked");
   if (!username || !password) {
-    console.warn("Missing credentials");
     setError("Enter username and password");
     return;
+  }
+
+  // ✅ Manually connect before emitting
+  if (!socket.connected) {
+    socket.connect();
   }
 
   console.log("Emitting login:", username, password);
@@ -506,26 +510,33 @@ useEffect(() => {
 
 
 
-    const register = () => {
-    if (!username || !email || !password) {
-      setError("All fields required");
-      return;
-    }
 
-    socket.emit("register", { username, email, password }, (res) => {
-      if (res.success) {
-        Cookies.set("acrophobia_user", username, {
-          expires: 7,
-          sameSite: "None",
-          secure: true
-        });
-        setIsAuthenticated(true);
-        setError(null);
-      } else {
-        setError(res.message || "Registration failed");
-      }
-    });
-  };
+    const register = () => {
+  if (!username || !email || !password) {
+    setError("All fields required");
+    return;
+  }
+
+  // ✅ Ensure the socket is connected before emitting
+  if (!socket.connected) {
+    socket.connect();
+  }
+
+  socket.emit("register", { username, email, password }, (res) => {
+    if (res.success) {
+      Cookies.set("acrophobia_user", username, {
+        expires: 7,
+        sameSite: "None",
+        secure: true
+      });
+      setIsAuthenticated(true);
+      setError(null);
+    } else {
+      setError(res.message || "Registration failed");
+    }
+  });
+};
+
 
    if (!authChecked) {
     return (
