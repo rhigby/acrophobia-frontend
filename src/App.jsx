@@ -480,34 +480,38 @@ useEffect(() => {
 }, [username]);
 
 
-   const login = () => {
-  console.log("🔐 Login button clicked");
+   const login = async () => {
   if (!username || !password) {
-    setError("Enter username and password");
+    setError("All fields required");
     return;
   }
 
-  // ✅ Manually connect before emitting
-  if (!socket.connected) {
-    socket.connect();
-  }
+  try {
+    const res = await fetch("https://acrophobia-backend-2.onrender.com/api/login-token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
 
-  console.log("Emitting login:", username, password);
-  socket.emit("login", { username, password }, (res) => {
-    console.log("Login response:", res);
-    if (res.success) {
-      Cookies.set("acrophobia_user", username, {
-        expires: 7,
-        sameSite: "None",
-        secure: true
-      });
+    const data = await res.json();
+
+    if (data.success && data.token) {
+      localStorage.setItem("acrophobia_token", data.token); // 🔐 Save token for reuse
       setIsAuthenticated(true);
       setError(null);
+
+      // Connect socket with token-based auth
+      socket.auth = { token: data.token };
+      socket.connect();
     } else {
-      setError(res.message || "Login failed");
+      setError(data.error || "Login failed");
     }
-  });
+  } catch (err) {
+    setError("Network error during login");
+    console.error(err);
+  }
 };
+
 
 
 
@@ -523,21 +527,43 @@ useEffect(() => {
     socket.connect();
   }
 
-  socket.emit("register", { username, email, password }, (res) => {
+  const register = () => {
+  if (!username || !email || !password) {
+    setError("All fields required");
+    return;
+  }
+
+  socket.emit("register", { username, email, password }, async (res) => {
     if (res.success) {
-      Cookies.set("acrophobia_user", username, {
-        expires: 7,
-        sameSite: "None",
-        secure: true
-      });
-      setIsAuthenticated(true);
-      setError(null);
+      try {
+        // 🔐 Get login token via REST
+        const tokenRes = await fetch("https://acrophobia-backend-2.onrender.com/api/login-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+
+        const tokenData = await tokenRes.json();
+
+        if (tokenData.success && tokenData.token) {
+          localStorage.setItem("acrophobia_token", tokenData.token);
+          socket.auth = { token: tokenData.token };
+          socket.connect();
+
+          setIsAuthenticated(true);
+          setError(null);
+        } else {
+          setError(tokenData.error || "Token retrieval failed");
+        }
+      } catch (err) {
+        console.error("Token fetch failed", err);
+        setError("Server error after registration");
+      }
     } else {
       setError(res.message || "Registration failed");
     }
   });
 };
-
 
    if (!authChecked) {
     return (
@@ -646,29 +672,39 @@ if (profileView === "profile") {
       </div>
 
       <button
-        onClick={async () => {
-          try {
-            const res = await fetch("https://acrophobia-backend-2.onrender.com/api/update-profile", {
-              method: "POST",
-              credentials: "include",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email, password })
-            });
+  onClick={async () => {
+    const token = localStorage.getItem("acrophobia_token");
 
-            if (res.ok) {
-              alert("Profile updated!");
-            } else {
-              const errText = await res.text();
-              alert("Error updating profile: " + errText);
-            }
-          } catch (err) {
-            console.error("Network error:", err);
-          }
-        }}
-        className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white"
-      >
-        Save Changes
-      </button>
+    if (!token) {
+      alert("You must be logged in to update your profile.");
+      return;
+    }
+
+    try {
+      const res = await fetch("https://acrophobia-backend-2.onrender.com/api/update-profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`  // 🔐 pass token here
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (res.ok) {
+        alert("Profile updated!");
+      } else {
+        const errText = await res.text();
+        alert("Error updating profile: " + errText);
+      }
+    } catch (err) {
+      console.error("Network error:", err);
+    }
+  }}
+  className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white"
+>
+  Save Changes
+</button>
+
 
       <button
         onClick={() => setProfileView("lobby")}
