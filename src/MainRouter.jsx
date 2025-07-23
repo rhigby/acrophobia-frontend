@@ -7,9 +7,9 @@ export default function MainRouter() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/play/*" element={<GameApp />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<landingpage />} />
+        <Route path="/play/*" element={<App />} />
+        
       </Routes>
     </Router>
   );
