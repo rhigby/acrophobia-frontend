@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import MainRouter from './MainRouter';  // <-- Point to your new router setup
-import './index.css';
+import MainRouter from './MainRouter.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
