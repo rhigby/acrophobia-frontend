@@ -68,6 +68,7 @@ export default function App() {
     const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
     const [authChecked, setAuthChecked] = useState(false);
     const [username, setUsername] = useState(null);
+    const [profileView, setProfileView] = useState("lobby"); 
 
     const submitEntry = () => {
         if (!submission) return;
@@ -613,11 +614,93 @@ useEffect(() => {
       </div>
     );
   }
+if (profileView === "profile") {
+  return (
+    <div className="p-6 max-w-md mx-auto bg-blue-950 text-white min-h-screen">
+      <h2 className="text-2xl font-bold mb-4">👤 My Profile</h2>
+      
+      <div className="mb-4">
+        <label className="block text-sm mb-1">Username:</label>
+        <div className="bg-gray-800 p-2 rounded">{username}</div>
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-sm mb-1">Email:</label>
+        <input
+          type="email"
+          className="w-full p-2 rounded bg-gray-900 text-white border border-gray-600"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-sm mb-1">New Password:</label>
+        <input
+          type="password"
+          className="w-full p-2 rounded bg-gray-900 text-white border border-gray-600"
+          placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+
+      <button
+        onClick={async () => {
+          try {
+            const res = await fetch("https://acrophobia-backend-2.onrender.com/api/update-profile", {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password })
+            });
+
+            if (res.ok) {
+              alert("Profile updated!");
+            } else {
+              const errText = await res.text();
+              alert("Error updating profile: " + errText);
+            }
+          } catch (err) {
+            console.error("Network error:", err);
+          }
+        }}
+        className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white"
+      >
+        Save Changes
+      </button>
+
+      <button
+        onClick={() => setProfileView("lobby")}
+        className="mt-4 block text-sm text-blue-400 underline"
+      >
+        ← Back to Lobby
+      </button>
+
+      {userStats && (
+        <div className="mt-8 text-sm text-gray-300 space-y-1">
+          <h3 className="text-lg font-semibold text-blue-300 mb-2">📊 Stats</h3>
+          <p>Games Played: {userStats.games_played}</p>
+          <p>Games Won: {userStats.games_won}</p>
+          <p>Best Entry Score: {userStats.high_score}</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
     if (!joined) {
   return (
     <>
       <div className="p-6 w-full min-h-screen bg-blue-950 text-white">
+          <div className="flex justify-end mb-4">
+  <button
+    onClick={() => setProfileView("profile")}
+    className="text-blue-400 underline text-sm"
+  >
+    👤 My Profile
+  </button>
+</div>
   <h1 className="text-3xl font-bold mb-4">🎮 Acrophobia Lobby</h1>
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
     
