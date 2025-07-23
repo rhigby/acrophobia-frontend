@@ -127,13 +127,6 @@ export default function App() {
 };
 
 
-   useEffect(() => {
-  const cookieUser = Cookies.get("acrophobia_user");
-  if (!cookieUser) {
-    setAuthChecked(true);
-    return;
-  }
-
   fetch("https://acrophobia-backend-2.onrender.com/api/me", {
     credentials: "include"
   })
@@ -168,8 +161,40 @@ export default function App() {
     });
 }, []);
 
+useEffect(() => {
+  const token = localStorage.getItem("acrophobia_token");
+  if (!token) {
+    setAuthChecked(true);
+    return;
+  }
 
-    
+  // Attach token to socket and connect
+  socket.auth = { token };
+  socket.connect();
+
+  fetch("https://acrophobia-backend-2.onrender.com/api/me", {
+    credentials: "include",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Unauthorized");
+      return res.json();
+    })
+    .then((data) => {
+      setUsername(data.username);
+      setIsAuthenticated(true);
+    })
+    .catch(() => {
+      localStorage.removeItem("acrophobia_token");
+      setIsAuthenticated(false);
+    })
+    .finally(() => {
+      setAuthChecked(true);
+    });
+}, []);
+
        useEffect(() => {
   const handlePrivateMessage = ({ from, to, text }) => {
     const isSender = from === username;
