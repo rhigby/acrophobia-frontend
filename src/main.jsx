@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import MainRouter from './MainRouter.jsx';  // <-- Point to your new router setup
+import MainRouter from './MainRouter';  // <-- Point to your new router setup
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
