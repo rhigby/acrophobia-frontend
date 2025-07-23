@@ -7,7 +7,7 @@ export default function MainRouter() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<App />} />
        <Route path="/play" element={<div>Hello from App!</div>} />
         {/* <Route path="/login" element={<Login />} /> */}
       </Routes>
