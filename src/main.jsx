@@ -1,18 +1,18 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import App from './App';
-import LandingPage from './landingpage';
-import './index.css';
+import LandingPage from './pages/LandingPage';
+import Lobby from './pages/Lobby'; // example
+import Login from './pages/Login'; // example
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+export default function App() {
+  return (
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/play" element={<App />} />
+        <Route path="/lobby" element={<Lobby />} />
+        <Route path="/login" element={<Login />} />
+        {/* add other routes */}
       </Routes>
     </Router>
-  </React.StrictMode>
-);
+  );
+}
 
