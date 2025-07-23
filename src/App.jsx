@@ -564,6 +564,7 @@ useEffect(() => {
     }
   });
 };
+    };
 
    if (!authChecked) {
     return (
