@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
+import LandingPage from './pages/landingpage';
 import GameApp from './App';
-import Login from './pages/Login';
+//import Login from './pages/Login';
 
 export default function MainRouter() {
   return (
