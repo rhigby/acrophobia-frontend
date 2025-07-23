@@ -164,34 +164,37 @@ useEffect(() => {
 useEffect(() => {
   const token = localStorage.getItem("acrophobia_token");
   if (!token) {
-    setAuthChecked(true);
+    setAuthChecked(true); // ✅ Prevents hanging if no token
     return;
   }
 
-  // Attach token to socket and connect
-  socket.auth = { token };
-  socket.connect();
-
   fetch("https://acrophobia-backend-2.onrender.com/api/me", {
+    headers: { Authorization: `Bearer ${token}` },
     credentials: "include",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
   })
     .then((res) => {
-      if (!res.ok) throw new Error("Unauthorized");
+      if (!res.ok) throw new Error("Not logged in");
       return res.json();
     })
     .then((data) => {
       setUsername(data.username);
       setIsAuthenticated(true);
+
+      socket.auth = { token };
+      if (!socket.connected) socket.connect();
+
+      socket.emit("whoami", (res) => {
+        if (res.username) {
+          console.log("Session restored as:", res.username);
+        }
+      });
     })
     .catch(() => {
       localStorage.removeItem("acrophobia_token");
       setIsAuthenticated(false);
     })
     .finally(() => {
-      setAuthChecked(true);
+      setAuthChecked(true); // ✅ Important
     });
 }, []);
 
