@@ -126,7 +126,7 @@ export default function App() {
   setChatInput("");
 };
 
-
+useEffect(() => {
   fetch("https://acrophobia-backend-2.onrender.com/api/me", {
     credentials: "include"
   })
