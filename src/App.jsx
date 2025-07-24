@@ -16,10 +16,11 @@ function isValidSubmission(submission, acronym) {
         word[0]?.toUpperCase() === upperAcronym[idx]
     );
 }
+
 export const socket = io("https://acrophobia-backend-2.onrender.com", {
+  autoConnect: false, // important
   withCredentials: true,
-  transports: ["websocket", "polling"],
-    autoConnect: false
+  transports: ["websocket", "polling"]
 });
 
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
@@ -148,7 +149,9 @@ useEffect(() => {
 
       setUsername(data.username);
       setIsAuthenticated(true);
-      socket.auth = token ? { token } : {};
+
+      // ✅ set token BEFORE connecting
+      socket.auth = { token };
       if (!socket.connected) socket.connect();
 
       socket.emit("whoami", (res) => {
@@ -167,6 +170,7 @@ useEffect(() => {
 
   restoreSession();
 }, []);
+
 
        useEffect(() => {
   const handlePrivateMessage = ({ from, to, text }) => {
