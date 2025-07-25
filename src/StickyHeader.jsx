@@ -1,4 +1,4 @@
-import { useState } from "react";
+iimport { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function StickyHeader({ username, setProfileView, logout }) {
@@ -11,9 +11,10 @@ export default function StickyHeader({ username, setProfileView, logout }) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between text-white">
-
-        {/* LEFT: Glowing Logo */}
+      {/* Top bar */}
+      <div className="w-full px-4 py-3 flex justify-between items-center text-white">
+        
+        {/* Logo LEFT */}
         <div
           className="text-3xl font-extrabold tracking-wide text-red-600"
           style={{
@@ -24,7 +25,7 @@ export default function StickyHeader({ username, setProfileView, logout }) {
           ACROPHOBIA
         </div>
 
-        {/* RIGHT: Desktop menu */}
+        {/* Desktop menu RIGHT */}
         <div className="hidden sm:flex items-center gap-4 text-sm text-blue-200">
           <span>👤 {username}</span>
           <button onClick={() => setProfileView("profile")} className="hover:underline text-blue-400">My Profile</button>
@@ -32,9 +33,9 @@ export default function StickyHeader({ username, setProfileView, logout }) {
           <button onClick={logout} className="hover:underline text-red-400">Logout</button>
         </div>
 
-        {/* RIGHT: Mobile hamburger */}
+        {/* Hamburger (mobile only) */}
         <button
-          className="sm:hidden text-blue-200"
+          className="sm:hidden text-blue-200 text-xl"
           onClick={() => setMenuOpen((prev) => !prev)}
           aria-label="Toggle Menu"
         >
@@ -42,7 +43,7 @@ export default function StickyHeader({ username, setProfileView, logout }) {
         </button>
       </div>
 
-      {/* Mobile Dropdown Menu */}
+      {/* Mobile dropdown */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -53,30 +54,16 @@ export default function StickyHeader({ username, setProfileView, logout }) {
             transition={{ duration: 0.3 }}
           >
             <div className="py-2 border-b border-blue-800">👤 {username}</div>
-            <button
-              onClick={() => { setProfileView("profile"); setMenuOpen(false); }}
-              className="block py-2 w-full text-left hover:underline text-blue-400"
-            >
-              My Profile
-            </button>
-            <button
-              onClick={() => { setProfileView("stats"); setMenuOpen(false); }}
-              className="block py-2 w-full text-left hover:underline text-blue-400"
-            >
-              Game Stats
-            </button>
-            <button
-              onClick={() => { logout(); setMenuOpen(false); }}
-              className="block py-2 w-full text-left hover:underline text-red-400"
-            >
-              Logout
-            </button>
+            <button onClick={() => { setProfileView("profile"); setMenuOpen(false); }} className="block py-2 w-full text-left hover:underline text-blue-400">My Profile</button>
+            <button onClick={() => { setProfileView("stats"); setMenuOpen(false); }} className="block py-2 w-full text-left hover:underline text-blue-400">Game Stats</button>
+            <button onClick={() => { logout(); setMenuOpen(false); }} className="block py-2 w-full text-left hover:underline text-red-400">Logout</button>
           </motion.div>
         )}
       </AnimatePresence>
     </motion.header>
   );
 }
+
 
 
 
