@@ -656,6 +656,21 @@ useEffect(() => {
 );
 
   }
+
+    {isAuthenticated && (
+  <StickyHeader
+    username={username}
+    setProfileView={setProfileView}
+    logout={() => {
+      localStorage.removeItem("acrophobia_token");
+      setIsAuthenticated(false);
+      setRoom(null);
+      setJoined(false);
+      socket.disconnect();
+    }}
+  />
+)}
+
 if (profileView === "profile") {
   return (
     <div className="p-6 max-w-md mx-auto bg-blue-950 text-white min-h-screen">
