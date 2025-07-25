@@ -748,15 +748,19 @@ if (profileView === "profile") {
     if (!joined) {
   return (
     <>
+        <StickyHeader
+  username={username}
+  setProfileView={setProfileView}
+  logout={() => {
+    localStorage.removeItem("acrophobia_token");
+    setIsAuthenticated(false);
+    setRoom(null);
+    setJoined(false);
+    socket.disconnect();
+  }}
+/>
       <div className="p-6 w-full min-h-screen bg-blue-950 text-white">
-          <div className="flex justify-end mb-4">
-  <button
-    onClick={() => setProfileView("profile")}
-    className="text-blue-400 underline text-sm"
-  >
-    👤 My Profile
-  </button>
-</div>
+        
   <h1 className="text-3xl font-bold mb-4">🎮 Acrophobia Lobby</h1>
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
     
