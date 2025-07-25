@@ -663,7 +663,8 @@ const sendBoardMessage = async () => {
   const payload = {
     title: newTitle,
     content: newContent,
-    reply_to: replyToId
+    reply_to: replyToId,
+    username           // ✅ Add this
   };
 
   try {
@@ -688,6 +689,7 @@ const sendBoardMessage = async () => {
     console.error("❌ Network error:", err);
   }
 };
+
 
     
    if (!authChecked) {
