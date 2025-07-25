@@ -119,9 +119,9 @@ export default function App() {
 
     if (to && message) {
       socket.emit("private_message", {
-        from: username,  // ✅ Add this line
+        from: username,     // ✅ required by your backend
         to,
-        text: message,   // ✅ Rename to `text` to match backend handler if needed
+        message,            // ✅ must be `message` not `text`
       });
     }
   } else {
@@ -130,6 +130,7 @@ export default function App() {
 
   setChatInput("");
 };
+
 
 
 useEffect(() => {
