@@ -693,23 +693,23 @@ if (profileView === "profile") {
       </div>
         <div className="grid grid-cols-2 gap-4 text-center text-blue-200">
   <div>
-    <div className="text-2xl font-bold">{user_stats.total_points}</div>
+    <div className="text-2xl font-bold">{userStats.total_points}</div>
     <div className="text-sm">Total Points</div>
   </div>
   <div>
-    <div className="text-2xl font-bold">{user_stats.total_wins}</div>
+    <div className="text-2xl font-bold">{userStats.total_wins}</div>
     <div className="text-sm">Wins</div>
   </div>
   <div>
-    <div className="text-2xl font-bold">{user_stats.games_played}s</div>
+    <div className="text-2xl font-bold">{userStats.games_played}s</div>
     <div className="text-sm">Games Played</div>
   </div>
 <div>
-    <div className="text-2xl font-bold">{user_stats.voted_for_winner_count}s</div>
+    <div className="text-2xl font-bold">{userStats.voted_for_winner_count}s</div>
     <div className="text-sm">Voted for Winner</div>
   </div>
   <div>
-    <div className="text-2xl font-bold">{user_stats.fastest_submission_ms}s</div>
+    <div className="text-2xl font-bold">{userStats.fastest_submission_ms}s</div>
     <div className="text-sm">Fastest Submission</div>
   </div>
 </div>
