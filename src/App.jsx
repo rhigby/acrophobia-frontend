@@ -773,15 +773,6 @@ if (profileView === "profile") {
       >
         ← Back to Lobby
       </button>
-
-      {userStats && (
-        <div className="mt-8 text-sm text-gray-300 space-y-1">
-          <h3 className="text-lg font-semibold text-blue-300 mb-2">📊 Stats</h3>
-          <p>Games Played: {userStats.games_played}</p>
-          <p>Games Won: {userStats.games_won}</p>
-          <p>Best Entry Score: {userStats.high_score}</p>
-        </div>
-      )}
     </div>
   );
 }
