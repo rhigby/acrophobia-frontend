@@ -28,6 +28,7 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 export default function App() {
+    const [replyToId, setReplyToId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newTitle, setNewTitle] = useState("");
     const [newContent, setNewContent] = useState("");
@@ -228,8 +229,9 @@ const sendBoardMessage = async () => {
   const payload = {
     title: newMessageTitle,
     content: newMessageContent,
-    replyTo: null
+    replyTo: replyToId  // ✅ dynamically send the reply target
   };
+
   try {
     const res = await fetch(`${BASE_API}/api/messages`, {
       method: "POST",
@@ -243,6 +245,7 @@ const sendBoardMessage = async () => {
     if (res.ok) {
       setNewMessageTitle("");
       setNewMessageContent("");
+      setReplyToId(null);  // ✅ Clear the reply state after successful post
     } else {
       const errText = await res.text();
       console.error("❌ Error submitting message:", errText);
@@ -251,6 +254,7 @@ const sendBoardMessage = async () => {
     console.error("❌ Network error:", err);
   }
 };
+
 
     
 useEffect(() => {
@@ -869,86 +873,120 @@ if (profileView === "profile") {
       </div>
 
       {/* RIGHT SIDE: Message Board */}
-      <div className="bg-gray-900/50 p-4 rounded border border-blue-800 shadow-inner flex flex-col h-full">
-        <h2 className="text-xl font-bold mb-4 text-white">📬 Message Board</h2>
+<div className="bg-gray-900/50 p-4 rounded border border-blue-800 shadow-inner flex flex-col h-full">
+  <h2 className="text-xl font-bold mb-4 text-white">📬 Message Board</h2>
 
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const BASE_API = "https://acrophobia-backend-2.onrender.com";
-
-            if (newTitle && newContent) {
-              try {
-                const res = await fetch(`${BASE_API}/api/messages`, {
-                  method: "POST",
-                  credentials: "include",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    title: newTitle,
-                    content: newContent,
-                    replyTo: null,
-                    username,
-                  }),
-                });
-
-                if (res.ok) {
-                  setNewTitle("");
-                  setNewContent("");
-                } else {
-                  const errText = await res.text();
-                  console.error("❌ Failed to post message:", errText);
-                }
-              } catch (err) {
-                console.error("❌ Network error:", err);
-              }
-            }
-          }}
+  {/* Replying to preview */}
+  {replyToId && (() => {
+    const replyMessage = messages.find(m => m.id === replyToId);
+    return replyMessage ? (
+      <div className="mb-2 p-2 rounded bg-blue-900 text-blue-100 border border-blue-700 text-sm">
+        Replying to: <strong>{replyMessage.title}</strong>
+        <p className="text-xs italic text-blue-300">
+          {replyMessage.content.slice(0, 60)}...
+        </p>
+        <button
+          className="ml-2 text-red-400 text-xs underline"
+          onClick={() => setReplyToId(null)}
+          type="button"
         >
-          <input
-            className="w-full p-2 mb-2 rounded bg-gray-800 text-white border border-gray-600 placeholder:text-gray-400"
-            placeholder="Title"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-          />
-          <textarea
-            className="w-full p-2 mb-2 rounded bg-gray-800 text-white border border-gray-600 placeholder:text-gray-400"
-            placeholder="Write your message..."
-            value={newContent}
-            onChange={(e) => setNewContent(e.target.value)}
-          />
-          <button
-            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white w-full"
-            type="submit"
-          >
-            Post Message
-          </button>
-        </form>
-
-        <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem] space-y-3">
-          {messages.map((m) => (
-            <div
-              key={m.id}
-              className="bg-black/70 p-3 rounded border border-gray-700"
-            >
-              <h3 className="font-bold text-blue-300">{m.title}</h3>
-              <p className="text-white">{m.content}</p>
-              <p className="text-xs text-gray-400 mt-1">
-                — {m.username} • {new Date(m.timestamp).toLocaleString()}
-              </p>
-              {m.replies.length > 0 && (
-                <div className="ml-4 mt-2 text-sm text-blue-200 space-y-1 border-l border-blue-700 pl-2">
-                  {m.replies.map((r) => (
-                    <div key={r.id}>
-                      ↳ <span className="text-blue-100">{r.content}</span>{" "}
-                      — <span className="text-gray-400">{r.username}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+          Cancel
+        </button>
       </div>
+    ) : null;
+  })()}
+
+  {/* Form */}
+  <form
+    onSubmit={async (e) => {
+      e.preventDefault();
+      const BASE_API = "https://acrophobia-backend-2.onrender.com";
+
+      if (newTitle && newContent) {
+        try {
+          const res = await fetch(`${BASE_API}/api/messages`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: newTitle,
+              content: newContent,
+              replyTo: replyToId,
+              username,
+            }),
+          });
+
+          if (res.ok) {
+            setNewTitle("");
+            setNewContent("");
+            setReplyToId(null); // ✅ clear reply state after submit
+          } else {
+            const errText = await res.text();
+            console.error("❌ Failed to post message:", errText);
+          }
+        } catch (err) {
+          console.error("❌ Network error:", err);
+        }
+      }
+    }}
+  >
+    <input
+      className="w-full p-2 mb-2 rounded bg-gray-800 text-white border border-gray-600 placeholder:text-gray-400"
+      placeholder="Title"
+      value={newTitle}
+      onChange={(e) => setNewTitle(e.target.value)}
+    />
+    <textarea
+      className="w-full p-2 mb-2 rounded bg-gray-800 text-white border border-gray-600 placeholder:text-gray-400"
+      placeholder="Write your message..."
+      value={newContent}
+      onChange={(e) => setNewContent(e.target.value)}
+    />
+    <button
+      className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white w-full"
+      type="submit"
+    >
+      Post Message
+    </button>
+  </form>
+
+  {/* Message List */}
+  <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem] space-y-3">
+    {messages.map((m) => (
+      <div
+        key={m.id}
+        className="bg-black/70 p-3 rounded border border-gray-700"
+      >
+        <h3 className="font-bold text-blue-300">{m.title}</h3>
+        <p className="text-white">{m.content}</p>
+        <p className="text-xs text-gray-400 mt-1">
+          — {m.username} • {new Date(m.timestamp).toLocaleString()}
+        </p>
+
+        {/* Reply Button */}
+        <button
+          className="text-xs text-blue-400 hover:underline mt-1"
+          onClick={() => setReplyToId(m.id)}
+        >
+          Reply
+        </button>
+
+        {/* Replies */}
+        {m.replies.length > 0 && (
+          <div className="ml-4 mt-2 text-sm text-blue-200 space-y-1 border-l border-blue-700 pl-2">
+            {m.replies.map((r) => (
+              <div key={r.id}>
+                ↳ <span className="text-blue-100">{r.content}</span>{" "}
+                — <span className="text-gray-400">{r.username}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
     </div>
   </div>
         </>
