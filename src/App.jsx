@@ -748,7 +748,9 @@ if (profileView === "profile") {
 
     if (!joined) {
   return (
-      <StickyHeader
+      
+  <div className="p-6 w-full min-h-screen bg-blue-950 text-white">
+    <StickyHeader
       username={username}
       setProfileView={setProfileView}
       logout={() => {
@@ -759,16 +761,6 @@ if (profileView === "profile") {
         socket.disconnect();
       }}
     />
-  <div className="p-6 w-full min-h-screen bg-blue-950 text-white">
-    {/* Top Right - Profile Button */}
-    <div className="flex justify-end mb-4">
-      <button
-        onClick={() => setProfileView("profile")}
-        className="text-blue-400 underline text-sm"
-      >
-        👤 My Profile
-      </button>
-    </div>
 
     <h1 className="text-3xl font-bold mb-6">🎮 Acrophobia Lobby</h1>
 
