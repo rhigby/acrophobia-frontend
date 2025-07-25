@@ -50,7 +50,6 @@ function buildThreadedMessages(flatMessages) {
 }
 
 
-
 export default function App() {
     const [replyToId, setReplyToId] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -663,7 +662,7 @@ const sendBoardMessage = async () => {
   const payload = {
     title: newTitle,
     content: newContent,
-    reply_to: replyToId,
+    replyTo: replyToId,
     username           // ✅ Add this
   };
 
