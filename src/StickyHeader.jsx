@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react"; // Or use plain icons
 
 export default function StickyHeader({ username, setProfileView, logout }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -39,7 +38,7 @@ export default function StickyHeader({ username, setProfileView, logout }) {
           onClick={() => setMenuOpen((prev) => !prev)}
           aria-label="Toggle Menu"
         >
-          {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          <span className="text-xl">{menuOpen ? "✕" : "☰"}</span>
         </button>
       </div>
 
