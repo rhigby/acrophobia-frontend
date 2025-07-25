@@ -37,10 +37,9 @@ function buildThreadedMessages(flatMessages) {
   });
 
   flatMessages.forEach((msg) => {
-    const parentId = msg.reply_to ?? msg.replyTo;
-    if (parentId) {
-      const parent = messageMap[parentId];
-      if (parent) parent.replies.push(messageMap[msg.id]);
+    const parentId = msg.reply_to || msg.replyTo;
+    if (parentId && messageMap[parentId]) {
+      messageMap[parentId].replies.push(messageMap[msg.id]);
     } else {
       roots.push(messageMap[msg.id]);
     }
@@ -629,7 +628,7 @@ useEffect(() => {
       });
       if (res.ok) {
         const data = await res.json();
-        setMessages(data);
+        setMessages(buildThreadedMessages(data));
       }
     } catch (err) {
       console.error("Failed to load messages:", err);
@@ -641,15 +640,7 @@ useEffect(() => {
 
 useEffect(() => {
   const handleNewMessage = (msg) => {
-    const normalized = {
-      ...msg,
-      reply_to: msg.reply_to ?? msg.replyTo ?? null
-    };
-
-    setMessages((prev) => {
-      const exists = prev.some((m) => m.id === normalized.id);
-      return exists ? prev : [...prev, normalized];
-    });
+    setMessages((prev) => buildThreadedMessages([...prev, msg]));
   };
 
   socket.on("new_message", handleNewMessage);
@@ -662,8 +653,7 @@ const sendBoardMessage = async () => {
   const payload = {
     title: newTitle,
     content: newContent,
-    replyTo: replyToId,
-    username           // ✅ Add this
+    replyTo: replyToId
   };
 
   try {
@@ -1007,7 +997,7 @@ if (profileView === "profile") {
   </form>
 
   <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem]">
-    {buildThreadedMessages(messages).map((m) => (
+    {messages.map((m) => (
       <MessageCard key={m.id} message={m} />
     ))}
   </div>
