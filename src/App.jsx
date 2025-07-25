@@ -198,6 +198,8 @@ useEffect(() => {
 
        useEffect(() => {
   const handlePrivateMessage = ({ from, to, text }) => {
+    console.log("📥 Got private message:", { from, to, text });
+
     const isSender = from === username;
     const displayName = isSender ? `to ${to}` : `from ${from}`;
 
@@ -219,6 +221,7 @@ useEffect(() => {
     socket.off("private_message_ack", handlePrivateMessage);
   };
 }, [username]);
+
 
 const sendBoardMessage = async () => {
   const BASE_API = "https://acrophobia-backend-2.onrender.com";
