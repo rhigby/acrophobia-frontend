@@ -1,4 +1,4 @@
-iimport { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function StickyHeader({ username, setProfileView, logout }) {
