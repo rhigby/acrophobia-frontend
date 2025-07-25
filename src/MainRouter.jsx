@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LandingPage from './pages/landingpage';
 import App from './App';
 
 export default function MainRouter() {
@@ -8,7 +7,6 @@ export default function MainRouter() {
     <Router>
       <Routes>
         <Route path="/" element={<App />} />
-        <Route path="/play" element={<App />} />
       </Routes>
     </Router>
   );
