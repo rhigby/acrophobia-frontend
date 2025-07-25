@@ -37,8 +37,9 @@ function buildThreadedMessages(flatMessages) {
   });
 
   flatMessages.forEach((msg) => {
-    if (msg.reply_to) {
-      const parent = messageMap[msg.reply_to];
+    const parentId = msg.reply_to ?? msg.replyTo;
+    if (parentId) {
+      const parent = messageMap[parentId];
       if (parent) parent.replies.push(messageMap[msg.id]);
     } else {
       roots.push(messageMap[msg.id]);
@@ -47,6 +48,7 @@ function buildThreadedMessages(flatMessages) {
 
   return roots;
 }
+
 
 
 export default function App() {
@@ -640,12 +642,21 @@ useEffect(() => {
 
 useEffect(() => {
   const handleNewMessage = (msg) => {
-    setMessages((prev) => [...prev, msg]);
+    const normalized = {
+      ...msg,
+      reply_to: msg.reply_to ?? msg.replyTo ?? null
+    };
+
+    setMessages((prev) => {
+      const exists = prev.some((m) => m.id === normalized.id);
+      return exists ? prev : [...prev, normalized];
+    });
   };
 
   socket.on("new_message", handleNewMessage);
   return () => socket.off("new_message", handleNewMessage);
 }, []);
+
 
 const sendBoardMessage = async () => {
   const BASE_API = "https://acrophobia-backend-2.onrender.com";
