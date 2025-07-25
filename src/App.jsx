@@ -661,8 +661,8 @@ useEffect(() => {
 
 if (profileView === "profile") {
   return (
-    <div className="p-6 max-w-md mx-auto bg-blue-950 text-white min-h-screen">
-      <h2 className="text-2xl font-bold mb-4">👤 My Profile</h2>
+    <div className="max-w-xl mx-auto mt-8 p-6 bg-gray-900 text-white rounded-xl shadow-lg border border-blue-800">
+  <h2 className="text-3xl font-bold text-center mb-6">👤 My Profile</h2>
       
       <div className="mb-4">
         <label className="block text-sm mb-1">Username:</label>
@@ -691,7 +691,26 @@ if (profileView === "profile") {
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-
+        <div className="grid grid-cols-2 gap-4 text-center text-blue-200">
+  <div>
+    <div className="text-2xl font-bold">{userStats.gamesPlayed}</div>
+    <div className="text-sm">Games Played</div>
+  </div>
+  <div>
+    <div className="text-2xl font-bold">{userStats.totalWins}</div>
+    <div className="text-sm">Wins</div>
+  </div>
+  <div>
+    <div className="text-2xl font-bold">{userStats.fastestTime}s</div>
+    <div className="text-sm">Fastest Answer</div>
+  </div>
+  <div>
+    <div className="text-2xl font-bold">
+      {userStats.voteAccuracy?.toFixed(1)}%
+    </div>
+    <div className="text-sm">Vote Accuracy</div>
+  </div>
+</div>
       <button
   onClick={async () => {
     const token = localStorage.getItem("acrophobia_token");
