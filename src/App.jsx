@@ -748,6 +748,17 @@ if (profileView === "profile") {
 
     if (!joined) {
   return (
+      <StickyHeader
+      username={username}
+      setProfileView={setProfileView}
+      logout={() => {
+        localStorage.removeItem("acrophobia_token");
+        setIsAuthenticated(false);
+        setRoom(null);
+        setJoined(false);
+        socket.disconnect();
+      }}
+    />
   <div className="p-6 w-full min-h-screen bg-blue-950 text-white">
     {/* Top Right - Profile Button */}
     <div className="flex justify-end mb-4">
