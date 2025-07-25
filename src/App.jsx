@@ -760,7 +760,7 @@ if (profileView === "profile") {
         socket.disconnect();
       }}
     />
-  <div className="p-6 w-full min-h-screen bg-cover bg-center bg-no-repeat text-white" style={{ backgroundImage: `url("/bground.gif")` }}>
+  <div className="p-6 w-full min-h-screen bg-repeat bg-left-top text-white" style={{ backgroundImage: `url("/bground.gif")` }}>
     
 
     <h1 className="text-3xl font-bold mb-6">Lobby</h1>
