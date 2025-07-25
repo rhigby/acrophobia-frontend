@@ -910,14 +910,6 @@ if (profileView === "profile") {
 
     return (
   <>
-     
-    {showOverlay && (
-      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-        <div className="text-4xl md:text-5xl font-extrabold text-red-500 drop-shadow-[0_0_5px_orange]">
-          {overlayText}
-        </div>
-      </div>
-    )}
 
   <StickyHeader
     username={username}
@@ -930,6 +922,16 @@ if (profileView === "profile") {
       socket.disconnect();
     }}
   />
+      
+    {showOverlay && (
+      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div className="text-4xl md:text-5xl font-extrabold text-red-500 drop-shadow-[0_0_5px_orange]">
+          {overlayText}
+        </div>
+      </div>
+    )}
+
+
 
 
     <div className={`flex flex-col min-h-screen ${bgColor} font-mono`}>
