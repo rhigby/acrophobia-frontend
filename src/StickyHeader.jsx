@@ -29,7 +29,6 @@ export default function StickyHeader({ username, setProfileView, logout }) {
         <div className="hidden sm:flex items-center gap-4 text-sm text-blue-200">
           <span>👤 {username}</span>
           <button onClick={() => setProfileView("profile")} className="hover:underline text-blue-400">My Profile</button>
-          <button onClick={() => setProfileView("stats")} className="hover:underline text-blue-400">Game Stats</button>
           <button onClick={logout} className="hover:underline text-red-400">Logout</button>
         </div>
 
