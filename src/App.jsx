@@ -3,6 +3,7 @@ import { useEffect, useState, useRef  } from "react";
 import { io } from "socket.io-client";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
+import StickyHeader from "./StickyHeader";
 
 function isValidSubmission(submission, acronym) {
     if (!submission || !acronym) return false;
