@@ -18,22 +18,6 @@ function isValidSubmission(submission, acronym) {
     );
 }
 
-function flattenMessages(threadedMessages) {
-  const result = [];
-
-  function walk(msgs) {
-    msgs.forEach((m) => {
-      const { replies, ...rest } = m;
-      result.push(rest);
-      if (replies?.length) walk(replies);
-    });
-  }
-
-  walk(threadedMessages);
-  return result;
-}
-
-
 export const socket = io("https://acrophobia-backend-2.onrender.com", {
   autoConnect: false, // important
   withCredentials: true,
@@ -43,6 +27,19 @@ export const socket = io("https://acrophobia-backend-2.onrender.com", {
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
+
+function flattenMessages(threaded) {
+  const result = [];
+  const walk = (msgs) => {
+    msgs.forEach((m) => {
+      const { replies, ...rest } = m;
+      result.push(rest);
+      if (Array.isArray(replies)) walk(replies);
+    });
+  };
+  walk(threaded);
+  return result;
+}
 
 function buildThreadedMessages(flatMessages) {
   const messageMap = {};
