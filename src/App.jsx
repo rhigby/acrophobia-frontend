@@ -118,8 +118,11 @@ export default function App() {
     const message = messageParts.join(" ").trim();
 
     if (to && message) {
-      socket.emit("private_message", { to, message });
-      // 🛑 DO NOT manually add to chatMessages here anymore
+      socket.emit("private_message", {
+        from: username,  // ✅ Add this line
+        to,
+        text: message,   // ✅ Rename to `text` to match backend handler if needed
+      });
     }
   } else {
     socket.emit("chat_message", { room, username, text: chatInput });
@@ -127,6 +130,7 @@ export default function App() {
 
   setChatInput("");
 };
+
 
 useEffect(() => {
   const autofilledEmail = document.querySelector("input[type='email']")?.value;
