@@ -251,7 +251,7 @@ const sendBoardMessage = async () => {
   const payload = {
     title: newMessageTitle,
     content: newMessageContent,
-    replyTo: replyToId  // ✅ dynamically send the reply target
+    reply_to: replyToId  // ✅ fixed key for backend
   };
 
   try {
@@ -267,7 +267,7 @@ const sendBoardMessage = async () => {
     if (res.ok) {
       setNewMessageTitle("");
       setNewMessageContent("");
-      setReplyToId(null);  // ✅ Clear the reply state after successful post
+      setReplyToId(null);
     } else {
       const errText = await res.text();
       console.error("❌ Error submitting message:", errText);
@@ -960,34 +960,7 @@ if (profileView === "profile") {
   <form
     onSubmit={async (e) => {
       e.preventDefault();
-      const BASE_API = "https://acrophobia-backend-2.onrender.com";
-
-      if (newTitle && newContent) {
-        try {
-          const res = await fetch(`${BASE_API}/api/messages`, {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              title: newTitle,
-              content: newContent,
-              replyTo: replyToId,
-              username,
-            }),
-          });
-
-          if (res.ok) {
-            setNewTitle("");
-            setNewContent("");
-            setReplyToId(null);
-          } else {
-            const errText = await res.text();
-            console.error("❌ Failed to post message:", errText);
-          }
-        } catch (err) {
-          console.error("❌ Network error:", err);
-        }
-      }
+      sendBoardMessage();
     }}
   >
     {replyToId && (
