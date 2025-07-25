@@ -747,174 +747,167 @@ if (profileView === "profile") {
 
     if (!joined) {
   return (
- <>
-<StickyHeader
-  username={username}
-  setProfileView={setProfileView}
-  logout={() => {
-    localStorage.removeItem("acrophobia_token");
-    setIsAuthenticated(false);
-    setRoom(null);
-    setJoined(false);
-    socket.disconnect();
-  }}
-/>
-  <div className="p-6 w-full min-h-screen bg-blue-950 text-white">
-    
+    <>
+      <StickyHeader
+        username={username}
+        setProfileView={setProfileView}
+        logout={() => {
+          localStorage.removeItem("acrophobia_token");
+          setIsAuthenticated(false);
+          setRoom(null);
+          setJoined(false);
+          socket.disconnect();
+        }}
+      />
+      <div className="p-6 w-full min-h-screen bg-blue-950 text-white">
+        <h1 className="text-3xl font-bold mb-6">🎮 Acrophobia Lobby</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* LEFT SIDE */}
+          <div>
+            {/* Room Selector */}
+            <div className="mb-6 p-4 rounded border border-blue-800 bg-blue-900/50 shadow-inner">
+              <h2 className="text-xl font-semibold mb-4">Select a Room</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {ROOMS.map((r) => {
+                  const stats = roomStats[r];
+                  const playerCount = stats?.players || 0;
+                  const roundNum = stats?.round ?? "-";
+                  const isFull = playerCount >= 10;
 
-    <h1 className="text-3xl font-bold mb-6">🎮 Acrophobia Lobby</h1>
+                  return (
+                    <div
+                      key={r}
+                      className={`rounded p-3 border transition duration-200 ${
+                        isFull
+                          ? "bg-gray-700 border-gray-600 text-gray-400 cursor-not-allowed"
+                          : "bg-gray-900 hover:bg-blue-800 border-blue-700 cursor-pointer"
+                      }`}
+                      onClick={() => !isFull && joinRoom(r)}
+                    >
+                      <div className="font-bold text-lg">{r}</div>
+                      <div className="text-sm">
+                        Players: {playerCount}
+                        <br />
+                        Round: {roundNum}
+                      </div>
+                      {isFull && (
+                        <div className="text-xs text-red-400 mt-1">Room Full</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* LEFT SIDE */}
-      <div>
-        {/* Room Selector */}
-        <div className="mb-6 p-4 rounded border border-blue-800 bg-blue-900/50 shadow-inner">
-          <h2 className="text-xl font-semibold mb-4">Select a Room</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {ROOMS.map((r) => {
-              const stats = roomStats[r];
-              const playerCount = stats?.players || 0;
-              const roundNum = stats?.round ?? "-";
-              const isFull = playerCount >= 10;
+            {/* User List */}
+            <div className="p-4 rounded border border-blue-800 bg-gray-900/50 shadow-inner">
+              <h2 className="text-xl font-semibold mb-3">🧑‍💻 Online Users</h2>
+              <input
+                type="text"
+                placeholder="Search for users..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full p-2 mb-3 rounded bg-gray-800 text-white border border-gray-700 placeholder:text-gray-400"
+              />
+              <ul className="max-h-64 overflow-y-auto space-y-1">
+                {allUsers
+                  .filter((u) =>
+                    u?.username?.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((u) => (
+                    <li key={u.username} className="text-sm text-blue-100">
+                      {u.username}{" "}
+                      <span className="text-gray-400">({u.room || "lobby"})</span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+            {error && <p className="text-red-400 mt-4">{error}</p>}
+          </div>
 
-              return (
+          {/* RIGHT SIDE: Message Board */}
+          <div className="bg-gray-900/50 p-4 rounded border border-blue-800 shadow-inner flex flex-col h-full">
+            <h2 className="text-xl font-bold mb-4 text-white">📬 Message Board</h2>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const BASE_API = "https://acrophobia-backend-2.onrender.com";
+                if (newTitle && newContent) {
+                  try {
+                    const res = await fetch(`${BASE_API}/api/messages`, {
+                      method: "POST",
+                      credentials: "include",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        title: newTitle,
+                        content: newContent,
+                        replyTo: null,
+                        username,
+                      }),
+                    });
+                    if (res.ok) {
+                      setNewTitle("");
+                      setNewContent("");
+                    } else {
+                      const errText = await res.text();
+                      console.error("❌ Failed to post message:", errText);
+                    }
+                  } catch (err) {
+                    console.error("❌ Network error:", err);
+                  }
+                }
+              }}
+            >
+              <input
+                className="w-full p-2 mb-2 rounded bg-gray-800 text-white border border-gray-600 placeholder:text-gray-400"
+                placeholder="Title"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+              />
+              <textarea
+                className="w-full p-2 mb-2 rounded bg-gray-800 text-white border border-gray-600 placeholder:text-gray-400"
+                placeholder="Write your message..."
+                value={newContent}
+                onChange={(e) => setNewContent(e.target.value)}
+              />
+              <button
+                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white w-full"
+                type="submit"
+              >
+                Post Message
+              </button>
+            </form>
+
+            <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem] space-y-3">
+              {messages.map((m) => (
                 <div
-                  key={r}
-                  className={`rounded p-3 border transition duration-200 ${
-                    isFull
-                      ? "bg-gray-700 border-gray-600 text-gray-400 cursor-not-allowed"
-                      : "bg-gray-900 hover:bg-blue-800 border-blue-700 cursor-pointer"
-                  }`}
-                  onClick={() => !isFull && joinRoom(r)}
+                  key={m.id}
+                  className="bg-black/70 p-3 rounded border border-gray-700"
                 >
-                  <div className="font-bold text-lg">{r}</div>
-                  <div className="text-sm">
-                    Players: {playerCount}<br />
-                    Round: {roundNum}
-                  </div>
-                  {isFull && (
-                    <div className="text-xs text-red-400 mt-1">Room Full</div>
+                  <h3 className="font-bold text-blue-300">{m.title}</h3>
+                  <p className="text-white">{m.content}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    — {m.username} • {new Date(m.timestamp).toLocaleString()}
+                  </p>
+                  {m.replies.length > 0 && (
+                    <div className="ml-4 mt-2 text-sm text-blue-200 space-y-1 border-l border-blue-700 pl-2">
+                      {m.replies.map((r) => (
+                        <div key={r.id}>
+                          ↳ <span className="text-blue-100">{r.content}</span>{" "}
+                          — <span className="text-gray-400">{r.username}</span>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </div>
-
-        {/* User List */}
-        <div className="p-4 rounded border border-blue-800 bg-gray-900/50 shadow-inner">
-          <h2 className="text-xl font-semibold mb-3">🧑‍💻 Online Users</h2>
-          <input
-            type="text"
-            placeholder="Search for users..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full p-2 mb-3 rounded bg-gray-800 text-white border border-gray-700 placeholder:text-gray-400"
-          />
-          <ul className="max-h-64 overflow-y-auto space-y-1">
-            {allUsers
-              .filter((u) =>
-                u?.username?.toLowerCase().includes(searchQuery.toLowerCase())
-              )
-              .map((u) => (
-                <li key={u.username} className="text-sm text-blue-100">
-                  {u.username}{" "}
-                  <span className="text-gray-400">({u.room || "lobby"})</span>
-                </li>
-              ))}
-          </ul>
-        </div>
-
-        {error && <p className="text-red-400 mt-4">{error}</p>}
       </div>
-
-      {/* RIGHT SIDE: Message Board */}
-      <div className="bg-gray-900/50 p-4 rounded border border-blue-800 shadow-inner flex flex-col h-full">
-        <h2 className="text-xl font-bold mb-4 text-white">📬 Message Board</h2>
-
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const BASE_API = "https://acrophobia-backend-2.onrender.com";
-
-            if (newTitle && newContent) {
-              try {
-                const res = await fetch(`${BASE_API}/api/messages`, {
-                  method: "POST",
-                  credentials: "include",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    title: newTitle,
-                    content: newContent,
-                    replyTo: null,
-                    username,
-                  }),
-                });
-
-                if (res.ok) {
-                  setNewTitle("");
-                  setNewContent("");
-                } else {
-                  const errText = await res.text();
-                  console.error("❌ Failed to post message:", errText);
-                }
-              } catch (err) {
-                console.error("❌ Network error:", err);
-              }
-            }
-          }}
-        >
-          <input
-            className="w-full p-2 mb-2 rounded bg-gray-800 text-white border border-gray-600 placeholder:text-gray-400"
-            placeholder="Title"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-          />
-          <textarea
-            className="w-full p-2 mb-2 rounded bg-gray-800 text-white border border-gray-600 placeholder:text-gray-400"
-            placeholder="Write your message..."
-            value={newContent}
-            onChange={(e) => setNewContent(e.target.value)}
-          />
-          <button
-            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white w-full"
-            type="submit"
-          >
-            Post Message
-          </button>
-        </form>
-
-        <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem] space-y-3">
-          {messages.map((m) => (
-            <div
-              key={m.id}
-              className="bg-black/70 p-3 rounded border border-gray-700"
-            >
-              <h3 className="font-bold text-blue-300">{m.title}</h3>
-              <p className="text-white">{m.content}</p>
-              <p className="text-xs text-gray-400 mt-1">
-                — {m.username} • {new Date(m.timestamp).toLocaleString()}
-              </p>
-              {m.replies.length > 0 && (
-                <div className="ml-4 mt-2 text-sm text-blue-200 space-y-1 border-l border-blue-700 pl-2">
-                  {m.replies.map((r) => (
-                    <div key={r.id}>
-                      ↳ <span className="text-blue-100">{r.content}</span>{" "}
-                      — <span className="text-gray-400">{r.username}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
+    </>
+  );
 }
-
 
     return (
   <>
