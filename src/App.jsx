@@ -28,7 +28,7 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 
-function flattenMessages(threaded) {
+unction flattenMessages(threaded) {
   const result = [];
   const walk = (msgs) => {
     msgs.forEach((m) => {
@@ -60,6 +60,38 @@ function buildThreadedMessages(flatMessages) {
 
   return roots;
 }
+
+const MessageCard = ({ message, depth = 0 }) => {
+  return (
+    <div
+      className="p-3 rounded border border-gray-700 mt-2"
+      style={{
+        backgroundColor: `rgba(0, 0, 0, ${0.6 + depth * 0.05})`,
+        marginLeft: depth * 16
+      }}
+    >
+      <h3 className="font-bold text-blue-300">{message.title}</h3>
+      <p className="text-white">{message.content}</p>
+      <p className="text-xs text-gray-400 mt-1">
+        — {message.username} • {new Date(message.timestamp).toLocaleString()}
+      </p>
+      <button
+        className="text-xs text-blue-400 hover:underline mt-1"
+        onClick={() => setReplyToId(message.id)}
+      >
+        Reply
+      </button>
+
+      {Array.isArray(message.replies) && message.replies.length > 0 && (
+        <div className="mt-2 space-y-2">
+          {message.replies.map((child) => (
+            <MessageCard key={child.id} message={child} depth={depth + 1} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 
 export default function App() {
@@ -633,6 +665,7 @@ const MessageCard = ({ message, depth = 0 }) => {
     </div>
   );
 };
+
 useEffect(() => {
   const loadMessages = async () => {
     try {
@@ -654,8 +687,9 @@ useEffect(() => {
 useEffect(() => {
   const handleNewMessage = (msg) => {
     setMessages((prev) => {
-      const flat = [...flattenMessages(prev), msg];
-      return buildThreadedMessages(flat);
+      const existingIds = new Set(flattenMessages(prev).map((m) => m.id));
+      const updated = existingIds.has(msg.id) ? flattenMessages(prev) : [...flattenMessages(prev), msg];
+      return buildThreadedMessages(updated);
     });
   };
 
@@ -663,9 +697,10 @@ useEffect(() => {
   return () => socket.off("new_message", handleNewMessage);
 }, []);
 
-
 const sendBoardMessage = async () => {
   const BASE_API = "https://acrophobia-backend-2.onrender.com";
+  const token = localStorage.getItem("acrophobia_token");
+
   const payload = {
     title: newTitle,
     content: newContent,
@@ -676,7 +711,8 @@ const sendBoardMessage = async () => {
     const res = await fetch(`${BASE_API}/api/messages`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : undefined
       },
       credentials: "include",
       body: JSON.stringify(payload)
