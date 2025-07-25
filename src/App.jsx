@@ -657,19 +657,6 @@ useEffect(() => {
 
   }
 
-    {isAuthenticated && (
-  <StickyHeader
-    username={username}
-    setProfileView={setProfileView}
-    logout={() => {
-      localStorage.removeItem("acrophobia_token");
-      setIsAuthenticated(false);
-      setRoom(null);
-      setJoined(false);
-      socket.disconnect();
-    }}
-  />
-)}
 
 if (profileView === "profile") {
   return (
@@ -931,6 +918,19 @@ if (profileView === "profile") {
         </div>
       </div>
     )}
+{isAuthenticated && (
+  <StickyHeader
+    username={username}
+    setProfileView={setProfileView}
+    logout={() => {
+      localStorage.removeItem("acrophobia_token");
+      setIsAuthenticated(false);
+      setRoom(null);
+      setJoined(false);
+      socket.disconnect();
+    }}
+  />
+)}
 
     <div className={`flex flex-col min-h-screen ${bgColor} font-mono`}>
 
