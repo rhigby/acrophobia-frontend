@@ -760,10 +760,10 @@ if (profileView === "profile") {
         socket.disconnect();
       }}
     />
-  <div className="p-6 w-full min-h-screen bg-blue-950 text-white">
+  <div className="p-6 w-full min-h-screen bg-cover bg-center bg-no-repeat text-white" style={{ backgroundImage: `url("/bground.gif")` }}>
     
 
-    <h1 className="text-3xl font-bold mb-6">🎮 Acrophobia Lobby</h1>
+    <h1 className="text-3xl font-bold mb-6">Lobby</h1>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* LEFT SIDE */}
