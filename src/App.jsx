@@ -27,6 +27,28 @@ export const socket = io("https://acrophobia-backend-2.onrender.com", {
 const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
+
+function buildThreadedMessages(flatMessages) {
+  const messageMap = {};
+  const roots = [];
+
+  flatMessages.forEach((msg) => {
+    messageMap[msg.id] = { ...msg, replies: [] };
+  });
+
+  flatMessages.forEach((msg) => {
+    if (msg.reply_to) {
+      const parent = messageMap[msg.reply_to];
+      if (parent) parent.replies.push(messageMap[msg.id]);
+    } else {
+      roots.push(messageMap[msg.id]);
+    }
+  });
+
+  return roots;
+}
+
+
 export default function App() {
     const [replyToId, setReplyToId] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -600,6 +622,40 @@ socket.emit("request_user_stats");
 };
     };
 
+
+const MessageCard = ({ message, depth = 0 }) => {
+  return (
+    <div
+      className="p-3 rounded border border-gray-700 mt-2"
+      style={{
+        backgroundColor: `rgba(0, 0, 0, ${0.6 + depth * 0.05})`,
+        marginLeft: depth * 16
+      }}
+    >
+      <h3 className="font-bold text-blue-300">{message.title}</h3>
+      <p className="text-white">{message.content}</p>
+      <p className="text-xs text-gray-400 mt-1">
+        — {message.username} • {new Date(message.timestamp).toLocaleString()}
+      </p>
+      <button
+        className="text-xs text-blue-400 hover:underline mt-1"
+        onClick={() => setReplyToId(message.id)}
+      >
+        Reply
+      </button>
+
+      {message.replies.length > 0 && (
+        <div className="mt-2 space-y-2">
+          {message.replies.map((child) => (
+            <MessageCard key={child.id} message={child} depth={depth + 1} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+    
    if (!authChecked) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-black via-blue-900 to-black text-white">
@@ -876,27 +932,6 @@ if (profileView === "profile") {
 <div className="bg-gray-900/50 p-4 rounded border border-blue-800 shadow-inner flex flex-col h-full">
   <h2 className="text-xl font-bold mb-4 text-white">📬 Message Board</h2>
 
-  {/* Replying to preview */}
-  {replyToId && (() => {
-    const replyMessage = messages.find(m => m.id === replyToId);
-    return replyMessage ? (
-      <div className="mb-2 p-2 rounded bg-blue-900 text-blue-100 border border-blue-700 text-sm">
-        Replying to: <strong>{replyMessage.title}</strong>
-        <p className="text-xs italic text-blue-300">
-          {replyMessage.content.slice(0, 60)}...
-        </p>
-        <button
-          className="ml-2 text-red-400 text-xs underline"
-          onClick={() => setReplyToId(null)}
-          type="button"
-        >
-          Cancel
-        </button>
-      </div>
-    ) : null;
-  })()}
-
-  {/* Form */}
   <form
     onSubmit={async (e) => {
       e.preventDefault();
@@ -919,7 +954,7 @@ if (profileView === "profile") {
           if (res.ok) {
             setNewTitle("");
             setNewContent("");
-            setReplyToId(null); // ✅ clear reply state after submit
+            setReplyToId(null);
           } else {
             const errText = await res.text();
             console.error("❌ Failed to post message:", errText);
@@ -930,6 +965,19 @@ if (profileView === "profile") {
       }
     }}
   >
+    {replyToId && (
+      <div className="mb-2 p-2 rounded bg-blue-900 text-blue-100 border border-blue-700 text-sm">
+        Replying to message ID: <strong>{replyToId}</strong>
+        <button
+          className="ml-2 text-red-400 text-xs underline"
+          onClick={() => setReplyToId(null)}
+          type="button"
+        >
+          Cancel
+        </button>
+      </div>
+    )}
+
     <input
       className="w-full p-2 mb-2 rounded bg-gray-800 text-white border border-gray-600 placeholder:text-gray-400"
       placeholder="Title"
@@ -950,39 +998,9 @@ if (profileView === "profile") {
     </button>
   </form>
 
-  {/* Message List */}
-  <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem] space-y-3">
-    {messages.map((m) => (
-      <div
-        key={m.id}
-        className="bg-black/70 p-3 rounded border border-gray-700"
-      >
-        <h3 className="font-bold text-blue-300">{m.title}</h3>
-        <p className="text-white">{m.content}</p>
-        <p className="text-xs text-gray-400 mt-1">
-          — {m.username} • {new Date(m.timestamp).toLocaleString()}
-        </p>
-
-        {/* Reply Button */}
-        <button
-          className="text-xs text-blue-400 hover:underline mt-1"
-          onClick={() => setReplyToId(m.id)}
-        >
-          Reply
-        </button>
-
-        {/* Replies */}
-        {m.replies.length > 0 && (
-          <div className="ml-4 mt-2 text-sm text-blue-200 space-y-1 border-l border-blue-700 pl-2">
-            {m.replies.map((r) => (
-              <div key={r.id}>
-                ↳ <span className="text-blue-100">{r.content}</span>{" "}
-                — <span className="text-gray-400">{r.username}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+  <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem]">
+    {buildThreadedMessages(messages).map((m) => (
+      <MessageCard key={m.id} message={m} />
     ))}
   </div>
 </div>
