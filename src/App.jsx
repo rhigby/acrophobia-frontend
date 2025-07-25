@@ -918,10 +918,18 @@ if (profileView === "profile") {
 
     return (
   <>
+    <StickyHeader
+      username={username}
+      setProfileView={setProfileView}
+      logout={() => {
+        localStorage.removeItem("acrophobia_token");
+        setIsAuthenticated(false);
+        setRoom(null);
+        setJoined(false);
+        socket.disconnect();
+      }}
+    />
 
-  <div className="bg-red-500 text-white p-4 z-50 sticky top-0">Test Header</div>
-
-      
     {showOverlay && (
       <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
         <div className="text-4xl md:text-5xl font-extrabold text-red-500 drop-shadow-[0_0_5px_orange]">
@@ -930,32 +938,28 @@ if (profileView === "profile") {
       </div>
     )}
 
-
-
-
     <div className={`flex flex-col min-h-screen ${bgColor} font-mono`}>
-
       <div className="flex flex-1 w-full max-w-screen-xl mx-auto flex-col md:flex-row overflow-hidden">
-       
-        <div className="w-full md:w-1/4 border-b md:border-b-0 md:border-r border-blue-800 bg-blue-950 p-4 md:h-auto md:min-h-screen">
-            <div className="flex justify-between items-center mb-2">
-                <div className="flex justify-end mb-4">
-                  <button
-                   onClick={() => {
-                      socket.emit("leave_room");
-                      resetGameState(); // ⬅️ Important
-                      setJoined(false);
-                      setRoom(null);
-                    }}
-                    className="text-xs text-blue-300 underline"
-                  >
-                    ← Back to Lobby
-                  </button>
-                </div>
 
-                <h2 className="text-lg md:text-xl font-bold">Players</h2>
-              </div>
-            
+        {/* Sidebar: Player List */}
+        <div className="w-full md:w-1/4 border-b md:border-b-0 md:border-r border-blue-800 bg-blue-950 p-4 md:h-auto md:min-h-screen">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={() => {
+                  socket.emit("leave_room");
+                  resetGameState();
+                  setJoined(false);
+                  setRoom(null);
+                }}
+                className="text-xs text-blue-300 underline"
+              >
+                ← Back to Lobby
+              </button>
+            </div>
+            <h2 className="text-lg md:text-xl font-bold">Players</h2>
+          </div>
+
           <ul>
             {sortedPlayers.map((p) => {
               const hasSubmitted = submittedUsers.includes(p.username);
@@ -968,13 +972,13 @@ if (profileView === "profile") {
                   }`}
                 >
                   <span className="flex items-center gap-2">
-                      <span
-                          onClick={() => setChatInput(`/${p.username} `)}
-                          className="cursor-pointer hover:underline"
-                          title="Send private message"
-                        >
-                    {p.username}
-                      </span>
+                    <span
+                      onClick={() => setChatInput(`/${p.username} `)}
+                      className="cursor-pointer hover:underline"
+                      title="Send private message"
+                    >
+                      {p.username}
+                    </span>
                     {hasSubmitted && (
                       <motion.span
                         initial={{ scale: 0.5, opacity: 0 }}
@@ -1003,6 +1007,7 @@ if (profileView === "profile") {
               );
             })}
           </ul>
+
           <div className="text-xs mt-3 text-gray-400">
             <div className="flex items-center gap-1">
               <span className="text-green-300">✍️</span> Answered
@@ -1013,7 +1018,7 @@ if (profileView === "profile") {
           </div>
         </div>
 
-        {/* Main Gameplay Section */}
+        {/* Main Game Area */}
         <div className="flex flex-col flex-1 relative overflow-y-auto">
           <div className="flex-1 p-4 md:p-6 pb-72 md:pb-48">
             <h2 className="text-lg md:text-xl mb-4">
@@ -1111,7 +1116,7 @@ if (profileView === "profile") {
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
                           <span className="font-bold">{e.username}</span>
-                          {e.id === highlighted.winner && <span className="text-yellow-300">🏁</span>}
+                          {e.id === highlighted.winner && <span className="text-yellow-300">🌟</span>}
                           {e.id === highlighted.fastest && <span className="text-green-300">⏱</span>}
                           {highlighted.voters?.includes(e.username) && <span className="text-blue-300">👍</span>}
                         </div>
@@ -1131,25 +1136,24 @@ if (profileView === "profile") {
           <div className="border-t border-blue-800 p-4 bg-blue-950 w-full z-10">
             <div className="h-40 overflow-y-auto bg-black border border-blue-700 rounded p-2 text-sm mb-2">
               {chatMessages.map((msg, i) => (
-                  <div
-                    key={i}
-                    className={`flex flex-wrap items-start break-words ${
-                      msg.private ? "text-pink-300" : "text-blue-200"
-                    }`}
-                  >
-                    <span className="font-bold mr-1">
-                      {msg.private ? (
-                        <span className="italic">
-                          (Private) {msg.username}:
-                        </span>
-                      ) : (
-                        <span className="text-blue-400">{msg.username}:</span>
-                      )}
-                    </span>
-                    <span>{msg.text}</span>
-                  </div>
-                ))}
-
+                <div
+                  key={i}
+                  className={`flex flex-wrap items-start break-words ${
+                    msg.private ? "text-pink-300" : "text-blue-200"
+                  }`}
+                >
+                  <span className="font-bold mr-1">
+                    {msg.private ? (
+                      <span className="italic">
+                        (Private) {msg.username}:
+                      </span>
+                    ) : (
+                      <span className="text-blue-400">{msg.username}:</span>
+                    )}
+                  </span>
+                  <span>{msg.text}</span>
+                </div>
+              ))}
               <div ref={chatEndRef}></div>
             </div>
 
@@ -1171,10 +1175,12 @@ if (profileView === "profile") {
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </>
 );
+
 }
 
 
