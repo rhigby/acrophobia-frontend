@@ -654,7 +654,32 @@ const MessageCard = ({ message, depth = 0 }) => {
     </div>
   );
 };
+useEffect(() => {
+  const loadMessages = async () => {
+    try {
+      const res = await fetch("https://acrophobia-backend-2.onrender.com/api/messages", {
+        credentials: "include"
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMessages(data);
+      }
+    } catch (err) {
+      console.error("Failed to load messages:", err);
+    }
+  };
 
+  loadMessages();
+}, []);
+
+useEffect(() => {
+  const handleNewMessage = (msg) => {
+    setMessages((prev) => [...prev, msg]);
+  };
+
+  socket.on("new_message", handleNewMessage);
+  return () => socket.off("new_message", handleNewMessage);
+}, []);
     
    if (!authChecked) {
     return (
