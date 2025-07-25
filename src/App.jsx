@@ -151,10 +151,17 @@ useEffect(() => {
       setUsername(data.username);
       setIsAuthenticated(true);
 
-      // ✅ set token BEFORE connecting
+      // ✅ Set token and connect
       socket.auth = { token };
       if (!socket.connected) socket.connect();
 
+      // ✅ Wait for connection, then emit
+      socket.once("connect", () => {
+        console.log("🔌 Socket connected, requesting stats");
+        socket.emit("request_user_stats");
+      });
+
+      // Optional: check whoami again
       socket.emit("whoami", (res) => {
         if (res.username) {
           console.log("Session restored as:", res.username);
@@ -170,6 +177,17 @@ useEffect(() => {
   };
 
   restoreSession();
+}, []);
+
+useEffect(() => {
+  socket.on("user_stats", (stats) => {
+    console.log("📊 Received user stats:", stats);
+    setUserStats(stats);
+  });
+
+  return () => {
+    socket.off("user_stats");
+  };
 }, []);
 
 
@@ -535,6 +553,7 @@ useEffect(() => {
     setError("All fields required");
     return;
   }
+socket.emit("request_user_stats");
 
   socket.emit("register", { username, email, password }, async (res) => {
     if (res.success) {
