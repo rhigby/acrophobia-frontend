@@ -28,7 +28,7 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 
-unction flattenMessages(threaded) {
+function flattenMessages(threaded) {
   const result = [];
   const walk = (msgs) => {
     msgs.forEach((m) => {
