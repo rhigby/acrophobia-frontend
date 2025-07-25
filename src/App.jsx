@@ -918,7 +918,7 @@ if (profileView === "profile") {
         </div>
       </div>
     )}
-{isAuthenticated && (
+
   <StickyHeader
     username={username}
     setProfileView={setProfileView}
@@ -930,7 +930,7 @@ if (profileView === "profile") {
       socket.disconnect();
     }}
   />
-)}
+
 
     <div className={`flex flex-col min-h-screen ${bgColor} font-mono`}>
 
