@@ -244,40 +244,6 @@ useEffect(() => {
     socket.off("private_message_ack", handlePrivateMessage);
   };
 }, [username]);
-
-
-const sendBoardMessage = async () => {
-  const BASE_API = "https://acrophobia-backend-2.onrender.com";
-  const payload = {
-    title: newMessageTitle,
-    content: newMessageContent,
-    reply_to: replyToId  // ✅ fixed key for backend
-  };
-
-  try {
-    const res = await fetch(`${BASE_API}/api/messages`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      credentials: "include",
-      body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-      setNewMessageTitle("");
-      setNewMessageContent("");
-      setReplyToId(null);
-    } else {
-      const errText = await res.text();
-      console.error("❌ Error submitting message:", errText);
-    }
-  } catch (err) {
-    console.error("❌ Network error:", err);
-  }
-};
-
-
     
 useEffect(() => {
     const BASE_API = "https://acrophobia-backend-2.onrender.com";
