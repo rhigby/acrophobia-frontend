@@ -18,6 +18,22 @@ function isValidSubmission(submission, acronym) {
     );
 }
 
+function flattenMessages(threadedMessages) {
+  const result = [];
+
+  function walk(msgs) {
+    msgs.forEach((m) => {
+      const { replies, ...rest } = m;
+      result.push(rest);
+      if (replies?.length) walk(replies);
+    });
+  }
+
+  walk(threadedMessages);
+  return result;
+}
+
+
 export const socket = io("https://acrophobia-backend-2.onrender.com", {
   autoConnect: false, // important
   withCredentials: true,
@@ -610,7 +626,7 @@ const MessageCard = ({ message, depth = 0 }) => {
         Reply
       </button>
 
-      {message.replies.length > 0 && (
+      {Array.isArray(message.replies) && message.replies.length > 0 && (
         <div className="mt-2 space-y-2">
           {message.replies.map((child) => (
             <MessageCard key={child.id} message={child} depth={depth + 1} />
@@ -640,7 +656,10 @@ useEffect(() => {
 
 useEffect(() => {
   const handleNewMessage = (msg) => {
-    setMessages((prev) => buildThreadedMessages([...prev, msg]));
+    setMessages((prev) => {
+      const flat = [...flattenMessages(prev), msg];
+      return buildThreadedMessages(flat);
+    });
   };
 
   socket.on("new_message", handleNewMessage);
