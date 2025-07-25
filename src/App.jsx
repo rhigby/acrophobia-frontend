@@ -748,6 +748,7 @@ if (profileView === "profile") {
 
     if (!joined) {
   return (
+      <>
       <StickyHeader
       username={username}
       setProfileView={setProfileView}
@@ -911,6 +912,7 @@ if (profileView === "profile") {
       </div>
     </div>
   </div>
+        </>
 );
 
 }
