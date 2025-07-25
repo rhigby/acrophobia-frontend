@@ -865,27 +865,34 @@ if (profileView === "profile") {
         </button>
       </form>
 
-      <div className="mt-4 space-y-3 overflow-y-auto flex-1 max-h-96">
-        {messages.map((m) => (
-          <div key={m.id} className="bg-black p-3 rounded border border-gray-700">
-            <h3 className="font-bold text-blue-300">{m.title}</h3>
-            <p className="text-white">{m.content}</p>
-            <p className="text-xs text-gray-400">
-              — {m.username} • {new Date(m.timestamp).toLocaleString()}
-            </p>
-            {m.replies.length > 0 && (
-              <div className="ml-4 mt-2 text-sm text-gray-300 space-y-1">
-                {m.replies.map((r) => (
-                  <div key={r.id}>
-                    ↳ <span className="text-blue-200">{r.content}</span>{" "}
-                    — <span className="text-gray-400">{r.username}</span>
-                  </div>
-                ))}
+      <div className="mt-4 space-y-3 overflow-y-auto flex-1 max-h-96 pr-2">
+  {messages.map((m) => (
+    <div
+      key={m.id}
+      className="bg-gradient-to-tr from-blue-900 to-blue-950 p-3 rounded-lg border border-blue-800 shadow-inner"
+    >
+      <h3 className="font-bold text-blue-300 text-lg">{m.title}</h3>
+      <p className="text-blue-100">{m.content}</p>
+      <p className="text-xs text-gray-400 mt-1">
+        — {m.username} • {new Date(m.timestamp).toLocaleString()}
+      </p>
+      {m.replies.length > 0 && (
+        <div className="ml-4 mt-2 border-l-2 border-blue-800 pl-2 text-sm text-blue-200 space-y-1">
+          {m.replies.map((r) => (
+            <div key={r.id} className="flex gap-1 items-start">
+              <span>↳</span>
+              <div>
+                <span className="text-blue-100">{r.content}</span>{" "}
+                <span className="text-xs text-gray-400">— {r.username}</span>
               </div>
-            )}
-          </div>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  ))}
+</div>
+
     </div>
   </div>
 </div>
