@@ -600,48 +600,60 @@ useEffect(() => {
 
     if (!isAuthenticated) {
     return (
-      <div className="p-6 max-w-sm mx-auto min-h-screen flex flex-col justify-center bg-blue-950 text-white">
-        <h1 className="text-3xl font-bold mb-6 text-center">
-          🔐 {mode === "login" ? "Login" : "Register"}
-        </h1>
-        {mode === "register" && (
-          <input
-            className="border p-2 w-full mb-4 text-black"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        )}
+  <div className="min-h-screen bg-gradient-to-br from-black via-blue-900 to-black flex items-center justify-center text-white px-4">
+    <motion.div
+      className="w-full max-w-md bg-blue-950/80 backdrop-blur-md p-8 rounded-xl shadow-lg border border-blue-800"
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <h1 className="text-3xl font-bold mb-6 text-center tracking-wide">
+        {mode === "login" ? "🔐 Login to Acrophobia" : "📝 Register New Player"}
+      </h1>
+
+      {mode === "register" && (
         <input
-          className="border p-2 w-full mb-4 text-black"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          className="border border-blue-700 p-3 mb-4 w-full rounded bg-gray-900 text-white placeholder:text-gray-400"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
-        <input
-          className="border p-2 w-full mb-4 text-black"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button
-          onClick={mode === "login" ? login : register}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-        >
-          {mode === "login" ? "Login" : "Register"}
-        </button>
-        <button
-          onClick={() => setMode(mode === "login" ? "register" : "login")}
-          className="mt-2 underline text-sm text-blue-300"
-        >
-          {mode === "login"
-            ? "Don't have an account? Register"
-            : "Already have an account? Login"}
-        </button>
-        {error && <p className="text-red-400 mt-4">{error}</p>}
-      </div>
-    );
+      )}
+      <input
+        className="border border-blue-700 p-3 mb-4 w-full rounded bg-gray-900 text-white placeholder:text-gray-400"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <input
+        className="border border-blue-700 p-3 mb-4 w-full rounded bg-gray-900 text-white placeholder:text-gray-400"
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <button
+        onClick={mode === "login" ? login : register}
+        className="w-full bg-green-600 hover:bg-green-700 p-3 rounded text-white font-semibold tracking-wide"
+      >
+        {mode === "login" ? "Login" : "Register"}
+      </button>
+
+      <button
+        onClick={() => setMode(mode === "login" ? "register" : "login")}
+        className="mt-4 text-sm text-blue-300 underline block w-full text-center"
+      >
+        {mode === "login"
+          ? "Don't have an account? Register"
+          : "Already have an account? Login"}
+      </button>
+
+      {error && <p className="text-red-400 mt-4 text-sm">{error}</p>}
+    </motion.div>
+  </div>
+);
+
   }
 if (profileView === "profile") {
   return (
