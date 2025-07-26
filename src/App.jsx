@@ -44,7 +44,7 @@ function flattenMessages(threaded) {
 function buildThreadedMessages(flatMessages) {
   const messageMap = {};
   const roots = [];
-
+    console.log(flatMessages);
   flatMessages.forEach((msg) => {
     const normalized = {
       ...msg,
