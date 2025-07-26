@@ -659,23 +659,28 @@ const MessageCard = ({ message, depth = 0 }) => {
       },
       body: JSON.stringify({ id: message.id, reaction: reactionType })
     });
-    if (res.ok) {
-      const [reactionsRes, usersRes] = await Promise.all([
-        fetch("https://acrophobia-backend-2.onrender.com/api/messages/reactions"),
-        fetch("https://acrophobia-backend-2.onrender.com/api/messages/reaction-users")
-      ]);
 
-      if (reactionsRes.ok && usersRes.ok) {
-        const updatedReactions = await reactionsRes.json();
-        const userMap = await usersRes.json();
-        setReactions(updatedReactions);
-        setReactionUsers(userMap);
-      }
+    if (res.ok) {
+      // ✅ Delay updates slightly to avoid UI flicker
+      setTimeout(async () => {
+        const [reactionsRes, usersRes] = await Promise.all([
+          fetch("https://acrophobia-backend-2.onrender.com/api/messages/reactions"),
+          fetch("https://acrophobia-backend-2.onrender.com/api/messages/reaction-users")
+        ]);
+
+        if (reactionsRes.ok && usersRes.ok) {
+          const updatedReactions = await reactionsRes.json();
+          const userMap = await usersRes.json();
+          setReactions((prev) => ({ ...prev, ...updatedReactions }));
+          setReactionUsers((prev) => ({ ...prev, ...userMap }));
+        }
+      }, 100); // Slight delay lets UI stay visible
     }
   } catch (err) {
     console.error("Reaction failed", err);
   }
 };
+
 
 
   const availableReactions = ["👍", "😂", "❤️", "😡", "😢"];
