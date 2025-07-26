@@ -721,7 +721,7 @@ useEffect(() => {
         const msgData = await msgRes.json();
         const reactionData = await reactRes.json();
 
-        setMessages(buildThreadedMessages(msgData));
+        setMessages(msgData);
         setReactions(reactionData); // ✅ set all reactions here
       }
     } catch (err) {
