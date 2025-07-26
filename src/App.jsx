@@ -1233,7 +1233,7 @@ if (profileView === "profile") {
       Next
     </button>
   </div>
-</div
+</div>
 
 
  </div>
