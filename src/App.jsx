@@ -128,7 +128,7 @@ function flattenMessages(threaded) {
   return result;
 }
 
-function buildThreadedMessages(flatMessages) {
+function buildThreadedMessages(flatMessages, searchTerm) {
   const messageMap = {};
   const roots = [];
 
@@ -159,7 +159,6 @@ function buildThreadedMessages(flatMessages) {
 
   sortRecursive(roots);
 
-  // Optional: Filter by search term
   if (searchTerm.trim()) {
     return roots.filter((m) =>
       m.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -169,6 +168,7 @@ function buildThreadedMessages(flatMessages) {
 
   return roots;
 }
+
 
 
     const voteEntry = (entryId) => {
@@ -800,8 +800,7 @@ useEffect(() => {
         const msgData = await msgRes.json();
         const reactionData = await reactRes.json();
         const userMap = await usersRes.json();
-        const threaded = buildThreadedMessages(msgData);
-        setMessages(threaded);
+        setMessages(msgData);
         setReactions(reactionData);
         setReactionUsers(userMap);
       }
@@ -819,18 +818,19 @@ useEffect(() => {
       ...msg,
       replyTo: msg.reply_to ?? msg.replyTo ?? null,
     };
+
     setMessages((prev) => {
-      const existingIds = new Set(flattenMessages(prev).map((m) => m.id));
-      const updated = existingIds.has(normalized.id)
-        ? flattenMessages(prev)
-        : [...flattenMessages(prev), normalized];
-      return buildThreadedMessages(updated);
+      const existingIds = new Set(prev.map((m) => m.id));
+      return existingIds.has(normalized.id)
+        ? prev
+        : [...prev, normalized]; // Keep flat list only
     });
   };
 
   socket.on("new_message", handleNewMessage);
   return () => socket.off("new_message", handleNewMessage);
 }, []);
+
 
 const sendBoardMessage = async () => {
   const BASE_API = "https://acrophobia-backend-2.onrender.com";
