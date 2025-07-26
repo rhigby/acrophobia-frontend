@@ -647,6 +647,8 @@ const MessageCard = ({ message, depth = 0 }) => {
 
   const [showReactions, setShowReactions] = useState(false);
   const [showReactionDetails, setShowReactionDetails] = useState(false);
+  const reactionPanelRef = useRef(null);
+  const detailPanelRef = useRef(null);
 
   const handleReaction = async (reactionType) => {
     const token = localStorage.getItem("acrophobia_token");
@@ -686,9 +688,9 @@ const MessageCard = ({ message, depth = 0 }) => {
       className={containerClass}
       onMouseLeave={() => {
         setTimeout(() => {
-          setShowReactions(false);
-          setShowReactionDetails(false);
-        }, 300);
+          if (!reactionPanelRef.current?.matches(":hover")) setShowReactions(false);
+          if (!detailPanelRef.current?.matches(":hover")) setShowReactionDetails(false);
+        }, 200);
       }}
     >
       <h3 className="font-bold text-blue-300">{message.title}</h3>
@@ -723,7 +725,7 @@ const MessageCard = ({ message, depth = 0 }) => {
       </div>
 
       {showReactions && (
-        <div className="flex mt-1 space-x-2">
+        <div ref={reactionPanelRef} className="flex mt-1 space-x-2 bg-gray-700 p-2 rounded">
           {availableReactions.map((r) => (
             <button
               key={r}
@@ -737,7 +739,10 @@ const MessageCard = ({ message, depth = 0 }) => {
       )}
 
       {showReactionDetails && (
-        <div className="mt-2 bg-gray-800 text-white text-xs p-2 rounded border border-gray-600">
+        <div
+          ref={detailPanelRef}
+          className="mt-2 bg-gray-800 text-white text-xs p-2 rounded border border-gray-600"
+        >
           {Object.entries(userReactionMap).map(([user, reaction]) => (
             <div key={user}>
               {reaction} — {user}
