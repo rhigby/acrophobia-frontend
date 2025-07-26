@@ -44,7 +44,7 @@ function flattenMessages(threaded) {
 function buildThreadedMessages(flatMessages) {
   const messageMap = {};
   const roots = [];
-    console.log(flatMessages);
+
   flatMessages.forEach((msg) => {
     const normalized = {
       ...msg,
@@ -57,22 +57,20 @@ function buildThreadedMessages(flatMessages) {
   Object.values(messageMap).forEach((msg) => {
     const parentId = String(msg.replyTo ?? "");
     if (parentId && messageMap[parentId]) {
-      messageMap[parentId].replies = messageMap[parentId].replies || [];
       messageMap[parentId].replies.push(msg);
     } else {
       roots.push(msg);
     }
   });
 
-  // Recursively sort
   function sortRecursive(list) {
     list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     list.forEach((m) => {
       if (Array.isArray(m.replies)) sortRecursive(m.replies);
     });
   }
-  sortRecursive(roots);
 
+  sortRecursive(roots);
   return roots;
 }
 
@@ -80,6 +78,7 @@ function buildThreadedMessages(flatMessages) {
 
 
 export default function App() {
+    const [reactions, setReactions] = useState({});
     const [replyToId, setReplyToId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newTitle, setNewTitle] = useState("");
@@ -645,6 +644,29 @@ const MessageCard = ({ message, depth = 0 }) => {
       ? "bg-black/70 p-3 rounded border border-gray-700"
       : "ml-4 mt-2 text-sm text-blue-200 border-l border-blue-700 pl-2";
 
+  const handleReaction = async (reactionType) => {
+    try {
+      await fetch("https://acrophobia-backend-2.onrender.com/api/messages/react", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id: message.id, reaction: reactionType })
+      });
+      setReactions((prev) => ({
+        ...prev,
+        [message.id]: {
+          ...(prev[message.id] || {}),
+          [reactionType]: ((prev[message.id]?.[reactionType] || 0) + 1)
+        }
+      }));
+    } catch (err) {
+      console.error("Reaction failed", err);
+    }
+  };
+
+  const availableReactions = ["👍", "😂", "❤️", "😡", "😢"];
+
   return (
     <div className={containerClass}>
       <h3 className="font-bold text-blue-300">{message.title}</h3>
@@ -652,12 +674,23 @@ const MessageCard = ({ message, depth = 0 }) => {
       <p className="text-xs text-gray-400 mt-1">
         — {message.username} • {new Date(message.timestamp).toLocaleString()}
       </p>
-      <button
-        className="text-xs text-blue-400 hover:underline mt-1"
-        onClick={() => setReplyToId(message.id)}
-      >
-        Reply
-      </button>
+      <div className="mt-1 flex space-x-2 text-sm">
+        <button
+          className="text-blue-400 hover:underline"
+          onClick={() => setReplyToId(message.id)}
+        >
+          Reply
+        </button>
+        {availableReactions.map((r) => (
+          <button
+            key={r}
+            className="hover:scale-110 transition-transform"
+            onClick={() => handleReaction(r)}
+          >
+            {r} {(reactions[message.id]?.[r] || 0)}
+          </button>
+        ))}
+      </div>
 
       {Array.isArray(message.replies) && message.replies.length > 0 && (
         <div className="mt-2">
