@@ -660,19 +660,17 @@ const MessageCard = ({ message, depth = 0 }) => {
         body: JSON.stringify({ id: message.id, reaction: reactionType })
       });
       if (res.ok) {
-        setTimeout(async () => {
-          const [reactionsRes, usersRes] = await Promise.all([
-            fetch("https://acrophobia-backend-2.onrender.com/api/messages/reactions"),
-            fetch("https://acrophobia-backend-2.onrender.com/api/messages/reaction-users")
-          ]);
+        const [reactionsRes, usersRes] = await Promise.all([
+          fetch("https://acrophobia-backend-2.onrender.com/api/messages/reactions"),
+          fetch("https://acrophobia-backend-2.onrender.com/api/messages/reaction-users")
+        ]);
 
-          if (reactionsRes.ok && usersRes.ok) {
-            const updatedReactions = await reactionsRes.json();
-            const userMap = await usersRes.json();
-            setReactions((prev) => ({ ...prev, ...updatedReactions }));
-            setReactionUsers((prev) => ({ ...prev, ...userMap }));
-          }
-        }, 100);
+        if (reactionsRes.ok && usersRes.ok) {
+          const updatedReactions = await reactionsRes.json();
+          const userMap = await usersRes.json();
+          setReactions((prev) => ({ ...prev, ...updatedReactions }));
+          setReactionUsers((prev) => ({ ...prev, ...userMap }));
+        }
       }
     } catch (err) {
       console.error("Reaction failed", err);
@@ -684,7 +682,15 @@ const MessageCard = ({ message, depth = 0 }) => {
   const userReactionMap = reactionUsers[message.id] || {};
 
   return (
-    <div className={containerClass}>
+    <div
+      className={containerClass}
+      onMouseLeave={() => {
+        setTimeout(() => {
+          setShowReactions(false);
+          setShowReactionDetails(false);
+        }, 300);
+      }}
+    >
       <h3 className="font-bold text-blue-300">{message.title}</h3>
       <p className="text-white">{message.content}</p>
       <p className="text-xs text-gray-400 mt-1">
@@ -699,13 +705,13 @@ const MessageCard = ({ message, depth = 0 }) => {
         </button>
         <button
           className="text-gray-400 hover:text-white"
-          onClick={() => setShowReactions(!showReactions)}
+          onMouseEnter={() => setShowReactions(true)}
         >
           Like
         </button>
         <button
           className="text-gray-400 hover:text-white"
-          onClick={() => setShowReactionDetails(!showReactionDetails)}
+          onMouseEnter={() => setShowReactionDetails(true)}
         >
           View Reactions
         </button>
