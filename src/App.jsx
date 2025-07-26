@@ -79,6 +79,7 @@ function buildThreadedMessages(flatMessages) {
 
 export default function App() {
     const [reactions, setReactions] = useState({});
+    const [reactionUsers, setReactionUsers] = useState({});
     const [replyToId, setReplyToId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newTitle, setNewTitle] = useState("");
@@ -644,32 +645,41 @@ const MessageCard = ({ message, depth = 0 }) => {
       ? "bg-black/70 p-3 rounded border border-gray-700"
       : "ml-4 mt-2 text-sm text-blue-200 border-l border-blue-700 pl-2";
 
+  const [showReactions, setShowReactions] = useState(false);
+  const [showReactionDetails, setShowReactionDetails] = useState(false);
+
   const handleReaction = async (reactionType) => {
-  const token = localStorage.getItem("acrophobia_token");
-  try {
-    await fetch("https://acrophobia-backend-2.onrender.com/api/messages/react", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ id: message.id, reaction: reactionType })
-    });
+    const token = localStorage.getItem("acrophobia_token");
+    try {
+      const res = await fetch("https://acrophobia-backend-2.onrender.com/api/messages/react", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id: message.id, reaction: reactionType })
+      });
+      if (res.ok) {
+        const [reactionsRes, usersRes] = await Promise.all([
+          fetch("https://acrophobia-backend-2.onrender.com/api/messages/reactions"),
+          fetch("https://acrophobia-backend-2.onrender.com/api/messages/reaction-users")
+        ]);
 
-    // Re-fetch latest reactions (optional)
-    const res = await fetch("https://acrophobia-backend-2.onrender.com/api/messages/reactions");
-    if (res.ok) {
-      const data = await res.json();
-      setReactions(data);
+        if (reactionsRes.ok && usersRes.ok) {
+          const updatedReactions = await reactionsRes.json();
+          const userMap = await usersRes.json();
+          setReactions(updatedReactions);
+          setReactionUsers(userMap);
+        }
+      }
+    } catch (err) {
+      console.error("Reaction failed", err);
     }
-  } catch (err) {
-    console.error("Reaction failed", err);
-  }
-};
-
-
+  };
 
   const availableReactions = ["👍", "😂", "❤️", "😡", "😢"];
+  const currentReactions = reactions[message.id] || {};
+  const userReactionMap = reactionUsers[message.id] || {};
 
   return (
     <div className={containerClass}>
@@ -678,23 +688,55 @@ const MessageCard = ({ message, depth = 0 }) => {
       <p className="text-xs text-gray-400 mt-1">
         — {message.username} • {new Date(message.timestamp).toLocaleString()}
       </p>
-      <div className="mt-1 flex space-x-2 text-sm">
+      <div className="mt-1 flex flex-wrap gap-2 text-sm items-center">
         <button
           className="text-blue-400 hover:underline"
           onClick={() => setReplyToId(message.id)}
         >
           Reply
         </button>
-        {availableReactions.map((r) => (
-          <button
-            key={r}
-            className="hover:scale-110 transition-transform"
-            onClick={() => handleReaction(r)}
-          >
-            {r} {(reactions[message.id]?.[r] || 0)}
-          </button>
+        <button
+          className="text-gray-400 hover:text-white"
+          onClick={() => setShowReactions(!showReactions)}
+        >
+          Like
+        </button>
+        <button
+          className="text-gray-400 hover:text-white"
+          onClick={() => setShowReactionDetails(!showReactionDetails)}
+        >
+          View Reactions
+        </button>
+        {Object.entries(currentReactions).map(([emoji, count]) => (
+          <span key={emoji} className="text-xs text-white">
+            {emoji} {count}
+          </span>
         ))}
       </div>
+
+      {showReactions && (
+        <div className="flex mt-1 space-x-2">
+          {availableReactions.map((r) => (
+            <button
+              key={r}
+              className="text-lg hover:scale-110 transition-transform"
+              onClick={() => handleReaction(r)}
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {showReactionDetails && (
+        <div className="mt-2 bg-gray-800 text-white text-xs p-2 rounded border border-gray-600">
+          {Object.entries(userReactionMap).map(([user, reaction]) => (
+            <div key={user}>
+              {reaction} — {user}
+            </div>
+          ))}
+        </div>
+      )}
 
       {Array.isArray(message.replies) && message.replies.length > 0 && (
         <div className="mt-2">
@@ -710,21 +752,29 @@ const MessageCard = ({ message, depth = 0 }) => {
 useEffect(() => {
   const loadMessages = async () => {
     try {
-      const res = await fetch("https://acrophobia-backend-2.onrender.com/api/messages", {
-        credentials: "include"
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setMessages(buildThreadedMessages(data)); // ✅ fix applied here
+      const [msgRes, reactRes, usersRes] = await Promise.all([
+        fetch("https://acrophobia-backend-2.onrender.com/api/messages", {
+          credentials: "include"
+        }),
+        fetch("https://acrophobia-backend-2.onrender.com/api/messages/reactions"),
+        fetch("https://acrophobia-backend-2.onrender.com/api/messages/reaction-users")
+      ]);
+
+      if (msgRes.ok && reactRes.ok && usersRes.ok) {
+        const msgData = await msgRes.json();
+        const reactionData = await reactRes.json();
+        const userMap = await usersRes.json();
+        setMessages(buildThreadedMessages(msgData));
+        setReactions(reactionData);
+        setReactionUsers(userMap);
       }
     } catch (err) {
-      console.error("Failed to load messages:", err);
+      console.error("Failed to load messages or reactions:", err);
     }
   };
 
   loadMessages();
 }, []);
-
 
 useEffect(() => {
   const handleNewMessage = (msg) => {
