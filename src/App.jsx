@@ -1187,10 +1187,10 @@ if (profileView === "profile") {
   className="w-full p-2 rounded bg-gray-700 text-white placeholder-gray-400 border border-gray-600 mb-2"
 />
   <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem]">
-    {messages.map((m) => (
-      <MessageCard key={m.id} message={m} />
-    ))}
-  </div>
+  {buildThreadedMessages(messages).map((m) => (
+    <MessageCard key={m.id} message={m} />
+  ))}
+</div>
 </div>
 
 
