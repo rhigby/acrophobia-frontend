@@ -671,6 +671,8 @@ useEffect(() => {
   return () => window.removeEventListener("scroll", handleScroll);
 }, []);
 
+const visibleThreaded = buildThreadedMessages(messages, searchTerm).slice(0, visibleCount);
+
 const filteredMessages = buildThreadedMessages(messages, searchTerm);
 const MessageCard = ({ message, depth = 0 }) => {
   const containerClass =
@@ -850,7 +852,6 @@ useEffect(() => {
   socket.on("new_message", handleNewMessage);
   return () => socket.off("new_message", handleNewMessage);
 }, []);
-
 
 const sendBoardMessage = async () => {
   const BASE_API = "https://acrophobia-backend-2.onrender.com";
@@ -1218,7 +1219,7 @@ if (profileView === "profile") {
   </form>
 
   <div className="mt-4 flex-1">
-    {filteredMessages.slice(0, visibleCount).map((m) => (
+    {visibleThreaded.map((m) => (
       <MessageCard key={m.id} message={m} />
     ))}
   </div>
