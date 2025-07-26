@@ -46,15 +46,19 @@ function buildThreadedMessages(flatMessages) {
   const roots = [];
 
   flatMessages.forEach((msg) => {
-    messageMap[msg.id] = { ...msg, replies: [] };
+    const normalized = {
+      ...msg,
+      replyTo: msg.reply_to ?? msg.replyTo ?? null,
+      replies: []
+    };
+    messageMap[msg.id] = normalized;
   });
 
-  flatMessages.forEach((msg) => {
-    const parentId = msg.reply_to || msg.replyTo;
-    if (parentId && messageMap[parentId]) {
-      messageMap[parentId].replies.push(messageMap[msg.id]);
+  Object.values(messageMap).forEach((msg) => {
+    if (msg.replyTo && messageMap[msg.replyTo]) {
+      messageMap[msg.replyTo].replies.push(msg);
     } else {
-      roots.push(messageMap[msg.id]);
+      roots.push(msg);
     }
   });
 
