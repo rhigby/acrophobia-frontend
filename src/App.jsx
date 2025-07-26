@@ -1155,16 +1155,19 @@ if (profileView === "profile") {
       {/* RIGHT SIDE: Message Board */}
 <div className="bg-gray-900/50 p-4 rounded border border-blue-800 shadow-inner flex flex-col h-full">
   <h2 className="text-xl font-bold mb-4 text-white">📬 Message Board</h2>
-    <div className="mb-4 border-b border-blue-700 pb-2">
-  <input
-    type="text"
-    className="w-full p-2 rounded border border-gray-600 bg-gray-900 text-white"
-    placeholder="Search by username or title..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-  />
-</div>
 
+  <div className="mb-4 border-b border-blue-700 pb-2">
+    <input
+      type="text"
+      className="w-full p-2 rounded border border-gray-600 bg-gray-900 text-white"
+      placeholder="Search by username or title..."
+      value={searchTerm}
+      onChange={(e) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1);
+      }}
+    />
+  </div>
 
   <form
     onSubmit={async (e) => {
@@ -1206,11 +1209,31 @@ if (profileView === "profile") {
   </form>
 
   <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem]">
- {buildThreadedMessages(messages, searchTerm).map((m) => (
-  <MessageCard key={m.id} message={m} />
-))}
-</div>
-</div>
+    {paginatedMessages.map((m) => (
+      <MessageCard key={m.id} message={m} />
+    ))}
+  </div>
+
+  <div className="flex justify-between items-center mt-4 text-white">
+    <button
+      className="px-3 py-1 bg-blue-600 rounded disabled:opacity-50"
+      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+      disabled={currentPage === 1}
+    >
+      Previous
+    </button>
+    <span>
+      Page {currentPage} of {totalPages}
+    </span>
+    <button
+      className="px-3 py-1 bg-blue-600 rounded disabled:opacity-50"
+      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+      disabled={currentPage === totalPages}
+    >
+      Next
+    </button>
+  </div>
+</div
 
 
  </div>
