@@ -57,22 +57,25 @@ function buildThreadedMessages(flatMessages) {
   Object.values(messageMap).forEach((msg) => {
     const parentId = String(msg.replyTo ?? "");
     if (parentId && messageMap[parentId]) {
+      messageMap[parentId].replies = messageMap[parentId].replies || [];
       messageMap[parentId].replies.push(msg);
     } else {
       roots.push(msg);
     }
   });
 
+  // Recursively sort
   function sortRecursive(list) {
     list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     list.forEach((m) => {
       if (Array.isArray(m.replies)) sortRecursive(m.replies);
     });
   }
-
   sortRecursive(roots);
+
   return roots;
 }
+
 
 
 
@@ -689,9 +692,16 @@ useEffect(() => {
 
 useEffect(() => {
   const handleNewMessage = (msg) => {
+    // Normalize replyTo field
+    const normalized = {
+      ...msg,
+      replyTo: msg.reply_to ?? msg.replyTo ?? null,
+    };
+
     setMessages((prev) => {
-      const existingIds = new Set(flattenMessages(prev).map((m) => m.id));
-      const updated = existingIds.has(msg.id) ? flattenMessages(prev) : [...flattenMessages(prev), msg];
+      const flat = flattenMessages(prev);
+      const existingIds = new Set(flat.map((m) => m.id));
+      const updated = existingIds.has(normalized.id) ? flat : [...flat, normalized];
       return buildThreadedMessages(updated);
     });
   };
@@ -699,6 +709,7 @@ useEffect(() => {
   socket.on("new_message", handleNewMessage);
   return () => socket.off("new_message", handleNewMessage);
 }, []);
+
 
 const sendBoardMessage = async () => {
   const BASE_API = "https://acrophobia-backend-2.onrender.com";
