@@ -63,6 +63,13 @@ function buildThreadedMessages(flatMessages) {
     }
   });
 
+if (searchTerm.trim()) {
+  return roots.filter(m =>
+    m.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    m.username.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+}
+
   function sortRecursive(list) {
     list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     list.forEach((m) => {
