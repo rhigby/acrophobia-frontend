@@ -643,8 +643,10 @@ const MessageCard = ({ message, depth = 0 }) => {
         className="pl-3 border-l border-blue-700"
         style={{ marginLeft: `${depth * 1.5}rem` }}
       >
-        <h3 className="font-bold text-blue-300">{message.title}</h3>
-        <p className="text-white">{message.content}</p>
+        <div className="text-white">
+          <span className="font-bold text-blue-300 block">{message.title}</span>
+          <span className="block">{message.content}</span>
+        </div>
         <p className="text-xs text-gray-400 mt-1">
           — {message.username} • {new Date(message.timestamp).toLocaleString()}
         </p>
@@ -1056,6 +1058,7 @@ if (profileView === "profile") {
     ))}
   </div>
 </div>
+
 
  </div>
       </div>
