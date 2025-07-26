@@ -710,22 +710,15 @@ const MessageCard = ({ message, depth = 0 }) => {
 useEffect(() => {
   const loadMessages = async () => {
     try {
-      const [msgRes, reactRes] = await Promise.all([
-        fetch("https://acrophobia-backend-2.onrender.com/api/messages", {
-          credentials: "include"
-        }),
-        fetch("https://acrophobia-backend-2.onrender.com/api/messages/reactions")
-      ]);
-
-      if (msgRes.ok && reactRes.ok) {
-        const msgData = await msgRes.json();
-        const reactionData = await reactRes.json();
-
-        setMessages(msgData);
-        setReactions(reactionData); // ✅ set all reactions here
+      const res = await fetch("https://acrophobia-backend-2.onrender.com/api/messages", {
+        credentials: "include"
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMessages(buildThreadedMessages(data)); // ✅ fix applied here
       }
     } catch (err) {
-      console.error("Failed to load messages or reactions:", err);
+      console.error("Failed to load messages:", err);
     }
   };
 
