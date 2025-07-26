@@ -84,7 +84,7 @@ export default function App() {
     const [username, setUsername] = useState(null);
     const [profileView, setProfileView] = useState("lobby");
     const [currentPage, setCurrentPage] = useState(1);
-    const messagesPerPage = 10;
+    const messagesPerPage = 5;
 
     const submitEntry = () => {
         if (!submission) return;
@@ -1208,7 +1208,7 @@ if (profileView === "profile") {
     </button>
   </form>
 
-  <div className="mt-4 flex-1 max-h-[32rem]">
+  <div className="mt-4 flex-1">
     {paginatedMessages.map((m) => (
       <MessageCard key={m.id} message={m} />
     ))}
