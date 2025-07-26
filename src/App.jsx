@@ -1208,7 +1208,7 @@ if (profileView === "profile") {
     </button>
   </form>
 
-  <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem]">
+  <div className="mt-4 flex-1 max-h-[32rem]">
     {paginatedMessages.map((m) => (
       <MessageCard key={m.id} message={m} />
     ))}
