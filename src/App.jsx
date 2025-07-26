@@ -640,10 +640,36 @@ socket.emit("request_user_stats");
 
 
 const MessageCard = ({ message, depth = 0 }) => {
-  return (
-    <div className="mt-2">
+  if (depth === 0) {
+    return (
+      <div className="mt-2 bg-gray-800 border border-blue-700 rounded p-4">
+        <div className="text-white">
+          <span className="font-bold text-blue-300 block">{message.title}</span>
+          <span className="block">{message.content}</span>
+        </div>
+        <p className="text-xs text-gray-400 mt-1">
+          — {message.username} • {new Date(message.timestamp).toLocaleString()}
+        </p>
+        <button
+          className="text-xs text-blue-400 hover:underline mt-1"
+          onClick={() => setReplyToId(message.id)}
+        >
+          Reply
+        </button>
+
+        {Array.isArray(message.replies) && message.replies.length > 0 && (
+          <div className="mt-2">
+            {message.replies.map((child) => (
+              <MessageCard key={child.id} message={child} depth={depth + 1} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  } else {
+    return (
       <div
-        className="pl-3 border-l border-blue-700"
+        className="pl-3 border-l border-blue-700 mt-2"
         style={{ marginLeft: `${depth * 1.5}rem` }}
       >
         <div className="text-white">
@@ -668,8 +694,8 @@ const MessageCard = ({ message, depth = 0 }) => {
           </div>
         )}
       </div>
-    </div>
-  );
+    );
+  }
 };
 
 useEffect(() => {
