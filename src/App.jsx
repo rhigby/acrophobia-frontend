@@ -872,7 +872,12 @@ const sendBoardMessage = async () => {
     console.error("❌ Network error:", err);
   }
 };
-
+const filteredMessages = buildThreadedMessages(messages, searchTerm);
+const totalPages = Math.ceil(filteredMessages.length / messagesPerPage);
+const paginatedMessages = filteredMessages.slice(
+  (currentPage - 1) * messagesPerPage,
+  currentPage * messagesPerPage
+);
 
     
    if (!authChecked) {
@@ -1204,12 +1209,7 @@ if (profileView === "profile") {
   </form>
 
   // Pagination logic
-const filteredMessages = buildThreadedMessages(messages, searchTerm);
-const totalPages = Math.ceil(filteredMessages.length / messagesPerPage);
-const paginatedMessages = filteredMessages.slice(
-  (currentPage - 1) * messagesPerPage,
-  currentPage * messagesPerPage
-);
+
 
 <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem]">
   {paginatedMessages.map((m) => (
