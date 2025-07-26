@@ -692,16 +692,15 @@ useEffect(() => {
 
 useEffect(() => {
   const handleNewMessage = (msg) => {
-    // Normalize replyTo field
     const normalized = {
       ...msg,
       replyTo: msg.reply_to ?? msg.replyTo ?? null,
     };
-
     setMessages((prev) => {
-      const flat = flattenMessages(prev);
-      const existingIds = new Set(flat.map((m) => m.id));
-      const updated = existingIds.has(normalized.id) ? flat : [...flat, normalized];
+      const existingIds = new Set(flattenMessages(prev).map((m) => m.id));
+      const updated = existingIds.has(normalized.id)
+        ? flattenMessages(prev)
+        : [...flattenMessages(prev), normalized];
       return buildThreadedMessages(updated);
     });
   };
@@ -709,7 +708,6 @@ useEffect(() => {
   socket.on("new_message", handleNewMessage);
   return () => socket.off("new_message", handleNewMessage);
 }, []);
-
 
 const sendBoardMessage = async () => {
   const BASE_API = "https://acrophobia-backend-2.onrender.com";
