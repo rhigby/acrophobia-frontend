@@ -82,7 +82,9 @@ export default function App() {
     const sortedPlayers = [...players].sort((a, b) => (scores[b.username] || 0) - (scores[a.username] || 0));
     const [authChecked, setAuthChecked] = useState(false);
     const [username, setUsername] = useState(null);
-    const [profileView, setProfileView] = useState("lobby"); 
+    const [profileView, setProfileView] = useState("lobby");
+    const [currentPage, setCurrentPage] = useState(1);
+    const messagesPerPage = 10;
 
     const submitEntry = () => {
         if (!submission) return;
@@ -1154,7 +1156,10 @@ if (profileView === "profile") {
     className="w-full p-2 rounded border border-gray-600 bg-gray-900 text-white"
     placeholder="Search by username or title..."
     value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
+    onChange={(e) => {
+      setSearchTerm(e.target.value);
+      setCurrentPage(1);
+    }}
   />
 </div>
 
@@ -1198,11 +1203,38 @@ if (profileView === "profile") {
     </button>
   </form>
 
-  <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem]">
- {buildThreadedMessages(messages, searchTerm).map((m) => (
-  <MessageCard key={m.id} message={m} />
-))}
+  // Pagination logic
+const filteredMessages = buildThreadedMessages(messages, searchTerm);
+const totalPages = Math.ceil(filteredMessages.length / messagesPerPage);
+const paginatedMessages = filteredMessages.slice(
+  (currentPage - 1) * messagesPerPage,
+  currentPage * messagesPerPage
+);
+
+<div className="mt-4 overflow-y-auto flex-1 max-h-[32rem]">
+  {paginatedMessages.map((m) => (
+    <MessageCard key={m.id} message={m} />
+  ))}
 </div>
+
+<div className="flex justify-between items-center mt-4 text-white">
+  <button
+    className="px-3 py-1 bg-blue-600 rounded disabled:opacity-50"
+    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+    disabled={currentPage === 1}
+  >
+    Previous
+  </button>
+  <span>
+    Page {currentPage} of {totalPages}
+  </span>
+  <button
+    className="px-3 py-1 bg-blue-600 rounded disabled:opacity-50"
+    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+    disabled={currentPage === totalPages}
+  >
+    Next
+  </button>
 </div>
 
 
