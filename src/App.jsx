@@ -886,7 +886,6 @@ const sendBoardMessage = async () => {
     console.error("❌ Network error:", err);
   }
 };
-const filteredMessages = buildThreadedMessages(messages, searchTerm);
 
 
     
