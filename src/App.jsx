@@ -84,7 +84,7 @@ export default function App() {
     const [username, setUsername] = useState(null);
     const [profileView, setProfileView] = useState("lobby");
     const [currentPage, setCurrentPage] = useState(1);
-    const messagesPerPage = 5;
+    const [visibleCount, setVisibleCount] = useState(10);
 
     const submitEntry = () => {
         if (!submission) return;
@@ -657,7 +657,21 @@ socket.emit("request_user_stats");
 };
     };
 
+// Infinite scroll logic
+useEffect(() => {
+  const handleScroll = () => {
+    if (
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 300
+    ) {
+      setVisibleCount((prev) => prev + 10);
+    }
+  };
 
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, []);
+
+const filteredMessages = buildThreadedMessages(messages, searchTerm);
 const MessageCard = ({ message, depth = 0 }) => {
   const containerClass =
     depth === 0
@@ -873,11 +887,7 @@ const sendBoardMessage = async () => {
   }
 };
 const filteredMessages = buildThreadedMessages(messages, searchTerm);
-const totalPages = Math.ceil(filteredMessages.length / messagesPerPage);
-const paginatedMessages = filteredMessages.slice(
-  (currentPage - 1) * messagesPerPage,
-  currentPage * messagesPerPage
-);
+
 
     
    if (!authChecked) {
@@ -1164,7 +1174,7 @@ if (profileView === "profile") {
       value={searchTerm}
       onChange={(e) => {
         setSearchTerm(e.target.value);
-        setCurrentPage(1);
+        setVisibleCount(10); // Reset scroll
       }}
     />
   </div>
@@ -1209,29 +1219,9 @@ if (profileView === "profile") {
   </form>
 
   <div className="mt-4 flex-1">
-    {paginatedMessages.map((m) => (
+    {filteredMessages.slice(0, visibleCount).map((m) => (
       <MessageCard key={m.id} message={m} />
     ))}
-  </div>
-
-  <div className="flex justify-between items-center mt-4 text-white">
-    <button
-      className="px-3 py-1 bg-blue-600 rounded disabled:opacity-50"
-      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-      disabled={currentPage === 1}
-    >
-      Previous
-    </button>
-    <span>
-      Page {currentPage} of {totalPages}
-    </span>
-    <button
-      className="px-3 py-1 bg-blue-600 rounded disabled:opacity-50"
-      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-      disabled={currentPage === totalPages}
-    >
-      Next
-    </button>
   </div>
 </div>
 
