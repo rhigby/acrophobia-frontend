@@ -128,7 +128,7 @@ function flattenMessages(threaded) {
   return result;
 }
 
-function buildThreadedMessages(flatMessages, searchTerm) {
+function buildThreadedMessages(flatMessages, searchTerm = "") {
   const messageMap = {};
   const roots = [];
 
@@ -136,7 +136,7 @@ function buildThreadedMessages(flatMessages, searchTerm) {
     const normalized = {
       ...msg,
       replyTo: msg.reply_to ?? msg.replyTo ?? null,
-      replies: []
+      replies: [],
     };
     messageMap[msg.id] = normalized;
   });
@@ -150,6 +150,17 @@ function buildThreadedMessages(flatMessages, searchTerm) {
     }
   });
 
+  // 💥 Prevent crash if searchTerm is undefined
+  const term = typeof searchTerm === "string" ? searchTerm.trim().toLowerCase() : "";
+
+  if (term) {
+    return roots.filter(
+      (m) =>
+        m.title.toLowerCase().includes(term) ||
+        m.username.toLowerCase().includes(term)
+    );
+  }
+
   function sortRecursive(list) {
     list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     list.forEach((m) => {
@@ -158,16 +169,9 @@ function buildThreadedMessages(flatMessages, searchTerm) {
   }
 
   sortRecursive(roots);
-
-  if (searchTerm.trim()) {
-    return roots.filter((m) =>
-      m.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      m.username.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }
-
   return roots;
 }
+
 
 
 
@@ -1195,9 +1199,9 @@ if (profileView === "profile") {
   </form>
 
   <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem]">
-  {buildThreadedMessages(messages).map((m) => (
-    <MessageCard key={m.id} message={m} />
-  ))}
+ {buildThreadedMessages(messages, searchTerm).map((m) => (
+  <MessageCard key={m.id} message={m} />
+))}
 </div>
 </div>
 
