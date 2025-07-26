@@ -62,6 +62,9 @@ function buildThreadedMessages(flatMessages) {
     }
   });
 
+  // Sort top-level messages from newest to oldest
+  roots.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
   return roots;
 }
 
