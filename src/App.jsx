@@ -649,39 +649,35 @@ const MessageCard = ({ message, depth = 0 }) => {
   const [showReactionDetails, setShowReactionDetails] = useState(false);
 
   const handleReaction = async (reactionType) => {
-  const token = localStorage.getItem("acrophobia_token");
-  try {
-    const res = await fetch("https://acrophobia-backend-2.onrender.com/api/messages/react", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ id: message.id, reaction: reactionType })
-    });
+    const token = localStorage.getItem("acrophobia_token");
+    try {
+      const res = await fetch("https://acrophobia-backend-2.onrender.com/api/messages/react", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id: message.id, reaction: reactionType })
+      });
+      if (res.ok) {
+        setTimeout(async () => {
+          const [reactionsRes, usersRes] = await Promise.all([
+            fetch("https://acrophobia-backend-2.onrender.com/api/messages/reactions"),
+            fetch("https://acrophobia-backend-2.onrender.com/api/messages/reaction-users")
+          ]);
 
-    if (res.ok) {
-      // ✅ Delay updates slightly to avoid UI flicker
-      setTimeout(async () => {
-        const [reactionsRes, usersRes] = await Promise.all([
-          fetch("https://acrophobia-backend-2.onrender.com/api/messages/reactions"),
-          fetch("https://acrophobia-backend-2.onrender.com/api/messages/reaction-users")
-        ]);
-
-        if (reactionsRes.ok && usersRes.ok) {
-          const updatedReactions = await reactionsRes.json();
-          const userMap = await usersRes.json();
-          setReactions((prev) => ({ ...prev, ...updatedReactions }));
-          setReactionUsers((prev) => ({ ...prev, ...userMap }));
-        }
-      }, 100); // Slight delay lets UI stay visible
+          if (reactionsRes.ok && usersRes.ok) {
+            const updatedReactions = await reactionsRes.json();
+            const userMap = await usersRes.json();
+            setReactions((prev) => ({ ...prev, ...updatedReactions }));
+            setReactionUsers((prev) => ({ ...prev, ...userMap }));
+          }
+        }, 100);
+      }
+    } catch (err) {
+      console.error("Reaction failed", err);
     }
-  } catch (err) {
-    console.error("Reaction failed", err);
-  }
-};
-
-
+  };
 
   const availableReactions = ["👍", "😂", "❤️", "😡", "😢"];
   const currentReactions = reactions[message.id] || {};
