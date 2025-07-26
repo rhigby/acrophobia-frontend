@@ -668,8 +668,9 @@ const MessageCard = ({ message, depth = 0 }) => {
         if (reactionsRes.ok && usersRes.ok) {
           const updatedReactions = await reactionsRes.json();
           const userMap = await usersRes.json();
-          setReactions(updatedReactions);
-          setReactionUsers(userMap);
+          setReactions((prev) => ({ ...prev, ...updatedReactions }));
+            setReactionUsers((prev) => ({ ...prev, ...userMap }));
+
         }
       }
     } catch (err) {
