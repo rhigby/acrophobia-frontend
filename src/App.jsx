@@ -1058,7 +1058,7 @@ if (profileView === "profile") {
 </div>
         </>
 );
-
+</div>
 }
 
 
