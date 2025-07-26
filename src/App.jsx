@@ -639,31 +639,29 @@ socket.emit("request_user_stats");
 const MessageCard = ({ message, depth = 0 }) => {
   return (
     <div
-      className="p-3 rounded border border-gray-700 mt-2"
-      style={{
-        backgroundColor: `rgba(0, 0, 0, ${0.6 + depth * 0.05})`,
-        marginLeft: depth * 16
-      }}
+      className={`mt-2 ml-${depth * 4}`}
     >
-      <h3 className="font-bold text-blue-300">{message.title}</h3>
-      <p className="text-white">{message.content}</p>
-      <p className="text-xs text-gray-400 mt-1">
-        — {message.username} • {new Date(message.timestamp).toLocaleString()}
-      </p>
-      <button
-        className="text-xs text-blue-400 hover:underline mt-1"
-        onClick={() => setReplyToId(message.id)}
-      >
-        Reply
-      </button>
+      <div className="border-l border-blue-700 pl-3">
+        <h3 className="font-bold text-blue-300">{message.title}</h3>
+        <p className="text-white">{message.content}</p>
+        <p className="text-xs text-gray-400 mt-1">
+          — {message.username} • {new Date(message.timestamp).toLocaleString()}
+        </p>
+        <button
+          className="text-xs text-blue-400 hover:underline mt-1"
+          onClick={() => setReplyToId(message.id)}
+        >
+          Reply
+        </button>
 
-      {Array.isArray(message.replies) && message.replies.length > 0 && (
-        <div className="mt-2 space-y-2">
-          {message.replies.map((child) => (
-            <MessageCard key={child.id} message={child} depth={depth + 1} />
-          ))}
-        </div>
-      )}
+        {Array.isArray(message.replies) && message.replies.length > 0 && (
+          <div className="mt-2">
+            {message.replies.map((child) => (
+              <MessageCard key={child.id} message={child} depth={depth + 1} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
