@@ -797,7 +797,8 @@ useEffect(() => {
         const msgData = await msgRes.json();
         const reactionData = await reactRes.json();
         const userMap = await usersRes.json();
-        setMessages(msgData);
+        const threaded = buildThreadedMessages(msgData);
+        setMessages(threaded);
         setReactions(reactionData);
         setReactionUsers(userMap);
       }
