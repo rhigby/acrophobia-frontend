@@ -45,6 +45,7 @@ function buildThreadedMessages(flatMessages) {
   const messageMap = {};
   const roots = [];
 
+  // Normalize and prepare reply containers
   flatMessages.forEach((msg) => {
     const normalized = {
       ...msg,
@@ -54,6 +55,7 @@ function buildThreadedMessages(flatMessages) {
     messageMap[msg.id] = normalized;
   });
 
+  // Nest replies
   Object.values(messageMap).forEach((msg) => {
     if (msg.replyTo && messageMap[msg.replyTo]) {
       messageMap[msg.replyTo].replies.push(msg);
@@ -62,11 +64,18 @@ function buildThreadedMessages(flatMessages) {
     }
   });
 
-  // Sort top-level messages from newest to oldest
-  roots.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  // Recursive sort: newest replies first
+  function sortReplies(messages) {
+    messages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    messages.forEach((msg) => {
+      if (msg.replies.length > 0) sortReplies(msg.replies);
+    });
+  }
 
+  sortReplies(roots);
   return roots;
 }
+
 
 export default function App() {
     const [replyToId, setReplyToId] = useState(null);
