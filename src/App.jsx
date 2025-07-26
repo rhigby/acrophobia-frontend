@@ -820,8 +820,7 @@ useEffect(() => {
         const msgData = await msgRes.json();
         const reactionData = await reactRes.json();
         const userMap = await usersRes.json();
-        const threaded = buildThreadedMessages(msgData, searchTerm);
-        setMessages(threaded);
+        setMessages(msgData); // <- raw flat list
         setReactions(reactionData);
         setReactionUsers(userMap);
       }
