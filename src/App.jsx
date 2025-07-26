@@ -1208,7 +1208,6 @@ if (profileView === "profile") {
     </button>
   </form>
 
-  // Pagination logic
 
 
 <div className="mt-4 overflow-y-auto flex-1 max-h-[32rem]">
@@ -1238,7 +1237,7 @@ if (profileView === "profile") {
 </div>
 
 
- </div>
+ 
       </div>
         </>
 
