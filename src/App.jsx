@@ -640,24 +640,17 @@ socket.emit("request_user_stats");
 
 
 const MessageCard = ({ message, depth = 0 }) => {
-  if (depth > 2) return null; // Limit to 3 levels (0, 1, 2)
-
   const containerClass =
     depth === 0
-      ? "mt-2 bg-gray-800 border border-blue-700 rounded p-4"
-      : "pl-3 border-l border-blue-700 mt-2";
-
-  const indentStyle = depth > 0 ? { marginLeft: `${depth * 1.5}rem` } : {};
+      ? "bg-black/70 p-3 rounded border border-gray-700"
+      : "ml-4 mt-2 text-sm text-blue-200 border-l border-blue-700 pl-2";
 
   return (
-    <div className={containerClass} style={indentStyle}>
-      <div className="text-white">
-        <span className="font-bold text-blue-300 block">{message.username}</span>
-        <span className="block font-semibold">{message.title}</span>
-        <span className="block">{message.content}</span>
-      </div>
+    <div className={containerClass}>
+      <h3 className="font-bold text-blue-300">{message.title}</h3>
+      <p className="text-white">{message.content}</p>
       <p className="text-xs text-gray-400 mt-1">
-        {new Date(message.timestamp).toLocaleString()}
+        — {message.username} • {new Date(message.timestamp).toLocaleString()}
       </p>
       <button
         className="text-xs text-blue-400 hover:underline mt-1"
