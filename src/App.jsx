@@ -28,58 +28,7 @@ const ROOMS = Array.from({ length: 10 }, (_, i) => `room${i + 1}`);
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
 
 
-function flattenMessages(threaded) {
-  const result = [];
-  const walk = (msgs) => {
-    msgs.forEach((m) => {
-      const { replies, ...rest } = m;
-      result.push(rest);
-      if (Array.isArray(replies)) walk(replies);
-    });
-  };
-  walk(threaded);
-  return result;
-}
-
-function buildThreadedMessages(flatMessages) {
-  const messageMap = {};
-  const roots = [];
-
-  flatMessages.forEach((msg) => {
-    const normalized = {
-      ...msg,
-      replyTo: msg.reply_to ?? msg.replyTo ?? null,
-      replies: []
-    };
-    messageMap[msg.id] = normalized;
-  });
-
-  Object.values(messageMap).forEach((msg) => {
-    const parentId = String(msg.replyTo ?? "");
-    if (parentId && messageMap[parentId]) {
-      messageMap[parentId].replies.push(msg);
-    } else {
-      roots.push(msg);
-    }
-  });
-
-if (searchTerm.trim()) {
-  return roots.filter(m =>
-    m.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.username.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-}
-
-  function sortRecursive(list) {
-    list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    list.forEach((m) => {
-      if (Array.isArray(m.replies)) sortRecursive(m.replies);
-    });
-  }
-
-  sortRecursive(roots);
-  return roots;
-}
+f
 
 
 
@@ -166,7 +115,58 @@ export default function App() {
         setJoined(true);
         setError(null);
     };
+unction flattenMessages(threaded) {
+  const result = [];
+  const walk = (msgs) => {
+    msgs.forEach((m) => {
+      const { replies, ...rest } = m;
+      result.push(rest);
+      if (Array.isArray(replies)) walk(replies);
+    });
+  };
+  walk(threaded);
+  return result;
+}
 
+function buildThreadedMessages(flatMessages) {
+  const messageMap = {};
+  const roots = [];
+
+  flatMessages.forEach((msg) => {
+    const normalized = {
+      ...msg,
+      replyTo: msg.reply_to ?? msg.replyTo ?? null,
+      replies: []
+    };
+    messageMap[msg.id] = normalized;
+  });
+
+  Object.values(messageMap).forEach((msg) => {
+    const parentId = String(msg.replyTo ?? "");
+    if (parentId && messageMap[parentId]) {
+      messageMap[parentId].replies.push(msg);
+    } else {
+      roots.push(msg);
+    }
+  });
+
+if (searchTerm.trim()) {
+  return roots.filter(m =>
+    m.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    m.username.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+}
+
+  function sortRecursive(list) {
+    list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    list.forEach((m) => {
+      if (Array.isArray(m.replies)) sortRecursive(m.replies);
+    });
+  }
+
+  sortRecursive(roots);
+  return roots;
+}
 
     const voteEntry = (entryId) => {
         socket.emit("vote_entry", { room, username, entryId });
