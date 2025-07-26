@@ -78,6 +78,8 @@ function buildThreadedMessages(flatMessages) {
 
 
 export default function App() {
+    const [reactionPopupId, setReactionPopupId] = useState(null);
+    const [reactionDetailsId, setReactionDetailsId] = useState(null);
     const [reactions, setReactions] = useState({});
     const [reactionUsers, setReactionUsers] = useState({});
     const [replyToId, setReplyToId] = useState(null);
@@ -645,8 +647,9 @@ const MessageCard = ({ message, depth = 0 }) => {
       ? "bg-black/70 p-3 rounded border border-gray-700"
       : "ml-4 mt-2 text-sm text-blue-200 border-l border-blue-700 pl-2";
 
-  const [showReactions, setShowReactions] = useState(false);
-  const [showReactionDetails, setShowReactionDetails] = useState(false);
+  const showReactions = reactionPopupId === message.id;
+  const showReactionDetails = reactionDetailsId === message.id;
+
   const reactionPanelRef = useRef(null);
   const detailPanelRef = useRef(null);
 
@@ -684,15 +687,7 @@ const MessageCard = ({ message, depth = 0 }) => {
   const userReactionMap = reactionUsers[message.id] || {};
 
   return (
-    <div
-      className={containerClass}
-      onMouseLeave={() => {
-        setTimeout(() => {
-          if (!reactionPanelRef.current?.matches(":hover")) setShowReactions(false);
-          if (!detailPanelRef.current?.matches(":hover")) setShowReactionDetails(false);
-        }, 200);
-      }}
-    >
+    <div className={containerClass}>
       <h3 className="font-bold text-blue-300">{message.title}</h3>
       <p className="text-white">{message.content}</p>
       <p className="text-xs text-gray-400 mt-1">
@@ -707,13 +702,19 @@ const MessageCard = ({ message, depth = 0 }) => {
         </button>
         <button
           className="text-gray-400 hover:text-white"
-          onMouseEnter={() => setShowReactions(true)}
+          onMouseEnter={() => setReactionPopupId(message.id)}
+          onMouseLeave={() => setTimeout(() => {
+            if (!reactionPanelRef.current?.matches(":hover")) setReactionPopupId(null);
+          }, 200)}
         >
           Like
         </button>
         <button
           className="text-gray-400 hover:text-white"
-          onMouseEnter={() => setShowReactionDetails(true)}
+          onMouseEnter={() => setReactionDetailsId(message.id)}
+          onMouseLeave={() => setTimeout(() => {
+            if (!detailPanelRef.current?.matches(":hover")) setReactionDetailsId(null);
+          }, 200)}
         >
           View Reactions
         </button>
@@ -725,7 +726,12 @@ const MessageCard = ({ message, depth = 0 }) => {
       </div>
 
       {showReactions && (
-        <div ref={reactionPanelRef} className="flex mt-1 space-x-2 bg-gray-700 p-2 rounded">
+        <div
+          ref={reactionPanelRef}
+          onMouseEnter={() => setReactionPopupId(message.id)}
+          onMouseLeave={() => setReactionPopupId(null)}
+          className="flex mt-1 space-x-2 bg-gray-700 p-2 rounded"
+        >
           {availableReactions.map((r) => (
             <button
               key={r}
@@ -741,6 +747,8 @@ const MessageCard = ({ message, depth = 0 }) => {
       {showReactionDetails && (
         <div
           ref={detailPanelRef}
+          onMouseEnter={() => setReactionDetailsId(message.id)}
+          onMouseLeave={() => setReactionDetailsId(null)}
           className="mt-2 bg-gray-800 text-white text-xs p-2 rounded border border-gray-600"
         >
           {Object.entries(userReactionMap).map(([user, reaction]) => (
@@ -754,7 +762,11 @@ const MessageCard = ({ message, depth = 0 }) => {
       {Array.isArray(message.replies) && message.replies.length > 0 && (
         <div className="mt-2">
           {message.replies.map((child) => (
-            <MessageCard key={child.id} message={child} depth={depth + 1} />
+            <MessageCard
+              key={child.id}
+              message={child}
+              depth={depth + 1}
+            />
           ))}
         </div>
       )}
