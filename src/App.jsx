@@ -45,36 +45,35 @@ function buildThreadedMessages(flatMessages) {
   const messageMap = {};
   const roots = [];
 
-  // Normalize and prepare reply containers
   flatMessages.forEach((msg) => {
     const normalized = {
       ...msg,
       replyTo: msg.reply_to ?? msg.replyTo ?? null,
       replies: []
     };
-    messageMap[msg.id] = normalized;
+    messageMap[normalized.id] = normalized;
   });
 
-  // Nest replies
   Object.values(messageMap).forEach((msg) => {
-    if (msg.replyTo && messageMap[msg.replyTo]) {
-      messageMap[msg.replyTo].replies.push(msg);
+    const parentId = String(msg.replyTo ?? "");
+    if (parentId && messageMap[parentId]) {
+      messageMap[parentId].replies.push(msg);
     } else {
       roots.push(msg);
     }
   });
 
-  // Recursive sort: newest replies first
-  function sortReplies(messages) {
-    messages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    messages.forEach((msg) => {
-      if (msg.replies.length > 0) sortReplies(msg.replies);
+  function sortRecursive(list) {
+    list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    list.forEach((m) => {
+      if (Array.isArray(m.replies)) sortRecursive(m.replies);
     });
   }
 
-  sortReplies(roots);
+  sortRecursive(roots);
   return roots;
 }
+
 
 
 export default function App() {
