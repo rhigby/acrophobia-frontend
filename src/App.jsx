@@ -51,7 +51,7 @@ function buildThreadedMessages(flatMessages) {
       replyTo: msg.reply_to ?? msg.replyTo ?? null,
       replies: []
     };
-    messageMap[normalized.id] = normalized;
+    messageMap[msg.id] = normalized;
   });
 
   Object.values(messageMap).forEach((msg) => {
