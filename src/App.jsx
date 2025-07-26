@@ -1056,9 +1056,14 @@ if (profileView === "profile") {
     ))}
   </div>
 </div>
+
+ </div>
+      </div>
         </>
+
+     
 );
-</div>
+
 }
 
 
