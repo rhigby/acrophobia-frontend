@@ -639,7 +639,8 @@ socket.emit("request_user_stats");
 const MessageCard = ({ message, depth = 0 }) => {
   return (
     <div
-      className={`mt-2 ml-${depth * 4}`}
+      className="mt-2"
+      style={{ marginLeft: `${depth * 1.5}rem` }}
     >
       <div className="border-l border-blue-700 pl-3">
         <h3 className="font-bold text-blue-300">{message.title}</h3>
@@ -1055,9 +1056,6 @@ if (profileView === "profile") {
     ))}
   </div>
 </div>
-
-    </div>
-  </div>
         </>
 );
 
