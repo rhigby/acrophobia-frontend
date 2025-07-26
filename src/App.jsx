@@ -678,7 +678,7 @@ useEffect(() => {
       });
       if (res.ok) {
         const data = await res.json();
-        setMessages(buildThreadedMessages(data));
+        setMessages(data);
       }
     } catch (err) {
       console.error("Failed to load messages:", err);
