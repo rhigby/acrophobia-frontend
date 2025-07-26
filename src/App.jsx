@@ -640,62 +640,41 @@ socket.emit("request_user_stats");
 
 
 const MessageCard = ({ message, depth = 0 }) => {
-  if (depth === 0) {
-    return (
-      <div className="mt-2 bg-gray-800 border border-blue-700 rounded p-4">
-        <div className="text-white">
-          <span className="font-bold text-blue-300 block">{message.title}</span>
-          <span className="block">{message.content}</span>
-        </div>
-        <p className="text-xs text-gray-400 mt-1">
-          — {message.username} • {new Date(message.timestamp).toLocaleString()}
-        </p>
-        <button
-          className="text-xs text-blue-400 hover:underline mt-1"
-          onClick={() => setReplyToId(message.id)}
-        >
-          Reply
-        </button>
+  if (depth > 2) return null; // Limit to 3 levels (0, 1, 2)
 
-        {Array.isArray(message.replies) && message.replies.length > 0 && (
-          <div className="mt-2">
-            {message.replies.map((child) => (
-              <MessageCard key={child.id} message={child} depth={depth + 1} />
-            ))}
-          </div>
-        )}
+  const containerClass =
+    depth === 0
+      ? "mt-2 bg-gray-800 border border-blue-700 rounded p-4"
+      : "pl-3 border-l border-blue-700 mt-2";
+
+  const indentStyle = depth > 0 ? { marginLeft: `${depth * 1.5}rem` } : {};
+
+  return (
+    <div className={containerClass} style={indentStyle}>
+      <div className="text-white">
+        <span className="font-bold text-blue-300 block">{message.username}</span>
+        <span className="block font-semibold">{message.title}</span>
+        <span className="block">{message.content}</span>
       </div>
-    );
-  } else {
-    return (
-      <div
-        className="pl-3 border-l border-blue-700 mt-2"
-        style={{ marginLeft: `${depth * 1.5}rem` }}
+      <p className="text-xs text-gray-400 mt-1">
+        {new Date(message.timestamp).toLocaleString()}
+      </p>
+      <button
+        className="text-xs text-blue-400 hover:underline mt-1"
+        onClick={() => setReplyToId(message.id)}
       >
-        <div className="text-white">
-          <span className="font-bold text-blue-300 block">{message.title}</span>
-          <span className="block">{message.content}</span>
-        </div>
-        <p className="text-xs text-gray-400 mt-1">
-          — {message.username} • {new Date(message.timestamp).toLocaleString()}
-        </p>
-        <button
-          className="text-xs text-blue-400 hover:underline mt-1"
-          onClick={() => setReplyToId(message.id)}
-        >
-          Reply
-        </button>
+        Reply
+      </button>
 
-        {Array.isArray(message.replies) && message.replies.length > 0 && (
-          <div className="mt-2">
-            {message.replies.map((child) => (
-              <MessageCard key={child.id} message={child} depth={depth + 1} />
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
+      {Array.isArray(message.replies) && message.replies.length > 0 && (
+        <div className="mt-2">
+          {message.replies.map((child) => (
+            <MessageCard key={child.id} message={child} depth={depth + 1} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 useEffect(() => {
@@ -706,7 +685,7 @@ useEffect(() => {
       });
       if (res.ok) {
         const data = await res.json();
-        setMessages(data);
+        setMessages(buildThreadedMessages(data));
       }
     } catch (err) {
       console.error("Failed to load messages:", err);
@@ -718,19 +697,18 @@ useEffect(() => {
 
 useEffect(() => {
   const handleNewMessage = (msg) => {
-  const normalized = {
-    ...msg,
-    replyTo: msg.reply_to ?? msg.replyTo ?? null,
-    replies: []
+    const normalized = {
+      ...msg,
+      replyTo: msg.reply_to ?? msg.replyTo ?? null,
+    };
+    setMessages((prev) => {
+      const existingIds = new Set(flattenMessages(prev).map((m) => m.id));
+      const updated = existingIds.has(normalized.id)
+        ? flattenMessages(prev)
+        : [...flattenMessages(prev), normalized];
+      return buildThreadedMessages(updated);
+    });
   };
-
-  setMessages((prev) => {
-    const flat = flattenMessages(prev);
-    const ids = new Set(flat.map((m) => m.id));
-    const next = ids.has(normalized.id) ? flat : [...flat, normalized];
-    return buildThreadedMessages(next);
-  });
-};
 
   socket.on("new_message", handleNewMessage);
   return () => socket.off("new_message", handleNewMessage);
