@@ -202,6 +202,7 @@ useEffect(() => {
   fetchUsername();
 }, []);
 
+
 useEffect(() => {
   const autofilledEmail = document.querySelector("input[type='email']")?.value;
   if (autofilledEmail) {
