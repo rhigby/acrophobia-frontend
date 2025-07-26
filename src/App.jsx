@@ -645,25 +645,29 @@ const MessageCard = ({ message, depth = 0 }) => {
       : "ml-4 mt-2 text-sm text-blue-200 border-l border-blue-700 pl-2";
 
   const handleReaction = async (reactionType) => {
-    try {
-      await fetch("https://acrophobia-backend-2.onrender.com/api/messages/react", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ id: message.id, reaction: reactionType })
-      });
-      setReactions((prev) => ({
-        ...prev,
-        [message.id]: {
-          ...(prev[message.id] || {}),
-          [reactionType]: ((prev[message.id]?.[reactionType] || 0) + 1)
-        }
-      }));
-    } catch (err) {
-      console.error("Reaction failed", err);
+  const token = localStorage.getItem("acrophobia_token");
+  try {
+    await fetch("https://acrophobia-backend-2.onrender.com/api/messages/react", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ id: message.id, reaction: reactionType })
+    });
+
+    // Re-fetch latest reactions (optional)
+    const res = await fetch("https://acrophobia-backend-2.onrender.com/api/messages/reactions");
+    if (res.ok) {
+      const data = await res.json();
+      setReactions(data);
     }
-  };
+  } catch (err) {
+    console.error("Reaction failed", err);
+  }
+};
+
+
 
   const availableReactions = ["👍", "😂", "❤️", "😡", "😢"];
 
@@ -706,20 +710,28 @@ const MessageCard = ({ message, depth = 0 }) => {
 useEffect(() => {
   const loadMessages = async () => {
     try {
-      const res = await fetch("https://acrophobia-backend-2.onrender.com/api/messages", {
-        credentials: "include"
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setMessages(data);
+      const [msgRes, reactRes] = await Promise.all([
+        fetch("https://acrophobia-backend-2.onrender.com/api/messages", {
+          credentials: "include"
+        }),
+        fetch("https://acrophobia-backend-2.onrender.com/api/messages/reactions")
+      ]);
+
+      if (msgRes.ok && reactRes.ok) {
+        const msgData = await msgRes.json();
+        const reactionData = await reactRes.json();
+
+        setMessages(buildThreadedMessages(msgData));
+        setReactions(reactionData); // ✅ set all reactions here
       }
     } catch (err) {
-      console.error("Failed to load messages:", err);
+      console.error("Failed to load messages or reactions:", err);
     }
   };
 
   loadMessages();
 }, []);
+
 
 useEffect(() => {
   const handleNewMessage = (msg) => {
