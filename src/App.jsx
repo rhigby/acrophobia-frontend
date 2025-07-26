@@ -85,6 +85,7 @@ if (searchTerm.trim()) {
 
 
 export default function App() {
+    const [searchTerm, setSearchTerm] = useState("");
     const [reactionPopupId, setReactionPopupId] = useState(null);
     const [reactionDetailsId, setReactionDetailsId] = useState(null);
     const [reactions, setReactions] = useState({});
