@@ -680,7 +680,7 @@ useEffect(() => {
       });
       if (res.ok) {
         const data = await res.json();
-        setMessages(buildThreadedMessages(data));
+        setMessages(data);
       }
     } catch (err) {
       console.error("Failed to load messages:", err);
@@ -692,18 +692,19 @@ useEffect(() => {
 
 useEffect(() => {
   const handleNewMessage = (msg) => {
-    const normalized = {
-      ...msg,
-      replyTo: msg.reply_to ?? msg.replyTo ?? null,
-    };
-    setMessages((prev) => {
-      const existingIds = new Set(flattenMessages(prev).map((m) => m.id));
-      const updated = existingIds.has(normalized.id)
-        ? flattenMessages(prev)
-        : [...flattenMessages(prev), normalized];
-      return buildThreadedMessages(updated);
-    });
+  const normalized = {
+    ...msg,
+    replyTo: msg.reply_to ?? msg.replyTo ?? null,
+    replies: []
   };
+
+  setMessages((prev) => {
+    const flat = flattenMessages(prev);
+    const ids = new Set(flat.map((m) => m.id));
+    const next = ids.has(normalized.id) ? flat : [...flat, normalized];
+    return buildThreadedMessages(next);
+  });
+};
 
   socket.on("new_message", handleNewMessage);
   return () => socket.off("new_message", handleNewMessage);
