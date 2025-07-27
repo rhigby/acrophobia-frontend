@@ -676,7 +676,13 @@ useEffect(() => {
 }, []);
     
 const flatLimited = messages.slice(0, visibleCount + manualLoadCount);
-const visibleThreaded = buildThreadedMessages(flatLimited, searchTerm);
+
+const latestPinned = messages.slice(0, 5); // Always show newest 5
+const additional = messages.slice(5, 5 + visibleCount + manualLoadCount);
+const combined = [...latestPinned, ...additional];
+const uniqueMessages = Array.from(new Map(combined.map(m => [m.id, m])).values()); // Deduplicate
+const visibleThreaded = buildThreadedMessages(uniqueMessages, searchTerm);
+
 
 const filteredMessages = buildThreadedMessages(messages, searchTerm);
 const MessageCard = ({ message, depth = 0 }) => {
@@ -848,16 +854,18 @@ useEffect(() => {
     };
 
     setMessages((prev) => {
-      const existingIds = new Set(prev.map((m) => m.id));
-      return existingIds.has(normalized.id)
-        ? prev
-        : [...prev, normalized]; // Keep flat list only
+      const exists = prev.some((m) => m.id === normalized.id);
+      if (exists) return prev;
+      return [normalized, ...prev]; // Add new message to the front
     });
+
+    // If the user is not scrolled to top, optionally notify or auto-scroll
   };
 
   socket.on("new_message", handleNewMessage);
   return () => socket.off("new_message", handleNewMessage);
 }, []);
+
 
 const sendBoardMessage = async () => {
   const BASE_API = "https://acrophobia-backend-2.onrender.com";
