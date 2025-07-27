@@ -664,9 +664,8 @@ useEffect(() => {
   if (!container) return;
 
   const handleScroll = () => {
-    if (
-      container.scrollTop + container.clientHeight >= container.scrollHeight - 200
-    ) {
+    const isNearBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 100;
+    if (isNearBottom) {
       setVisibleCount((prev) => prev + 10);
     }
   };
@@ -1225,6 +1224,7 @@ if (profileView === "profile") {
   <div
     ref={messageContainerRef}
     className="mt-4 flex-1 overflow-y-auto border-t border-blue-800 pt-2"
+    style={{ maxHeight: 'calc(90vh - 320px)' }}
   >
     {visibleThreaded.map((m) => (
       <MessageCard key={m.id} message={m} />
