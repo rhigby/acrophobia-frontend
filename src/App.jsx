@@ -85,6 +85,7 @@ export default function App() {
     const [profileView, setProfileView] = useState("lobby");
     const [currentPage, setCurrentPage] = useState(1);
     const [visibleCount, setVisibleCount] = useState(10);
+    const messageContainerRef = useRef(null);
 
     const submitEntry = () => {
         if (!submission) return;
