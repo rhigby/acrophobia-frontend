@@ -26,10 +26,10 @@ export const socket = io("https://acrophobia-backend-2.onrender.com", {
 
 const ROOMS = [
   { name: "CleanFun", type: "clean" },
-  { name: "AnythingGoes", type: "uncensored" },
   { name: "TriviaNight", type: "clean" },
-  { name: "LateNight", type: "uncensored" },
-  { name: "Classroom", type: "clean" }
+  { name: "Classroom", type: "clean" },
+{ name: "AnythingGoes", type: "uncensored" },
+{ name: "LateNight", type: "uncensored" }
 ];
 
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
