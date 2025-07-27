@@ -87,12 +87,17 @@ export default function App() {
     const [visibleCount, setVisibleCount] = useState(10);
     const [manualLoadCount, setManualLoadCount] = useState(0);
     const messageContainerRef = useRef(null);
+    const [faceoffPlayers, setFaceoffPlayers] = useState([]);
 
     const submitEntry = () => {
         if (!submission) return;
         if (!isValidSubmission(submission, acronym)) {
             setSubmissionWarning("Each word must start with the matching letter in the acronym.");
             return;
+        }
+        if (phase === "faceoff_submit" && !faceoffPlayers.includes(username)) {
+          setSubmissionWarning("Only faceoff finalists can submit.");
+          return;
         }
         setSubmissionWarning(null); // ✅ clear warning if valid
         socket.emit("submit_entry", { room, username, text: submission });
@@ -204,7 +209,10 @@ function buildThreadedMessages(flatMessages, searchTerm = "") {
 
   setChatInput("");
 };
-
+useEffect(() => {
+  socket.on("faceoff_players", setFaceoffPlayers);
+  return () => socket.off("faceoff_players");
+}, []);
 useEffect(() => {
   const fetchUsername = async () => {
     const token = localStorage.getItem("acrophobia_token");
@@ -334,6 +342,23 @@ useEffect(() => {
 
   return () => socket.off("new_message");
 }, []);
+    
+    useEffect(() => {
+  const handleFinalFaceoff = (scores) => {
+    const top = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
+    if (top) {
+      setOverlayText(`🏅 Faceoff Winner: ${top[0]} (${top[1]} pts)`);
+      setShowOverlay(true);
+    }
+  };
+
+  socket.on("final_faceoff_scores", handleFinalFaceoff);
+
+  return () => {
+    socket.off("final_faceoff_scores", handleFinalFaceoff);
+  };
+}, []);
+
 
         useEffect(() => {
           socket.on("room_list", (data) => {
@@ -501,7 +526,14 @@ useEffect(() => {
           console.warn("Vote sound failed:", e);
         });
       }
-    }
+    }else if (newPhase === "faceoff_submit") {
+          setOverlayText("🏆 Faceoff Round Begins!");
+          setShowOverlay(true);
+          setTimeout(() => setShowOverlay(false), 3000);
+          setSubmittedUsers([]);
+          setSubmission("");
+          setVoteConfirmed(false);
+        }
       if (backgroundMusic.current) {
         backgroundMusic.current.currentTime = 0;
         backgroundMusic.current.play().catch((e) =>
