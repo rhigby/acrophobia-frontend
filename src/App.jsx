@@ -827,7 +827,8 @@ useEffect(() => {
         const msgData = await msgRes.json();
         const reactionData = await reactRes.json();
         const userMap = await usersRes.json();
-        setMessages(msgData); // <- raw flat list
+        const reversed = [...msgData].reverse();
+        setMessages(reversed);
         setReactions(reactionData);
         setReactionUsers(userMap);
       }
