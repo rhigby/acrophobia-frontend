@@ -360,18 +360,19 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-    if (!socket) return;
+  if (!socket) return;
 
-    const handleEntryRejected = ({ reason }) => {
-      alert("Your answer was rejected:\n" + reason);
-    };
+  const handleEntryRejected = ({ reason }) => {
+    setError(reason); // this will update your existing `error` state
+  };
 
-    socket.on("entry_rejected", handleEntryRejected);
+  socket.on("entry_rejected", handleEntryRejected);
 
-    return () => {
-      socket.off("entry_rejected", handleEntryRejected);
-    };
-  }, [socket]);
+  return () => {
+    socket.off("entry_rejected", handleEntryRejected);
+  };
+}, [socket]);
+
         useEffect(() => {
           socket.on("room_list", (data) => {
             // Expecting: { room1: { players: 3, round: 1 }, ... }
