@@ -117,6 +117,20 @@ export default function App() {
             setChatInput("");
         }
     };
+    const [chatError, setChatError] = useState(null);
+    useEffect(() => {
+      socket.on("chat_error", ({ reason }) => {
+        setChatError(reason);
+    
+        // Clear after 5 seconds
+        setTimeout(() => setChatError(null), 5000);
+      });
+    
+      return () => {
+        socket.off("chat_error");
+      };
+    }, []);
+    
     const beginSound = useRef(null);
     const joinRoom = (roomId) => {
         const user = username || Cookies.get("acrophobia_user");
@@ -1560,6 +1574,9 @@ if (profileView === "profile") {
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendChat()}
               />
+                {chatError && (
+                  <div className="text-red-500 text-sm mt-1">{chatError}</div>
+                )}
               <button
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
                 onClick={sendChat}
