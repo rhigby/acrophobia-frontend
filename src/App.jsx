@@ -659,18 +659,21 @@ socket.emit("request_user_stats");
 
 // Infinite scroll logic
 useEffect(() => {
+  const container = messageContainerRef.current;
+  if (!container) return;
+
   const handleScroll = () => {
     if (
-      window.innerHeight + window.scrollY >= document.body.offsetHeight - 300
+      container.scrollTop + container.clientHeight >= container.scrollHeight - 200
     ) {
       setVisibleCount((prev) => prev + 10);
     }
   };
 
-  window.addEventListener("scroll", handleScroll);
-  return () => window.removeEventListener("scroll", handleScroll);
+  container.addEventListener("scroll", handleScroll);
+  return () => container.removeEventListener("scroll", handleScroll);
 }, []);
-
+    
 const visibleThreaded = buildThreadedMessages(messages, searchTerm).slice(0, visibleCount);
 
 const filteredMessages = buildThreadedMessages(messages, searchTerm);
@@ -1163,7 +1166,7 @@ if (profileView === "profile") {
       </div>
 
       {/* RIGHT SIDE: Message Board */}
-<div className="bg-gray-900/50 p-4 rounded border border-blue-800 shadow-inner flex flex-col h-full">
+<div className="bg-gray-900/50 p-4 rounded border border-blue-800 shadow-inner flex flex-col h-full" style={{ height: '90vh' }}>
   <h2 className="text-xl font-bold mb-4 text-white">📬 Message Board</h2>
 
   <div className="mb-4 border-b border-blue-700 pb-2">
@@ -1218,7 +1221,10 @@ if (profileView === "profile") {
     </button>
   </form>
 
-  <div className="mt-4 flex-1">
+  <div
+    ref={messageContainerRef}
+    className="mt-4 flex-1 overflow-y-auto border-t border-blue-800 pt-2"
+  >
     {visibleThreaded.map((m) => (
       <MessageCard key={m.id} message={m} />
     ))}
