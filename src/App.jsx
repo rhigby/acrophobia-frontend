@@ -363,7 +363,7 @@ useEffect(() => {
   if (!socket) return;
 
   const handleEntryRejected = ({ reason }) => {
-    setError(reason); // this will update your existing `error` state
+    setSubmissionWarning(reason); // this will update your existing `error` state
   };
 
   socket.on("entry_rejected", handleEntryRejected);
