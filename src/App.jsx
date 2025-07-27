@@ -1566,6 +1566,9 @@ if (profileView === "profile") {
             </div>
 
             <div className="flex gap-2">
+                {chatError && (
+                  <div className="text-red-500 text-sm mt-1">{chatError}</div>
+                )}
               <input
                 type="text"
                 className="flex-1 p-2 bg-black text-white border border-blue-700 rounded"
@@ -1574,9 +1577,7 @@ if (profileView === "profile") {
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendChat()}
               />
-                {chatError && (
-                  <div className="text-red-500 text-sm mt-1">{chatError}</div>
-                )}
+                
               <button
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
                 onClick={sendChat}
