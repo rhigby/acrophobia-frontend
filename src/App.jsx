@@ -674,7 +674,8 @@ useEffect(() => {
   return () => container.removeEventListener("scroll", handleScroll);
 }, []);
     
-const visibleThreaded = buildThreadedMessages(messages, searchTerm).slice(0, visibleCount);
+const flatLimited = messages.slice(0, visibleCount + manualLoadCount);
+const visibleThreaded = buildThreadedMessages(flatLimited, searchTerm);
 
 const filteredMessages = buildThreadedMessages(messages, searchTerm);
 const MessageCard = ({ message, depth = 0 }) => {
