@@ -359,7 +359,19 @@ useEffect(() => {
   };
 }, []);
 
+useEffect(() => {
+    if (!socket) return;
 
+    const handleEntryRejected = ({ reason }) => {
+      alert("Your answer was rejected:\n" + reason);
+    };
+
+    socket.on("entry_rejected", handleEntryRejected);
+
+    return () => {
+      socket.off("entry_rejected", handleEntryRejected);
+    };
+  }, [socket]);
         useEffect(() => {
           socket.on("room_list", (data) => {
             // Expecting: { room1: { players: 3, round: 1 }, ... }
