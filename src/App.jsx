@@ -1178,6 +1178,7 @@ if (profileView === "profile") {
       onChange={(e) => {
         setSearchTerm(e.target.value);
         setVisibleCount(10); // Reset scroll
+        setManualLoadCount(0);
       }}
     />
   </div>
@@ -1224,11 +1225,20 @@ if (profileView === "profile") {
   <div
     ref={messageContainerRef}
     className="mt-4 flex-1 overflow-y-auto border-t border-blue-800 pt-2"
-    style={{ maxHeight: 'calc(90vh - 320px)' }}
+    style={{ maxHeight: 'calc(90vh - 360px)' }}
   >
     {visibleThreaded.map((m) => (
       <MessageCard key={m.id} message={m} />
     ))}
+
+    <div className="text-center mt-4">
+      <button
+        onClick={() => setManualLoadCount((prev) => prev + 10)}
+        className="bg-blue-700 hover:bg-blue-800 px-4 py-2 text-white rounded"
+      >
+        Load More
+      </button>
+    </div>
   </div>
 </div>
 
