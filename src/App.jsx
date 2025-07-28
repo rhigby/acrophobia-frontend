@@ -1185,7 +1185,7 @@ if (profileView === "profile") {
         <div className="mb-6 p-4 rounded border border-blue-800 bg-blue-900/50 shadow-inner">
   <h2 className="text-xl font-semibold mb-4">Select a Room</h2>
   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-    {ROOMS.map(({ name, type }) => {
+    {ROOMS.map(({ name, type, displayName }) => {
       const stats = roomStats[name];
       const playerCount = stats?.players || 0;
       const roundNum = stats?.round ?? "-";
@@ -1201,7 +1201,7 @@ if (profileView === "profile") {
           }`}
           onClick={() => !isFull && joinRoom(name)}
         >
-          <div className="font-bold text-lg">{name}</div>
+          <div className="font-bold text-lg">{displayName}</div>
           <div className="text-sm">
             Players: {playerCount}<br />
             Round: {roundNum}<br />
