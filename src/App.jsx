@@ -25,11 +25,12 @@ export const socket = io("https://acrophobia-backend-2.onrender.com", {
 });
 
 const ROOMS = [
-	{
+{
 	name: "Eighties",
     displayName: "80's Theme",
     type: "clean"
-  },
+},
+{
 	name: "Ninties",
     displayName: "90's Theme",
     type: "clean"
