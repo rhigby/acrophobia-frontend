@@ -25,19 +25,43 @@ export const socket = io("https://acrophobia-backend-2.onrender.com", {
 });
 
 const ROOMS = [
-  { name: "CleanFun", type: "clean" },
-  { name: "TriviaNight", type: "clean" },
-  { name: "Classroom", type: "clean" },
-{ name: "AnythingGoes", type: "uncensored" },
-{ name: "LateNight", type: "uncensored" }
+	{
+	name: "Eighties",
+    displayName: "80's Theme",
+    type: "clean"
+  },
+	name: "Ninties"
+    displayName: "90's Theme",
+    type: "clean"
+  },
+{
+  name: "CleanFun",
+    displayName: "Clean Fun",
+    type: "clean"
+  },
+ {
+  name: "SportsArena",
+    displayName: "Sports Arena",
+    type: "clean"
+  },
+ {
+   name: "AnythingGoes",
+    displayName: "Anything Goes",
+    theme: "uncensored"
+  },
+{
+	name: "LateNight",
+    displayName: "Late Night",
+    type: "uncensored"
+  },
+{
+   name: "TheCouch"
+    displayName: "The Couch",
+    type: "uncensored"
+  }
 ];
 
 const bgColor = "bg-gradient-to-br from-black via-blue-900 to-black text-blue-200";
-
-
-
-
-
 
 
 export default function App() {
