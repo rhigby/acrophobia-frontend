@@ -30,7 +30,7 @@ const ROOMS = [
     displayName: "80's Theme",
     type: "clean"
   },
-	name: "Ninties"
+	name: "Ninties",
     displayName: "90's Theme",
     type: "clean"
   },
@@ -55,7 +55,7 @@ const ROOMS = [
     type: "uncensored"
   },
 {
-   name: "TheCouch"
+   name: "TheCouch",
     displayName: "The Couch",
     type: "uncensored"
   }
