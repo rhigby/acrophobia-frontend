@@ -278,20 +278,6 @@ function buildThreadedMessages(flatMessages, searchTerm = "") {
   const handleBotCancel = () => {
     setShowBotPrompt(false);
   };
-
-  return (
-    <>
-      <BotPromptModal
-        open={showBotPrompt}
-        onConfirm={handleBotConfirm}
-        onCancel={handleBotCancel}
-      />
-
-      {/* Your existing App content */}
-      <MainView />
-    </>
-  );
-
 	
 useEffect(() => {
   socket.on("faceoff_players", setFaceoffPlayers);
