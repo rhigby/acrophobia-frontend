@@ -121,8 +121,12 @@ export default function App() {
     const [manualLoadCount, setManualLoadCount] = useState(0);
     const messageContainerRef = useRef(null);
     const [faceoffPlayers, setFaceoffPlayers] = useState([]);
- const [showBotPrompt, setShowBotPrompt] = useState(false);
-  const [botPromptRoom, setBotPromptRoom] = useState(null);
+ 	const [showBotPrompt, setShowBotPrompt] = useState(false);
+  	const [botPromptRoom, setBotPromptRoom] = useState(null);
+	const [botCount, setBotCount] = useState(0);
+	const [players, setPlayers] = useState([]);
+	const [showFindingBots, setShowFindingBots] = useState(true);
+
 
 
     const submitEntry = () => {
@@ -1436,7 +1440,11 @@ if (profileView === "profile") {
 
     return (
   <>
-
+	{showFindingBots && (
+		  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 text-white text-xl font-bold">
+		    🧠 Finding Bots...
+		  </div>
+		)}
     {showOverlay && (
       <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
         <div className="text-4xl md:text-5xl font-extrabold text-red-500 drop-shadow-[0_0_5px_orange]">
