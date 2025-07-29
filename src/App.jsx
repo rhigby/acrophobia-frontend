@@ -454,11 +454,12 @@ useEffect(() => {
           };
         }, []);
     
-    const backgroundMusic = useRef(null);
+    
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [chatMessages]);
-
+	
+const backgroundMusic = useRef(null);
     useEffect(() => {
         backgroundMusic.current = new Audio("/background.mp3");
         backgroundMusic.current.loop = true; // 🔁 Keep it looping
@@ -466,9 +467,7 @@ useEffect(() => {
         const handleChat = (msg) => {
             setChatMessages((prev) => [...prev.slice(-49), msg]); // keep last 50 messages
         };
-
         socket.on("chat_message", handleChat);
-
         return () => {
             socket.off("chat_message", handleChat);
         };
@@ -577,57 +576,80 @@ useEffect(() => {
   socket.on("phase", (newPhase) => {
     setPhase(newPhase);
     if (newPhase === "submit") {
-      setSubmittedUsers([]);
-      setAcronymReady(false);
-      setOverlayText("Get Ready!");
-      setShowOverlay(true);
-        if (nextRoundSound.current) {
-        nextRoundSound.current.currentTime = 0;
-        nextRoundSound.current.play().catch((e) => {
-          console.warn("Next round sound failed:", e);
-        });
-      }
-      setTimeout(() => setShowOverlay(false), 2000);
-      setSubmission("");
-      setSubmittedEntry(null);
-      setVoteConfirmed(false);
-      setShowResults(false);
-      setShowAwards(false);
-    } else if (newPhase === "next_round_overlay") {
-      setShowOverlay(true);
-      setTimeout(() => setShowOverlay(false), 10000);
-    } else if (newPhase === "results") {
-      if (fanfareSound.current) {
-        fanfareSound.current.currentTime = 0;
-        fanfareSound.current.play().catch(() => {});
-      }
-      setShowResults(true);
-    } else if (newPhase === "vote") {
-     if (voteSound.current) {
-        voteSound.current.currentTime = 0;
-        voteSound.current.play().catch((e) => {
-          console.warn("Vote sound failed:", e);
-        });
-      }
-    }else if (newPhase === "faceoff_submit") {
-          setOverlayText("🏆 Faceoff Round Begins!");
-          setShowOverlay(true);
-          setTimeout(() => setShowOverlay(false), 3000);
-          setSubmittedUsers([]);
-          setSubmission("");
-          setVoteConfirmed(false);
-        }
-      if (backgroundMusic.current) {
-        backgroundMusic.current.currentTime = 0;
-        backgroundMusic.current.play().catch((e) =>
-          console.warn("Background music failed to play:", e)
-        );
-      }
-      if (newPhase === "vote" || newPhase === "results") {
-          if (backgroundMusic.current) {
-            backgroundMusic.current.pause();
-          }
-        }
+  setSubmittedUsers([]);
+  setAcronymReady(false);
+  setOverlayText("Get Ready!");
+  setShowOverlay(true);
+
+  if (nextRoundSound.current) {
+    nextRoundSound.current.currentTime = 0;
+    nextRoundSound.current.play().catch((e) => {
+      console.warn("Next round sound failed:", e);
+    });
+  }
+
+  // 🎵 Play background music ONLY in "submit"
+  if (backgroundMusic.current) {
+    backgroundMusic.current.currentTime = 0;
+    backgroundMusic.current.loop = true;
+    backgroundMusic.current.play().catch((e) =>
+      console.warn("Background music failed to play:", e)
+    );
+  }
+
+  setTimeout(() => setShowOverlay(false), 2000);
+  setSubmission("");
+  setSubmittedEntry(null);
+  setVoteConfirmed(false);
+  setShowResults(false);
+  setShowAwards(false);
+
+} else if (newPhase === "faceoff_submit") {
+  setOverlayText("🏆 Faceoff Round Begins!");
+  setShowOverlay(true);
+  setTimeout(() => setShowOverlay(false), 3000);
+  setSubmittedUsers([]);
+  setSubmission("");
+  setVoteConfirmed(false);
+
+  // 🎵 Also play music in faceoff rounds
+  if (backgroundMusic.current) {
+    backgroundMusic.current.currentTime = 0;
+    backgroundMusic.current.loop = true;
+    backgroundMusic.current.play().catch((e) =>
+      console.warn("Background music failed to play:", e)
+    );
+  }
+
+} else {
+  // ⛔ Stop music in all other phases
+  if (backgroundMusic.current) {
+    backgroundMusic.current.pause();
+    backgroundMusic.current.currentTime = 0;
+  }
+
+  if (newPhase === "vote") {
+    if (voteSound.current) {
+      voteSound.current.currentTime = 0;
+      voteSound.current.play().catch((e) =>
+        console.warn("Vote sound failed:", e)
+      );
+    }
+  }
+
+  if (newPhase === "results") {
+    if (fanfareSound.current) {
+      fanfareSound.current.currentTime = 0;
+      fanfareSound.current.play().catch(() => {});
+    }
+    setShowResults(true);
+  }
+
+  if (newPhase === "next_round_overlay") {
+    setShowOverlay(true);
+    setTimeout(() => setShowOverlay(false), 10000);
+  }
+}
   });
   socket.on("submitted_users", (userList) => {
     setSubmittedUsers(userList);
