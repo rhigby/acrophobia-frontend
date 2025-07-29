@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import StickyHeader from "./StickyHeader";
-import BotPromptModal from "./BotPromptModal";
+import BotPromptModal from "BotPromptModal";
 
 function isValidSubmission(submission, acronym) {
     if (!submission || !acronym) return false;
