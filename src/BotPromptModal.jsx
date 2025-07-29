@@ -25,7 +25,7 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
            <p className="text-md text-amberAccent">
              Would you like to play with bots?
              </p>
-          <p className="text-sm text-amberAccent">
+          <p className="text-sm text-white-600">
             If yes, how many bots would you like to play against?
           </p>
           <Slider
@@ -35,7 +35,7 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
             defaultValue={[5]}
             onValueChange={(val) => setCount(val[0])}
           />
-          <p className="text-sm text-amberAccent">Selected: {count}</p>
+          <p className="text-sm text-white-600">Selected: {count}</p>
         </div>
 
         <DialogFooter className="flex justify-end gap-2">
