@@ -441,7 +441,7 @@ useEffect(() => {
     if (data && typeof data === "object" && Object.keys(data).length > 0) {
       setRoomStats(data);
 
-      const thisRoom = data[roomId];
+      const thisRoom = data[room];
       if (
         botsRequested &&
         thisRoom &&
@@ -457,7 +457,8 @@ useEffect(() => {
 
   socket.on("room_list", handleRoomList);
   return () => socket.off("room_list", handleRoomList);
-}, [roomId, botsRequested]);
+}, [room, botsRequested]);
+
 
 
 
