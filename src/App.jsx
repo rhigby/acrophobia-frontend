@@ -455,21 +455,26 @@ useEffect(() => {
 
 useEffect(() => {
   const handleRoomStats = (stats) => {
-    console.log("📡 Received room_stats:", stats);
+    console.log("📥 Received room_stats:", stats);
 
-    if (botsRequested && stats.botCount >= 3) {
+    if (botsRequested && (stats.botCount >= 3 || stats.usernames?.some(name => name.includes("-bot")))) {
+      console.log("✅ Hiding bot overlay");
       setShowFindingBots(false);
     }
   };
 
   socket.on("room_stats", handleRoomStats);
-
-  return () => {
-    socket.off("room_stats", handleRoomStats);
-  };
+  return () => socket.off("room_stats", handleRoomStats);
 }, [botsRequested]);
 
-
+useEffect(() => {
+  const anyEventLogger = (...args) => {
+    console.log("📡 Global event received:", args);
+  };
+  socket.onAny(anyEventLogger);
+  return () => socket.offAny(anyEventLogger);
+}, []);
+	
 useEffect(() => {
   socket.on("room_stats", (stats) => {
     setBotCount(stats.botCount);
