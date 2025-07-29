@@ -127,17 +127,6 @@ export default function App() {
 	const [showFindingBots, setShowFindingBots] = useState(true);
 	const [botsRequested, setBotsRequested] = useState(false);
 
-	const handleConfirmBots = (botCount) => {
-	  socket.emit("request_bots", { room: roomId, count: botCount });
-	  setBotsRequested(true);
-	  setShowFindingBots(true);
-	  setShowBotPrompt(false); // close modal
-	};
-	
-	const handleCancelBots = () => {
-	  setShowBotPrompt(false); // just close the modal
-	};
-
     const submitEntry = () => {
         if (!submission) return;
         if (!isValidSubmission(submission, acronym)) {
@@ -187,6 +176,16 @@ export default function App() {
         setJoined(true);
         setError(null);
     };
+	const handleConfirmBots = (botCount) => {
+	  socket.emit("request_bots", { room: roomId, count: botCount });
+	  setBotsRequested(true);
+	  setShowFindingBots(true);
+	  setShowBotPrompt(false); // close modal
+	};
+	
+	const handleCancelBots = () => {
+	  setShowBotPrompt(false); // just close the modal
+	};
 function flattenMessages(threaded) {
   const result = [];
   const walk = (msgs) => {
