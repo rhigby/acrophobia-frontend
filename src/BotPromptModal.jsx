@@ -14,10 +14,10 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
 
   return (
     <Dialog open={open} onOpenChange={onCancel}>
-      <DialogContent className="bg-white text-gray-900 border border-gray-300 shadow-xl max-w-md rounded-xl">
+      <DialogContent className="bg-blue-50 text-gray-900 border border-blue-200 shadow-lg max-w-md rounded-xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold">
-            Want to play with bots?
+          <DialogTitle className="text-lg font-semibold text-blue-800">
+            Play with bots?
           </DialogTitle>
         </DialogHeader>
 
@@ -36,14 +36,21 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
         </div>
 
         <DialogFooter className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={onCancel}>
+          <Button variant="secondary" onClick={onCancel} className="text-blue-800 border-blue-300 hover:bg-blue-100">
             Cancel
           </Button>
-          <Button onClick={() => onConfirm(count)}>Add Bots</Button>
+          <Button
+            onClick={() => onConfirm(count)}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            Add Bots
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
+}
+
 }
 
 
