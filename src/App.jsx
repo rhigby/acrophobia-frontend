@@ -1483,10 +1483,10 @@ if (profileView === "profile") {
       </div>
     )}
 	<BotPromptModal
-      open={showBotPrompt}
-      onConfirm={handleBotConfirm}
-      onCancel={handleBotCancel}
-    />
+  open={showBotPrompt}
+  onConfirm={handleConfirmBots}
+  onCancel={handleCancelBots}
+/>
     <div className={`flex flex-col min-h-screen ${bgColor} font-mono`}>
 
       <div className="flex flex-1 w-full max-w-screen-xl mx-auto flex-col md:flex-row overflow-hidden">
