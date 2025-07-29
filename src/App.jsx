@@ -126,7 +126,8 @@ export default function App() {
 	const [botCount, setBotCount] = useState(0);
 	const [showFindingBots, setShowFindingBots] = useState(true);
 	const [botsRequested, setBotsRequested] = useState(false);
-
+	const inputRef = useRef(null);
+	
     const submitEntry = () => {
         if (!submission) return;
         if (!isValidSubmission(submission, acronym)) {
@@ -593,6 +594,20 @@ const resetGameState = () => {
 const nextRoundSound = useRef(null);
     useEffect(() => {
   nextRoundSound.current = new Audio("/nextround.mp3");
+}, []);
+
+useEffect(() => {
+  const handlePhase = (phase) => {
+    console.log("📥 Received phase:", phase);
+    if (phase === "submit" || phase === "faceoff_submit") {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50); // slight delay to ensure render
+    }
+  };
+
+  socket.on("phase", handlePhase);
+  return () => socket.off("phase", handlePhase);
 }, []);
 
 
@@ -1610,6 +1625,7 @@ if (profileView === "profile") {
             {phase === "submit" && (
               <div className="space-y-2">
                 <input
+		ref={inputRef}
                   className="border border-blue-700 p-2 w-full text-lg md:text-xl bg-black text-blue-200"
                   placeholder="Type your answer and press Enter..."
                   value={submission}
