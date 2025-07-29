@@ -639,11 +639,10 @@ useEffect(() => {
   setAcronymReady(false);
   setOverlayText("Get Ready!");
   setShowOverlay(true);
-setTimeout(() => {
-inputRef.current?.focus();
-inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-}, 200);
-
+requestAnimationFrame(() => {
+  inputRef.current?.focus();
+  inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+});
   if (nextRoundSound.current) {
     nextRoundSound.current.currentTime = 0;
     nextRoundSound.current.play().catch((e) => {
