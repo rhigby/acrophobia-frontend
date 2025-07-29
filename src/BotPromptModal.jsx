@@ -16,7 +16,7 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
     <Dialog open={open} onOpenChange={onCancel}>
       <DialogContent className="mb-6 p-4 rounded border border-blue-800 bg-blue-900/50 shadow-inner">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-blue-800">
+          <DialogTitle className="text-lg font-semibold text-white-800">
             You're the first one here!
           </DialogTitle>
         </DialogHeader>
