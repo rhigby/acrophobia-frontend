@@ -17,13 +17,16 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
       <DialogContent className="bg-blue-50 text-gray-900 border border-blue-200 shadow-lg max-w-md rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-blue-800">
-            Play with bots?
+            You're the first one here! Play with bots?
           </DialogTitle>
         </DialogHeader>
 
         <div className="py-4 space-y-3">
+           <p className="text-md text-gray-700">
+             Would you like to play with bots?
+             </p>
           <p className="text-sm text-gray-700">
-            How many bots would you like to play against?
+            If yes, how many bots would you like to play against?
           </p>
           <Slider
             min={3}
