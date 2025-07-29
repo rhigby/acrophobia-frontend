@@ -40,7 +40,7 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
 
         <DialogFooter className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onCancel} className="text-blue-800 border-blue-300 hover:bg-blue-100">
-            Cancel
+            No thanks
           </Button>
           <Button
             onClick={() => onConfirm(count)}
