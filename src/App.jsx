@@ -457,7 +457,6 @@ useEffect(() => {
   const handleRoomStats = (stats) => {
     console.log("📡 Received room_stats:", stats);
 
-    // Hide the "Finding Bots" overlay once 3+ bots are in the room
     if (botsRequested && stats.botCount >= 3) {
       setShowFindingBots(false);
     }
@@ -466,9 +465,10 @@ useEffect(() => {
   socket.on("room_stats", handleRoomStats);
 
   return () => {
-    socket.off("room_stats", handleRoomStats); // cleanup on unmount
+    socket.off("room_stats", handleRoomStats);
   };
 }, [botsRequested]);
+
 
 useEffect(() => {
   socket.on("room_stats", (stats) => {
