@@ -14,13 +14,17 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
 
   return (
     <Dialog open={open} onOpenChange={onCancel}>
-      <DialogContent className="bg-gray-900 text-white border border-gray-700 shadow-2xl max-w-md rounded-2xl">
+      <DialogContent className="bg-white text-gray-900 border border-gray-300 shadow-xl max-w-md rounded-xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold">Want to play with bots?</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">
+            Want to play with bots?
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="py-4 space-y-2">
-          <p className="text-sm text-gray-300">How many bots would you like to play against?</p>
+        <div className="py-4 space-y-3">
+          <p className="text-sm text-gray-700">
+            How many bots would you like to play against?
+          </p>
           <Slider
             min={3}
             max={7}
@@ -28,11 +32,11 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
             defaultValue={[5]}
             onValueChange={(val) => setCount(val[0])}
           />
-          <p className="text-sm text-gray-400">Selected: {count}</p>
+          <p className="text-sm text-gray-600">Selected: {count}</p>
         </div>
 
         <DialogFooter className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onCancel}>
+          <Button variant="secondary" onClick={onCancel}>
             Cancel
           </Button>
           <Button onClick={() => onConfirm(count)}>Add Bots</Button>
@@ -41,4 +45,5 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
     </Dialog>
   );
 }
+
 
