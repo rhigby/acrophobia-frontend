@@ -182,7 +182,7 @@ export default function App() {
 		    return;
 		  }
 		
-		  socket.emit("request_bots", { room, count: botCount }); // ✅ use state-based room
+		  socket.emit("confirm_add_bots", { room, count: botCount }); // ✅ use state-based room
 		  setBotsRequested(true);
 		  setShowFindingBots(true);
 		  setShowBotPrompt(false);
