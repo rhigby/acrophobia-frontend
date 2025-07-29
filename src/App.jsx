@@ -127,7 +127,16 @@ export default function App() {
 	const [showFindingBots, setShowFindingBots] = useState(true);
 	const [botsRequested, setBotsRequested] = useState(false);
 
-
+	const handleConfirmBots = (botCount) => {
+	  socket.emit("request_bots", { room: roomId, count: botCount });
+	  setBotsRequested(true);
+	  setShowFindingBots(true);
+	  setShowBotPrompt(false); // close modal
+	};
+	
+	const handleCancelBots = () => {
+	  setShowBotPrompt(false); // just close the modal
+	};
 
     const submitEntry = () => {
         if (!submission) return;
