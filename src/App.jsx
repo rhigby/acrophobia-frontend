@@ -4,6 +4,7 @@ import { io } from "socket.io-client";
 import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 import StickyHeader from "./StickyHeader";
+import BotPromptModal from "./BotPromptModal";
 
 function isValidSubmission(submission, acronym) {
     if (!submission || !acronym) return false;
@@ -120,6 +121,9 @@ export default function App() {
     const [manualLoadCount, setManualLoadCount] = useState(0);
     const messageContainerRef = useRef(null);
     const [faceoffPlayers, setFaceoffPlayers] = useState([]);
+ const [showBotPrompt, setShowBotPrompt] = useState(false);
+  const [botPromptRoom, setBotPromptRoom] = useState(null);
+
 
     const submitEntry = () => {
         if (!submission) return;
@@ -256,19 +260,37 @@ function buildThreadedMessages(flatMessages, searchTerm = "") {
   setChatInput("");
 };
 	
-useEffect(() => {
-  const handlePromptAddBots = ({ room }) => {
-    const wantsBots = window.confirm("You're the first one here. Want to play with bots?");
-    if (wantsBots) {
-      socket.emit("confirm_add_bots", room);
-    }
+ useEffect(() => {
+    const handlePrompt = ({ room }) => {
+      setBotPromptRoom(room);
+      setShowBotPrompt(true);
+    };
+
+    socket.on("prompt_add_bots", handlePrompt);
+    return () => socket.off("prompt_add_bots", handlePrompt);
+  }, []);
+
+  const handleBotConfirm = (botCount) => {
+    socket.emit("confirm_add_bots", { room: botPromptRoom, count: botCount });
+    setShowBotPrompt(false);
   };
 
-  socket.on("prompt_add_bots", handlePromptAddBots);
-  return () => {
-    socket.off("prompt_add_bots", handlePromptAddBots);
+  const handleBotCancel = () => {
+    setShowBotPrompt(false);
   };
-}, []);
+
+  return (
+    <>
+      <BotPromptModal
+        open={showBotPrompt}
+        onConfirm={handleBotConfirm}
+        onCancel={handleBotCancel}
+      />
+
+      {/* Your existing App content */}
+      <MainView />
+    </>
+  );
 
 	
 useEffect(() => {
