@@ -1258,9 +1258,9 @@ if (profileView === "profile") {
   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
     {ROOMS.map(({ name, type, displayName }) => {
   const stats = roomStats[name];
-  const totalPlayers = stats?.players || 0;
-  const botCount = stats?.botCount ?? 0; // fallback to 0 if not sent
-  const realCount = totalPlayers - botCount;
+  const usernames = stats?.usernames || [];
+  const botCount = usernames.filter((u) => u.startsWith(`${name}-bot`)).length;
+  const realCount = usernames.length - botCount;
   const roundNum = stats?.round ?? "-";
   const availableSpots = Math.max(10 - realCount, 0);
   const isFull = realCount >= 10;
@@ -1294,6 +1294,7 @@ if (profileView === "profile") {
     </div>
   );
 })}
+
 
 
   </div>
