@@ -596,20 +596,6 @@ const nextRoundSound = useRef(null);
   nextRoundSound.current = new Audio("/nextround.mp3");
 }, []);
 
-useEffect(() => {
-  const handlePhase = (phase) => {
-    console.log("📥 Received phase:", phase);
-    if (phase === "submit" || phase === "faceoff_submit") {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 50); // slight delay to ensure render
-    }
-  };
-
-  socket.on("phase", handlePhase);
-  return () => socket.off("phase", handlePhase);
-}, []);
-
 
 const submitSound = useRef(null);
 
@@ -653,6 +639,10 @@ useEffect(() => {
   setAcronymReady(false);
   setOverlayText("Get Ready!");
   setShowOverlay(true);
+setTimeout(() => {
+inputRef.current?.focus();
+inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+}, 50);
 
   if (nextRoundSound.current) {
     nextRoundSound.current.currentTime = 0;
