@@ -51,6 +51,3 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
   );
 }
 
-}
-
-
