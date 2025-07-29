@@ -1455,10 +1455,11 @@ if (profileView === "profile") {
     return (
   <>
 	{showFindingBots && (
-		  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 text-white text-xl font-bold">
-		    🧠 Finding Bots...
-		  </div>
-		)}
+  <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black bg-opacity-70 text-white">
+    <div className="w-12 h-12 mb-4 border-4 border-t-transparent border-white rounded-full animate-spin"></div>
+    <div className="text-xl font-bold">Finding Bots...</div>
+  </div>
+)}
     {showOverlay && (
       <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
         <div className="text-4xl md:text-5xl font-extrabold text-red-500 drop-shadow-[0_0_5px_orange]">
