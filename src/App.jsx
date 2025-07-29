@@ -1257,36 +1257,46 @@ if (profileView === "profile") {
   <h2 className="text-xl font-semibold mb-4">Select a Room</h2>
   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
     {ROOMS.map(({ name, type, displayName }) => {
-      const stats = roomStats[name];
-      const playerCount = stats?.players || 0;
-      const roundNum = stats?.round ?? "-";
-      const isFull = playerCount >= 10;
+  const stats = roomStats[name];
+  const usernames = stats?.usernames || []; // assumes your server sends usernames list
+  const roundNum = stats?.round ?? "-";
 
-      return (
-        <div
-          key={name}
-          className={`rounded p-3 border transition duration-200 ${
-            isFull
-              ? "bg-gray-700 border-gray-600 text-gray-400 cursor-not-allowed"
-              : "bg-gray-900 hover:bg-blue-800 border-blue-700 cursor-pointer"
-          }`}
-          onClick={() => !isFull && joinRoom(name)}
+  // Separate real players and bots
+  const botCount = usernames.filter((u) => u.startsWith(`${name}-bot`)).length;
+  const realCount = usernames.length - botCount;
+  const availableSpots = Math.max(10 - realCount, 0);
+  const isFull = realCount >= 10;
+
+  return (
+    <div
+      key={name}
+      className={`rounded p-3 border transition duration-200 ${
+        isFull
+          ? "bg-gray-700 border-gray-600 text-gray-400 cursor-not-allowed"
+          : "bg-gray-900 hover:bg-blue-800 border-blue-700 cursor-pointer"
+      }`}
+      onClick={() => !isFull && joinRoom(name)}
+    >
+      <div className="font-bold text-lg">{displayName}</div>
+      <div className="text-sm">
+        👤 Real Players: {realCount}<br />
+        🤖 Bots: {botCount}<br />
+        🎮 Available Spots: {availableSpots}<br />
+        🔁 Round: {roundNum}<br />
+        <span
+          className={`text-xs mt-1 inline-block px-1 rounded 
+            ${type === "clean" ? "bg-green-700 text-white" : "bg-red-700 text-white"}`}
         >
-          <div className="font-bold text-lg">{displayName}</div>
-          <div className="text-sm">
-            Players: {playerCount}<br />
-            Round: {roundNum}<br />
-            <span className={`text-xs mt-1 inline-block px-1 rounded 
-              ${type === "clean" ? "bg-green-700 text-white" : "bg-red-700 text-white"}`}>
-              {type === "clean" ? "Clean" : "Uncensored"}
-            </span>
-          </div>
-          {isFull && (
-            <div className="text-xs text-red-400 mt-1">Room Full</div>
-          )}
-        </div>
-      );
-    })}
+          {type === "clean" ? "Clean" : "Uncensored"}
+        </span>
+      </div>
+      {isFull && (
+        <div className="text-xs text-red-400 mt-1">Room Full</div>
+      )}
+    </div>
+  );
+})}
+
   </div>
 </div>
 
