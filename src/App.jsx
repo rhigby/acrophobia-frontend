@@ -1469,7 +1469,7 @@ if (profileView === "profile") {
 
     return (
   <>
-	{showFindingBots && (
+	{botsRequested && showFindingBots && (
   <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black bg-opacity-70 text-white">
     <div className="w-12 h-12 mb-4 border-4 border-t-transparent border-white rounded-full animate-spin"></div>
     <div className="text-xl font-bold">Finding Bots...</div>
