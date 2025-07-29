@@ -549,7 +549,6 @@ const resetGameState = () => {
   setCountdown(null);
   setRound(0);
   setHighlighted({});
-setScores(null);
 };
 
     
