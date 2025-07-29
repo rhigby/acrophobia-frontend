@@ -1258,12 +1258,10 @@ if (profileView === "profile") {
   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
     {ROOMS.map(({ name, type, displayName }) => {
   const stats = roomStats[name];
-  const usernames = stats?.usernames || []; // assumes your server sends usernames list
+  const totalPlayers = stats?.players || 0;
+  const botCount = stats?.botCount ?? 0; // fallback to 0 if not sent
+  const realCount = totalPlayers - botCount;
   const roundNum = stats?.round ?? "-";
-
-  // Separate real players and bots
-  const botCount = usernames.filter((u) => u.startsWith(`${name}-bot`)).length;
-  const realCount = usernames.length - botCount;
   const availableSpots = Math.max(10 - realCount, 0);
   const isFull = realCount >= 10;
 
@@ -1281,7 +1279,7 @@ if (profileView === "profile") {
       <div className="text-sm">
         👤 Real Players: {realCount}<br />
         🤖 Bots: {botCount}<br />
-        🎮 Available Spots: {availableSpots}<br />
+        ✅ Available Spots: {availableSpots}<br />
         🔁 Round: {roundNum}<br />
         <span
           className={`text-xs mt-1 inline-block px-1 rounded 
@@ -1296,6 +1294,7 @@ if (profileView === "profile") {
     </div>
   );
 })}
+
 
   </div>
 </div>
