@@ -255,6 +255,23 @@ function buildThreadedMessages(flatMessages, searchTerm = "") {
 
   setChatInput("");
 };
+	
+useEffect(() => {
+    const handlePrompt = () => {
+      const wantsBots = confirm("You're the first player here. Would you like to play with bots?");
+      if (wantsBots) {
+        socket.emit("confirm_add_bots", currentRoomName);
+      }
+    };
+
+    socket.on("prompt_add_bots", handlePrompt);
+
+    // ✅ Cleanup listener on unmount
+    return () => {
+      socket.off("prompt_add_bots", handlePrompt);
+    };
+  }, [currentRoomName]);
+	
 useEffect(() => {
   socket.on("faceoff_players", setFaceoffPlayers);
   return () => socket.off("faceoff_players");
