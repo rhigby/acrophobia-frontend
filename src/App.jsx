@@ -289,7 +289,9 @@ function buildThreadedMessages(flatMessages, searchTerm = "") {
 
   const handleBotConfirm = (botCount) => {
     socket.emit("confirm_add_bots", { room: botPromptRoom, count: botCount });
-    setShowBotPrompt(false);
+	setBotsRequested(true);        // ✅ Add this
+	setShowFindingBots(true);      // ✅ And this
+ 	 setShowBotPrompt(false);       // close the modal
   };
 
   const handleBotCancel = () => {
