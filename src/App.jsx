@@ -257,20 +257,19 @@ function buildThreadedMessages(flatMessages, searchTerm = "") {
 };
 	
 useEffect(() => {
-    const handlePrompt = () => {
-      const wantsBots = confirm("You're the first player here. Would you like to play with bots?");
-      if (wantsBots) {
-        socket.emit("confirm_add_bots", currentRoomName);
-      }
-    };
+  const handlePromptAddBots = ({ room }) => {
+    const wantsBots = window.confirm("You're the first one here. Want to play with bots?");
+    if (wantsBots) {
+      socket.emit("confirm_add_bots", room);
+    }
+  };
 
-    socket.on("prompt_add_bots", handlePrompt);
+  socket.on("prompt_add_bots", handlePromptAddBots);
+  return () => {
+    socket.off("prompt_add_bots", handlePromptAddBots);
+  };
+}, []);
 
-    // ✅ Cleanup listener on unmount
-    return () => {
-      socket.off("prompt_add_bots", handlePrompt);
-    };
-  }, [currentRoomName]);
 	
 useEffect(() => {
   socket.on("faceoff_players", setFaceoffPlayers);
