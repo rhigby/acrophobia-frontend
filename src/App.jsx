@@ -124,7 +124,6 @@ export default function App() {
  	const [showBotPrompt, setShowBotPrompt] = useState(false);
   	const [botPromptRoom, setBotPromptRoom] = useState(null);
 	const [botCount, setBotCount] = useState(0);
-	const [players, setPlayers] = useState([]);
 	const [showFindingBots, setShowFindingBots] = useState(true);
 
 
