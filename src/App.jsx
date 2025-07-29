@@ -619,7 +619,17 @@ useEffect(() => {
   };
 }, []);
 
+useEffect(() => {
+  const inputIsEnabled = acronymReady && !submittedEntry;
 
+  if (inputIsEnabled && phase === "submit") {
+    // Defer to the next paint cycle
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
+}, [acronymReady, submittedEntry, phase]);
 
     useEffect(() => {
   const letterSound = new Audio("/letters.wav");
@@ -639,10 +649,6 @@ useEffect(() => {
   setAcronymReady(false);
   setOverlayText("Get Ready!");
   setShowOverlay(true);
-requestAnimationFrame(() => {
-  inputRef.current?.focus();
-  inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-});
   if (nextRoundSound.current) {
     nextRoundSound.current.currentTime = 0;
     nextRoundSound.current.play().catch((e) => {
