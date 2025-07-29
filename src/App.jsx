@@ -412,6 +412,26 @@ useEffect(() => {
 
   return () => socket.off("new_message");
 }, []);
+
+	useEffect(() => {
+  const handleRoomList = (data) => {
+    console.log("📥 Received room_list:", data);
+
+    // ✅ Defensive check to avoid wiping roomStats with empty/malformed data
+    if (data && typeof data === "object" && Object.keys(data).length > 0) {
+      setRoomStats(data);
+    } else {
+      console.warn("⚠️ room_list was empty or invalid. Skipping update.");
+    }
+  };
+
+  socket.on("room_list", handleRoomList);
+
+  return () => {
+    socket.off("room_list", handleRoomList);
+  };
+}, []);
+
     
     useEffect(() => {
   const handleFinalFaceoff = (scores) => {
