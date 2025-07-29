@@ -16,16 +16,16 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
     <Dialog open={open} onOpenChange={onCancel}>
       <DialogContent className="mb-6 p-4 rounded border border-blue-800 bg-blue-900/50 shadow-inner">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-amberAccent-800">
+          <DialogTitle className="text-lg font-semibold text-amberAccent">
             You're the first one here!
           </DialogTitle>
         </DialogHeader>
 
         <div className="py-4 space-y-3">
-           <p className="text-md text-amberAccent-700">
+           <p className="text-md text-amberAccent">
              Would you like to play with bots?
              </p>
-          <p className="text-sm text-amberAccent-700">
+          <p className="text-sm text-amberAccent">
             If yes, how many bots would you like to play against?
           </p>
           <Slider
@@ -35,7 +35,7 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
             defaultValue={[5]}
             onValueChange={(val) => setCount(val[0])}
           />
-          <p className="text-sm text-gray-600">Selected: {count}</p>
+          <p className="text-sm text-amberAccent">Selected: {count}</p>
         </div>
 
         <DialogFooter className="flex justify-end gap-2">
