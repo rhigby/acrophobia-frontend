@@ -642,7 +642,7 @@ useEffect(() => {
 setTimeout(() => {
 inputRef.current?.focus();
 inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-}, 50);
+}, 200);
 
   if (nextRoundSound.current) {
     nextRoundSound.current.currentTime = 0;
