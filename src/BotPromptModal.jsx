@@ -1,34 +1,44 @@
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { useState } from "react";
 
 export default function BotPromptModal({ open, onConfirm, onCancel }) {
-  const [botCount, setBotCount] = useState(3);
+  const [count, setCount] = useState(5);
 
   return (
-    <Dialog open={open} onOpenChange={(val) => !val && onCancel()}>
-      <DialogContent>
-         <DialogHeader>
-          <DialogTitle>Select number of bots</DialogTitle>
+    <Dialog open={open} onOpenChange={onCancel}>
+      <DialogContent className="bg-gray-900 text-white border border-gray-700 shadow-2xl max-w-md rounded-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-bold">Want to play with bots?</DialogTitle>
         </DialogHeader>
-        <h2 className="text-xl font-semibold mb-2">Play With Bots?</h2>
-        <p className="mb-4">You're the first one here. Do you want to add bots to play against?</p>
 
-        <label className="font-medium block mb-1">Number of Bots: {botCount}</label>
-        <Slider
-          min={3}
-          max={7}
-          value={[botCount]}
-          onValueChange={(val) => setBotCount(val[0])}
-          className="mb-4"
-        />
-
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onCancel}>No Thanks</Button>
-          <Button onClick={() => onConfirm(botCount)}>Add Bots</Button>
+        <div className="py-4 space-y-2">
+          <p className="text-sm text-gray-300">How many bots would you like to play against?</p>
+          <Slider
+            min={3}
+            max={7}
+            step={1}
+            defaultValue={[5]}
+            onValueChange={(val) => setCount(val[0])}
+          />
+          <p className="text-sm text-gray-400">Selected: {count}</p>
         </div>
+
+        <DialogFooter className="flex justify-end gap-2">
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button onClick={() => onConfirm(count)}>Add Bots</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+
