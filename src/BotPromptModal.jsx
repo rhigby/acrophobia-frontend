@@ -17,7 +17,7 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
       <DialogContent className="bg-blue-50 text-gray-900 border border-blue-200 shadow-lg max-w-md rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-blue-800">
-            You're the first one here! Play with bots?
+            You're the first one here!
           </DialogTitle>
         </DialogHeader>
 
