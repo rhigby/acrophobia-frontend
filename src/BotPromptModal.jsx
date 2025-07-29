@@ -9,6 +9,9 @@ export default function BotPromptModal({ open, onConfirm, onCancel }) {
   return (
     <Dialog open={open} onOpenChange={(val) => !val && onCancel()}>
       <DialogContent>
+         <DialogHeader>
+          <DialogTitle>Select number of bots</DialogTitle>
+        </DialogHeader>
         <h2 className="text-xl font-semibold mb-2">Play With Bots?</h2>
         <p className="mb-4">You're the first one here. Do you want to add bots to play against?</p>
 
