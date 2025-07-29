@@ -177,11 +177,16 @@ export default function App() {
         setError(null);
     };
 	const handleConfirmBots = (botCount) => {
-	  socket.emit("request_bots", { room: roomId, count: botCount });
-	  setBotsRequested(true);
-	  setShowFindingBots(true);
-	  setShowBotPrompt(false); // close modal
-	};
+		  if (!room) {
+		    console.error("❌ Room is not set yet!");
+		    return;
+		  }
+		
+		  socket.emit("request_bots", { room, count: botCount }); // ✅ use state-based room
+		  setBotsRequested(true);
+		  setShowFindingBots(true);
+		  setShowBotPrompt(false);
+		};
 	
 	const handleCancelBots = () => {
 	  setShowBotPrompt(false); // just close the modal
