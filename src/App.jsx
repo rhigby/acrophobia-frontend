@@ -396,7 +396,9 @@ useEffect(() => {
     socket.off("private_message_ack", handlePrivateMessage);
   };
 }, [username]);
-    
+
+
+	
 useEffect(() => {
     const BASE_API = "https://acrophobia-backend-2.onrender.com";
   const fetchMessages = async () => {
@@ -435,6 +437,19 @@ useEffect(() => {
   };
 }, []);
 
+useEffect(() => {
+  socket.on("room_stats", (stats) => {
+    setBotCount(stats.botCount);
+    setPlayers(stats.usernames);
+
+    // Hide overlay when 3 or more bots have joined
+    if (stats.botCount >= 3) {
+      setShowFindingBots(false);
+    }
+  });
+
+  return () => socket.off("room_stats");
+}, []);
     
     useEffect(() => {
   const handleFinalFaceoff = (scores) => {
