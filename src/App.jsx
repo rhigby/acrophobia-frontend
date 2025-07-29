@@ -125,6 +125,7 @@ export default function App() {
   	const [botPromptRoom, setBotPromptRoom] = useState(null);
 	const [botCount, setBotCount] = useState(0);
 	const [showFindingBots, setShowFindingBots] = useState(true);
+	const [botsRequested, setBotsRequested] = useState(false);
 
 
 
@@ -746,7 +747,12 @@ useEffect(() => {
   };
 }, [username]);
 
+const handlePlayWithBots = () => {
+  setBotsRequested(true);       // triggers the overlay
+  setShowFindingBots(true);     // shows "Finding Bots..." UI
 
+  socket.emit("request_bots", { room: roomId }); // tell the server to spawn bots
+};
    const login = async () => {
   if (!username || !password) {
     setError("All fields required");
