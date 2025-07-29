@@ -1257,13 +1257,13 @@ if (profileView === "profile") {
   <h2 className="text-xl font-semibold mb-4">Select a Room</h2>
   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
     {ROOMS.map(({ name, type, displayName }) => {
-  const stats = roomStats[name];
-  const usernames = stats?.usernames || [];
-  const botCount = usernames.filter((u) => u.startsWith(`${name}-bot`)).length;
-  const realCount = usernames.length - botCount;
-  const roundNum = stats?.round ?? "-";
-  const availableSpots = Math.max(10 - realCount, 0);
-  const isFull = realCount >= 10;
+  const stats = roomStats[name] || {};
+  const usernames = stats.usernames || [];
+
+  const botCount = usernames.filter((u) => u.includes("-bot")).length;
+  const realPlayerCount = usernames.length - botCount;
+  const availableSpots = 10 - realPlayerCount;
+  const isFull = realPlayerCount >= 10;
 
   return (
     <div
@@ -1277,14 +1277,12 @@ if (profileView === "profile") {
     >
       <div className="font-bold text-lg">{displayName}</div>
       <div className="text-sm">
-        👤 Real Players: {realCount}<br />
-        🤖 Bots: {botCount}<br />
-        ✅ Available Spots: {availableSpots}<br />
-        🔁 Round: {roundNum}<br />
-        <span
-          className={`text-xs mt-1 inline-block px-1 rounded 
-            ${type === "clean" ? "bg-green-700 text-white" : "bg-red-700 text-white"}`}
-        >
+        Real Players: {realPlayerCount}<br />
+        Bots: {botCount}<br />
+        Available Spots: {availableSpots}<br />
+        Round: {stats.round ?? "-"}<br />
+        <span className={`text-xs mt-1 inline-block px-1 rounded 
+          ${type === "clean" ? "bg-green-700 text-white" : "bg-red-700 text-white"}`}>
           {type === "clean" ? "Clean" : "Uncensored"}
         </span>
       </div>
@@ -1294,6 +1292,7 @@ if (profileView === "profile") {
     </div>
   );
 })}
+
 
 
 
