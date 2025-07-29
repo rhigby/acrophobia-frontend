@@ -438,56 +438,37 @@ useEffect(() => {
   const handleRoomList = (data) => {
     console.log("📥 Received room_list:", data);
 
-    // ✅ Defensive check to avoid wiping roomStats with empty/malformed data
     if (data && typeof data === "object" && Object.keys(data).length > 0) {
       setRoomStats(data);
+
+      const thisRoom = data[roomId];
+      if (
+        botsRequested &&
+        thisRoom &&
+        (thisRoom.botCount >= 3 || thisRoom.usernames?.some(name => name.includes("-bot")))
+      ) {
+        console.log("✅ Bots loaded, hiding overlay");
+        setShowFindingBots(false);
+      }
     } else {
       console.warn("⚠️ room_list was empty or invalid. Skipping update.");
     }
   };
 
   socket.on("room_list", handleRoomList);
+  return () => socket.off("room_list", handleRoomList);
+}, [roomId, botsRequested]);
 
-  return () => {
-    socket.off("room_list", handleRoomList);
-  };
-}, []);
 
-useEffect(() => {
-  const handleRoomStats = (stats) => {
-    console.log("📥 Received room_stats:", stats);
 
-    if (botsRequested && (stats.botCount >= 3 || stats.usernames?.some(name => name.includes("-bot")))) {
-      console.log("✅ Hiding bot overlay");
-      setShowFindingBots(false);
-    }
-  };
-
-  socket.on("room_stats", handleRoomStats);
-  return () => socket.off("room_stats", handleRoomStats);
-}, [botsRequested]);
-
-useEffect(() => {
-  const anyEventLogger = (...args) => {
-    console.log("📡 Global event received:", args);
-  };
-  socket.onAny(anyEventLogger);
-  return () => socket.offAny(anyEventLogger);
-}, []);
+// useEffect(() => {
+//   const anyEventLogger = (...args) => {
+//     console.log("📡 Global event received:", args);
+//   };
+//   socket.onAny(anyEventLogger);
+//   return () => socket.offAny(anyEventLogger);
+// }, []);
 	
-useEffect(() => {
-  socket.on("room_stats", (stats) => {
-    setBotCount(stats.botCount);
-    setPlayers(stats.usernames);
-
-    // Hide overlay when 3 or more bots have joined
-    if (stats.botCount >= 3) {
-      setShowFindingBots(false);
-    }
-  });
-
-  return () => socket.off("room_stats");
-}, []);
     
     useEffect(() => {
   const handleFinalFaceoff = (scores) => {
