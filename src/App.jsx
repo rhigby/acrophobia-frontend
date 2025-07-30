@@ -1706,24 +1706,32 @@ if (profileView === "profile") {
           <div className="border-t border-blue-800 p-4 bg-blue-950 w-full z-10">
             <div className="h-40 overflow-y-auto bg-black border border-blue-700 rounded p-2 text-sm mb-2">
               {chatMessages.map((msg, i) => (
-                  <div
-                    key={i}
-                    className={`flex flex-wrap items-start break-words ${
-                      msg.private ? "text-pink-300" : "text-blue-200"
-                    }`}
-                  >
-                    <span className="font-bold mr-1">
-                      {msg.private ? (
-                        <span className="italic">
-                          (Private) {msg.username}:
-                        </span>
-                      ) : (
-                        <span className="text-blue-400">{msg.username}:</span>
-                      )}
-                    </span>
-                    <span>{msg.text}</span>
-                  </div>
-                ))}
+		  <div
+		    key={i}
+		    className={`flex flex-wrap items-start break-words ${
+		      msg.private
+		        ? "text-red-300"
+		        : msg.isBot
+		        ? "text-green-300"
+		        : "text-blue-200"
+		    }`}
+		  >
+		    <span className="font-bold mr-1">
+		      {msg.private ? (
+		        <span className="italic">
+		          (Private) {msg.username}:
+		        </span>
+		      ) : (
+		        <span className={msg.isBot ? "text-green-400" : "text-blue-400"}>
+		          {msg.isBot ? "🤖 " : ""}
+		          {msg.username}:
+		        </span>
+		      )}
+		    </span>
+		    <span>{msg.text}</span>
+		  </div>
+		))}
+
 
               <div ref={chatEndRef}></div>
             </div>
